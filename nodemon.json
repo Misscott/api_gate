@@ -1,0 +1,7 @@
+{
+	"watch": ["src"],
+	"ignore": ["dist/"],
+	"ext": "js,json",
+	"exec": "npm run dev:build && node ./src/index.js",
+	"signal": "SIGTERM"
+}

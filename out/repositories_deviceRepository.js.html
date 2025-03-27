@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: repositories/deviceRepository.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: repositories/deviceRepository.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {pagination} from "../utils/pagination.js"
+
+/**
+ * Generic select query that may or may not include counting rows
+ * @param {Object} _pagination 
+ * @param {Object} count If true, query is of type SELECT COUNT
+ * @param {Object} rest Rest of params involved on query 
+ * @returns {String} SELECT query
+ */
+const _deviceSelectQuery = (_pagination = '') => 
+    ({count}) => 
+        ({uuid, serial_number, model, brand, description, stock}) => {
+            const uuidCondition = uuid ? 'AND uuid = :uuid ' : ''
+            const serial_numberCondition = serial_number ? 'AND serial_number = :serial_number ' : ''
+            const modelCondition = model ? 'AND model = :model ' : ''
+            const brandCondition = brand ? 'AND brand = :brand ' : ''
+            const descriptionCondition = description ?'AND description = :description ' : ''
+            const stockCondition = stock ? 'AND stock = :stock ' : ''
+            return `
+                SELECT
+                    ${count || '*'}
+                FROM
+                    mydb.devices
+                WHERE
+                    true
+                    ${uuidCondition}
+                    ${serial_numberCondition}
+                    ${modelCondition}
+                    ${brandCondition}
+                    ${descriptionCondition}
+                    ${stockCondition}
+            `
+}
+
+/**
+ * Uses generic select query to return a simple query
+ * @returns {String} simple select query
+ */
+const getDeviceQuery = ({limit, page, ...rest}) => _deviceSelectQuery(pagination({limit, page}))({count: false})(rest)
+/**
+ * Uses generic select query to return a select count type of query
+ * @returns {String} SELECT COUNT(*) query
+ */
+const countDeviceQuery = rest => _deviceSelectQuery()({count: 'COUNT(*) AS count'})(rest)
+
+/**
+ * Insert query using parameters passed in request
+ * @returns {String} INSERT query
+ */
+const insertDeviceQuery = () => `
+    INSERT INTO mydb.devices (
+        uuid, 
+        serial_number, 
+        model, 
+        brand, 
+        description, 
+        stock
+    )
+    VALUES (
+        :uuid, 
+        :serial_number,
+        :model, 
+        :brand, 
+        :description, 
+        :stock
+    );
+
+    SELECT * FROM mydb.devices WHERE uuid = :uuid;
+`;
+
+/**
+ * @param {Object} params All params involved in query to be modified in certain object matching uuid passed as req param 
+ * @returns {String} UPDATE query
+ */
+const modifyDeviceQuery = ({serial_number, model, brand, description, stock}) => {
+    const serial_numberCondition = serial_number ? 'serial_number = :serial_number, ' : ''
+    const modelCondition = model ? 'model = :model, ' : ''
+    const brandCondition = brand ? 'brand = :brand, ' : ''
+    const descriptionCondition = description ? 'description = :description, ' : ''
+    const stockCondition = stock ? 'stock = :stock, ' : ''
+
+    return `
+        UPDATE 
+            mydb.devices
+        SET 
+        ${serial_numberCondition}
+        ${modelCondition}
+        ${brandCondition}
+        ${descriptionCondition}
+        ${stockCondition}
+        uuid = :uuid
+        WHERE 
+            devices.uuid = :uuid;
+        SELECT mydb.devices.*
+        FROM mydb.devices
+        WHERE devices.uuid = :uuid
+    `
+}
+
+/**
+ * @returns {String} DELETE query
+ */
+const deleteDeviceQuery = () => {
+    return `
+        DELETE FROM mydb.devices
+        WHERE devices.uuid = :uuid
+    `
+}
+
+export {countDeviceQuery, getDeviceQuery, insertDeviceQuery, modifyDeviceQuery, deleteDeviceQuery}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="deviceRouter.html">deviceRouter</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_deviceSelectQuery">_deviceSelectQuery</a></li><li><a href="global.html#countDeviceModel">countDeviceModel</a></li><li><a href="global.html#countDeviceQuery">countDeviceQuery</a></li><li><a href="global.html#default">default</a></li><li><a href="global.html#deleteDeviceController">deleteDeviceController</a></li><li><a href="global.html#deleteDeviceModel">deleteDeviceModel</a></li><li><a href="global.html#deleteDeviceQuery">deleteDeviceQuery</a></li><li><a href="global.html#getDeviceByFieldController">getDeviceByFieldController</a></li><li><a href="global.html#getDeviceController">getDeviceController</a></li><li><a href="global.html#getDeviceModel">getDeviceModel</a></li><li><a href="global.html#getDeviceQuery">getDeviceQuery</a></li><li><a href="global.html#getDeviceswithMinimumStockController">getDeviceswithMinimumStockController</a></li><li><a href="global.html#indexController">indexController</a></li><li><a href="global.html#insertDeviceModel">insertDeviceModel</a></li><li><a href="global.html#insertDeviceQuery">insertDeviceQuery</a></li><li><a href="global.html#modifyDeviceModel">modifyDeviceModel</a></li><li><a href="global.html#modifyDeviceQuery">modifyDeviceQuery</a></li><li><a href="global.html#postDeviceController">postDeviceController</a></li><li><a href="global.html#putDeviceController">putDeviceController</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Mar 27 2025 10:38:06 GMT+0100 (hora estándar de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

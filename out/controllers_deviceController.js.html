@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/deviceController.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/deviceController.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import mysql from '../adapters/mysql.js'
+import {
+    countDeviceModel,
+    getDeviceModel,
+    insertDeviceModel,
+    modifyDeviceModel,
+    deleteDeviceModel
+} from '../models/deviceModel.js'
+import {error404, errorHandler} from '../utils/errors.js'
+import { sendResponseNotFound } from '../utils/responses.js'
+import {noResults} from '../validators/result-validators.js'
+import {filterByStock} from '../validators/filters.js'
+
+/**
+ * Controller request for selecting all devices from database
+ * @param {Object} req request object to endpoint
+ * @param {Object} res result object to handle response
+ * @param {Function} next middleware to communicate with next logic layer
+ * @param {Object} config environment configuration
+ */
+const getDeviceController = (req, res, next, config) => {
+    const conn = mysql.start(config)
+
+    Promise.all([
+        getDeviceModel({...req.query, conn}),
+        countDeviceModel({...req.query, conn})
+    ])    
+        .then(([getResults]) =>
+            next({
+                _data: {devices: getResults}
+            })
+        )
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+}
+
+/**
+ * Gets devices based on a minimum stock from request params
+ * @param {Integer} minStock 
+ * @returns {errorHandler} if there are no results, error 404 for not found
+ */
+const getDeviceswithMinimumStockController = (minStock) => (req, res, next, config) => {
+    const conn = mysql.start(config)
+
+    getDeviceModel({conn})
+        .then((device) => {
+            if(noResults(device)){
+                const err = error404
+                const error = errorHandler(err, config.environment)
+                return sendResponseNotFound(res, error)
+            }
+
+            const filteredDevices = filterByStock(device, minStock, Number.MAX_VALUE)
+            const result = {
+                _data : {filteredDevices}
+            }
+
+            next(result)
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+}
+
+/**
+ * Generic controller request for selecting device/s from a certain parameter
+ * @param {String} field param from request to be used for call
+ */
+const getDeviceByFieldController = (field) => (req, res, next, config) => {
+    const conn = mysql.start(config)
+    const fieldValue = req.params[field]
+
+    getDeviceModel({fieldValue, conn})
+        .then((device) => {
+            if(noResults(device)){
+                const err = error404
+                const error = errorHandler(err, config.environment)
+                return sendResponseNotFound(res, error)
+            }
+
+            const result = {
+                _data : {device}
+            }
+
+            next(result)
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+}
+
+/**
+ * Controller request for inserting device 
+ * @param {Object} req request object to endpoint
+ * @param {Object} res result object to handle response
+ * @param {Function} next middleware to communicate with next logic layer
+ * @param {Object} config environment configuration
+ */
+const postDeviceController = (req, res, next, config) => {
+    const conn = mysql.start(config)
+    
+    insertDeviceModel({...req.body, conn})
+        .then((device) => {
+            const result = {
+                _data: device
+            }
+            next(result)
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+}
+
+/**
+ * Controller request for modifying device
+ * @param {Object} req request object to endpoint
+ * @param {Object} res result object to handle response
+ * @param {Function} next middleware to communicate with next logic layer
+ * @param {Object} config environment configuration
+ */
+const putDeviceController = (req, res, next, config) => {
+    const conn = mysql.start(config)
+    const uuid = req.params.uuid
+    
+    modifyDeviceModel({...req.body, uuid, conn})
+        .then((devices) => {
+            if (noResults(devices)){
+                const err = error404()
+                const error = errorHandler(err, config.environment)
+                return sendResponseNotFound(res, error)
+            }
+
+            const result = {
+				_data: { devices }
+			}
+			next(result)
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+}
+
+/**
+ * Controller for deleting device 
+ * @param {Object} req request object to endpoint
+ * @param {Object} res result object to handle response
+ * @param {Function} next middleware to communicate with next logic layer
+ * @param {Object} config environment configuration
+ */
+const deleteDeviceController = (req, res, next, config) => {
+    const conn = mysql.start(config)
+    const uuid = req.params.uuid
+
+    deleteDeviceModel({uuid, conn})
+        .then(() => {
+            const result = {message: "Device deleted successfully"}
+            next(result)
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+}
+
+const getDeviceByUuidController = getDeviceByFieldController('uuid')
+const getDeviceBySerialNumberController = getDeviceByFieldController('serial_number')
+const getDeviceByModelController = getDeviceByFieldController('model')
+const getDeviceByBrandController = getDeviceByFieldController('brand')
+
+export {
+    getDeviceController,
+    postDeviceController,
+    putDeviceController,
+    deleteDeviceController,
+    getDeviceByUuidController,
+    getDeviceBySerialNumberController,
+    getDeviceByBrandController,
+    getDeviceByModelController,
+    getDeviceswithMinimumStockController
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="deviceRouter.html">deviceRouter</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_deviceSelectQuery">_deviceSelectQuery</a></li><li><a href="global.html#countDeviceModel">countDeviceModel</a></li><li><a href="global.html#countDeviceQuery">countDeviceQuery</a></li><li><a href="global.html#default">default</a></li><li><a href="global.html#deleteDeviceController">deleteDeviceController</a></li><li><a href="global.html#deleteDeviceModel">deleteDeviceModel</a></li><li><a href="global.html#deleteDeviceQuery">deleteDeviceQuery</a></li><li><a href="global.html#getDeviceByFieldController">getDeviceByFieldController</a></li><li><a href="global.html#getDeviceController">getDeviceController</a></li><li><a href="global.html#getDeviceModel">getDeviceModel</a></li><li><a href="global.html#getDeviceQuery">getDeviceQuery</a></li><li><a href="global.html#getDeviceswithMinimumStockController">getDeviceswithMinimumStockController</a></li><li><a href="global.html#indexController">indexController</a></li><li><a href="global.html#insertDeviceModel">insertDeviceModel</a></li><li><a href="global.html#insertDeviceQuery">insertDeviceQuery</a></li><li><a href="global.html#modifyDeviceModel">modifyDeviceModel</a></li><li><a href="global.html#modifyDeviceQuery">modifyDeviceQuery</a></li><li><a href="global.html#postDeviceController">postDeviceController</a></li><li><a href="global.html#putDeviceController">putDeviceController</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Mar 27 2025 10:38:06 GMT+0100 (hora estándar de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
