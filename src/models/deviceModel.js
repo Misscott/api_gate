@@ -6,7 +6,7 @@ import {
     insertDeviceQuery,
     modifyDeviceQuery,
     deleteDeviceQuery
-} from '../repositories/deviceRepository.js'
+} from '../repositories/resource_types/deviceRepository.js'
 
 /**
  * select/get model for device

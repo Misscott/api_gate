@@ -1,4 +1,4 @@
-import {pagination} from "../utils/pagination.js"
+import {pagination} from "../../utils/pagination.js"
 
 /**
  * Generic select query that may or may not include counting rows
@@ -9,13 +9,14 @@ import {pagination} from "../utils/pagination.js"
  */
 const _deviceSelectQuery = (_pagination = '') => 
     ({count}) => 
-        ({uuid, serial_number, model, brand, description, stock}) => {
+        ({uuid, serial_number, model, brand, description, stock, user}) => {
             const uuidCondition = uuid ? 'AND uuid = :uuid ' : ''
             const serial_numberCondition = serial_number ? 'AND serial_number = :serial_number ' : ''
             const modelCondition = model ? 'AND model = :model ' : ''
             const brandCondition = brand ? 'AND brand = :brand ' : ''
             const descriptionCondition = description ?'AND description = :description ' : ''
             const stockCondition = stock ? 'AND stock = :stock ' : ''
+            const userCondition = user? 'AND user = :user' : ''
             return `
                 SELECT
                     ${count || '*'}
@@ -29,6 +30,7 @@ const _deviceSelectQuery = (_pagination = '') =>
                     ${brandCondition}
                     ${descriptionCondition}
                     ${stockCondition}
+                    ${userCondition}
             `
 }
 
@@ -47,26 +49,35 @@ const countDeviceQuery = rest => _deviceSelectQuery()({count: 'COUNT(*) AS count
  * Insert query using parameters passed in request
  * @returns {String} INSERT query
  */
-const insertDeviceQuery = () => `
+const insertDeviceQuery = () =>{
+    const descriptionCondition = description ?'AND description = :description ' : null
+    return `
     INSERT INTO mydb.devices (
         uuid, 
         serial_number, 
         model, 
         brand, 
         description, 
-        stock
+        stock,
+        fk_user,
+        created,
+        createdBy
     )
     VALUES (
         :uuid, 
         :serial_number,
         :model, 
         :brand, 
-        :description, 
-        :stock
+        ${descriptionCondition}, 
+        :stock,
+        :user,
+        :now,
+        :createdBy
     );
 
     SELECT * FROM mydb.devices WHERE uuid = :uuid;
-`;
+    `
+};
 
 /**
  * @param {Object} params All params involved in query to be modified in certain object matching uuid passed as req param 
@@ -89,6 +100,7 @@ const modifyDeviceQuery = ({serial_number, model, brand, description, stock}) =>
         ${descriptionCondition}
         ${stockCondition}
         uuid = :uuid
+        fk_user = :fk_user
         WHERE 
             devices.uuid = :uuid;
         SELECT mydb.devices.*
@@ -105,6 +117,22 @@ const deleteDeviceQuery = () => {
         DELETE FROM mydb.devices
         WHERE devices.uuid = :uuid
     `
+}
+
+/**
+ * 
+ * @returns {String} SOFT DELETE query
+ */
+const softDeleteDeviceQuery = () => {
+    return `
+    UPDATE
+        mydb.devices
+    SET
+        deleted = :deleted, deletedby = :deletedBy
+    WHERE
+        devices.uuid = :uuid
+    AND
+        deleted is null`
 }
 
 export {countDeviceQuery, getDeviceQuery, insertDeviceQuery, modifyDeviceQuery, deleteDeviceQuery}

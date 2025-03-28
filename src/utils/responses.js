@@ -23,6 +23,10 @@ const sendResponseUnauthorized = (res, err) => {
 	return res.status(401).json(err)
 }
 
+const sendResponseAccessDenied = (res, err) => {
+	return res.status(403).json(err)
+}
+
 const sendResponseNotFound = (res, err) => {
 	res.status(404).json(err)
 }
@@ -36,4 +40,4 @@ const sendUnprocessableEntityResponse = (res, environment, err = error422()) => 
 	res.status(422).json(error)
 }
 
-export { sendCreatedResponse, sendOkResponse, sendResponseBadRequest, sendResponseNoContent, sendResponseNotFound, sendResponseServerError, sendResponseUnauthorized, sendResponseUnprocessableEntity, sendUnprocessableEntityResponse }
+export { sendCreatedResponse, sendResponseAccessDenied, sendOkResponse, sendResponseBadRequest, sendResponseNoContent, sendResponseNotFound, sendResponseServerError, sendResponseUnauthorized, sendResponseUnprocessableEntity, sendUnprocessableEntityResponse }
