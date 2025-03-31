@@ -10,12 +10,11 @@ import { errorHandler } from '../../utils/errors'
 import { noResults } from '../../validators/result-validators'
 
 const getUsersHasDevicesController = (req, res, next, config) => {
-    const uuidList = req.query.uuidList && req.query.uuidList.split(',')
     const conn = mysql.start(config)
 
     Promise.all([
-        getUsersHasDevicesModel({...req.query, uuidList, conn}),
-        countUsersHasDevicesModel({...req.query, uuidList, conn})
+        getUsersHasDevicesModel({...req.query, conn}),
+        countUsersHasDevicesModel({...req.query, conn})
     ])
         .then(([getResults, countResults]) => {
             next({

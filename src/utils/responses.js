@@ -40,4 +40,10 @@ const sendUnprocessableEntityResponse = (res, environment, err = error422()) => 
 	res.status(422).json(error)
 }
 
-export { sendCreatedResponse, sendResponseAccessDenied, sendOkResponse, sendResponseBadRequest, sendResponseNoContent, sendResponseNotFound, sendResponseServerError, sendResponseUnauthorized, sendResponseUnprocessableEntity, sendUnprocessableEntityResponse }
+const sendLoginSuccessfullResponse = (result, req, res) => {
+	res.status(201).json(result)
+	const additionalDeviceInfo = result._data.user_device_description ? ` (${result._data.user_device_description})` : ''
+	console.warn(`User ${result._data.user.username}${additionalDeviceInfo} has logged in`)
+}
+
+export { sendLoginSuccessfullResponse, sendCreatedResponse, sendResponseAccessDenied, sendOkResponse, sendResponseBadRequest, sendResponseNoContent, sendResponseNotFound, sendResponseServerError, sendResponseUnauthorized, sendResponseUnprocessableEntity, sendUnprocessableEntityResponse }

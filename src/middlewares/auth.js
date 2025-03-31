@@ -1,5 +1,5 @@
 import { sendResponseAccessDenied } from '../utils/responses';
-import authService from '../services/authService';
+import { checkPermission, getDataFromToken } from '../services/authService';
 
 const obtainToken = (req, res) => {
     return new Promise((resolve, reject) => {
@@ -15,7 +15,7 @@ const obtainToken = (req, res) => {
 
 const authenticateToken = (req, res, next) => {
     obtainToken(req, res)
-        .then((token) => authService.getDataFromToken(token))
+        .then((token) => getDataFromToken(token))
         .then((decoded) => {
             req.auth = decoded;
             next();
@@ -37,7 +37,7 @@ const authorizePermission = (resourceType) => {
             const userId = req.auth.user.id;
             const action = req.method; // GET, POST, PUT, DELETE
 
-            authService.checkPermission(userId, action, resourceType)
+            checkPermission(userId, action, resourceType)
                 .then(({ hasPermission, user, role }) => {
                     if (!hasPermission) {
                         sendResponseAccessDenied(res, { 

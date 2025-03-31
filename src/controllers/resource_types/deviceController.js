@@ -111,8 +111,9 @@ const getDeviceByFieldController = (field) => (req, res, next, config) => {
  */
 const postDeviceController = (req, res, next, config) => {
     const conn = mysql.start(config)
+    const createdBy = req.headers['uuid-requester'] || null
     
-    insertDeviceModel({...req.body, conn})
+    insertDeviceModel({...req.body, createdBy, conn})
         .then((device) => {
             const result = {
                 _data: device

@@ -8,6 +8,7 @@ import { addLinks } from '../utils/links.js'
 import { linkRoutes } from '../index.js'
 import {
     sendCreatedResponse,
+	sendLoginSuccessfullResponse,
 	sendOkResponse,
     sendResponseNoContent,
 } from '../utils/responses.js'
@@ -15,6 +16,7 @@ import { integer, uuid, varChar} from '../validators/expressValidator/customVali
 import {payloadExpressValidator} from '../validators/expressValidator/payloadExpressValidator.js'
 import { error422, errorHandler } from '../utils/errors.js'
 import { authenticateToken } from '../validators/auth.js'
+import { authorizePermission } from '../middlewares/auth.js'
 
 /**
  * @function default 
@@ -45,7 +47,8 @@ export default(config) => {
     **/
     routes.post(
         '/devices',
-        authenticateToken
+        (req, res, next) => authenticateToken(req, res, next),
+        (req, res, next) => authorizePermission('devices')(req, res, next),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -130,6 +133,8 @@ export default(config) => {
     */
     routes.get(
         '/devices/inStock',
+        (req, res, next) => authenticateToken(req, res, next),
+        (req, res, next) => authorizePermission('devices')(req, res, next),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -221,6 +226,8 @@ export default(config) => {
     */
     routes.get(
         '/devices/serial_number/:serial_number',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('devices')(req, res, next),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -250,6 +257,8 @@ export default(config) => {
     */
     routes.get(
         '/devices/model/:model',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('devices')(req, res, next),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -279,6 +288,8 @@ export default(config) => {
     */
     routes.get(
         '/devices/brand/:brand',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('devices')(req, res, next),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -345,5 +356,146 @@ export default(config) => {
         (result, req, res, _) => sendResponseNoContent(result, req, res)
     )
 
-    return routes
+    routes.get(
+        '/users',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        getUserListController,
+        sendOkResponse
+    );
+
+    routes.get(
+        '/users/:uuid',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        getUserInfoController,
+        sendOkResponse
+    );
+
+    routes.post(
+        '/users',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        postUserController,
+        sendCreatedResponse
+    );
+
+    routes.put(
+        '/users/:uuid',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        putUserController,
+        sendCreatedResponse
+    );
+
+    routes.delete(
+        '/users/:uuid',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        softDeleteUserController,
+        sendResponseNoContent
+    );
+
+    // Role Endpoints
+    routes.get(
+        '/roles',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        getRoleController,
+        sendOkResponse
+    );
+
+    routes.get(
+        '/roles/:uuid',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        getRoleInfoController,
+        sendOkResponse
+    );
+
+    routes.post(
+        '/roles',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        postRoleController,
+        sendCreatedResponse
+    );
+
+    routes.put(
+        '/roles/:uuid',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        putRoleController,
+        sendCreatedResponse
+    );
+
+    routes.delete(
+        '/roles/:uuid',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        deleteRoleController,
+        sendResponseNoContent
+    );
+
+    // Permission Endpoints
+    routes.get(
+        '/permissions',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        getPermissionController,
+        sendOkResponse
+    );
+
+    routes.get(
+        '/permissions/:uuid',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        getPermissionByUuidController,
+        sendOkResponse
+    );
+
+    routes.post(
+        '/permissions',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        postPermissionController,
+        sendCreatedResponse
+    );
+
+    routes.put(
+        '/permissions/:uuid',
+        authenticateToken,
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        putPermissionController,
+        sendCreatedResponse
+    );
+
+    routes.delete(
+        '/permissions/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('permissions')(req, res, next),
+        [
+			uuid('uuid')
+		],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) =>softDeletePermissionController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendOkResponse(result, req, res)
+    );
+
+    // Login Endpoint
+    routes.post(
+        '/login',
+		[
+			varChar('username'),
+			varChar('password')
+		],
+		(req, res, next) => payloadExpressValidator(req, res, next, config),
+		(req, res, next) => postLoginController(req, res, next, config),
+		(result, req, res, next) => setToken(result, req, res, next, config),
+		(result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+		(result, req, res, next) => sendLoginSuccessfullResponse(result, req, res, next)
+    );
+
+    return routes;
 }
