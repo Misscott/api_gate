@@ -14,7 +14,7 @@ import {
 import { integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
 import {payloadExpressValidator} from '../validators/expressValidator/payloadExpressValidator.js'
 import { error422, errorHandler } from '../utils/errors.js'
-import { authenticateToken } from '../validators/token_validator.js'
+import { authenticateToken } from '../validators/auth.js'
 
 /**
  * @function default 

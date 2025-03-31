@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-03-2025 a las 15:57:25
+-- Tiempo de generación: 31-03-2025 a las 09:37:16
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -80,6 +80,7 @@ CREATE TABLE `roles` (
 --
 
 CREATE TABLE `roles_has_permissions` (
+  `id` bigint(20) NOT NULL,
   `fk_role` int(11) NOT NULL,
   `fk_permission` int(11) NOT NULL,
   `created` datetime NOT NULL DEFAULT current_timestamp(),
@@ -115,6 +116,7 @@ CREATE TABLE `users` (
 --
 
 CREATE TABLE `users_has_devices` (
+  `id` bigint(20) NOT NULL,
   `fk_device` bigint(20) NOT NULL,
   `fk_user` bigint(20) NOT NULL,
   `stock` int(11) NOT NULL,
@@ -155,7 +157,7 @@ ALTER TABLE `roles`
 -- Indices de la tabla `roles_has_permissions`
 --
 ALTER TABLE `roles_has_permissions`
-  ADD PRIMARY KEY (`fk_role`,`fk_permission`),
+  ADD PRIMARY KEY (`id`,`fk_role`,`fk_permission`),
   ADD UNIQUE KEY `uuid_UNIQUE` (`uuid`),
   ADD KEY `fk_roles_has_permissions_permissions1_idx` (`fk_permission`),
   ADD KEY `fk_roles_has_permissions_roles1_idx` (`fk_role`);
@@ -172,8 +174,9 @@ ALTER TABLE `users`
 -- Indices de la tabla `users_has_devices`
 --
 ALTER TABLE `users_has_devices`
-  ADD PRIMARY KEY (`fk_device`,`fk_user`),
+  ADD PRIMARY KEY (`id`,`fk_device`,`fk_user`),
   ADD UNIQUE KEY `uuid_UNIQUE` (`uuid`),
+  ADD UNIQUE KEY `id_UNIQUE` (`id`),
   ADD KEY `fk_devices_has_users_users1_idx` (`fk_user`),
   ADD KEY `fk_devices_has_users_devices1_idx` (`fk_device`);
 
@@ -200,9 +203,21 @@ ALTER TABLE `roles`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `roles_has_permissions`
+--
+ALTER TABLE `roles_has_permissions`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `users`
 --
 ALTER TABLE `users`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `users_has_devices`
+--
+ALTER TABLE `users_has_devices`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
