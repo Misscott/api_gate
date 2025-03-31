@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 31-03-2025 a las 09:37:16
+-- Tiempo de generación: 31-03-2025 a las 12:00:57
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -106,7 +106,9 @@ CREATE TABLE `users` (
   `created` datetime NOT NULL DEFAULT current_timestamp(),
   `createdBy` varchar(255) DEFAULT NULL,
   `deleted` datetime DEFAULT NULL,
-  `deletedBy` varchar(255) DEFAULT NULL
+  `deletedBy` varchar(255) DEFAULT NULL,
+  `status` varchar(45) DEFAULT NULL,
+  `lastLoginDate` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 -- --------------------------------------------------------

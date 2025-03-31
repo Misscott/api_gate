@@ -1,4 +1,4 @@
-import mysql from '../adapters/mysql.js'
+import mysql from '../../adapters/mysql.js'
 import {
     countDeviceModel,
     getDeviceModel,
@@ -6,10 +6,10 @@ import {
     modifyDeviceModel,
     deleteDeviceModel
 } from '../models/deviceModel.js'
-import {error404, errorHandler} from '../utils/errors.js'
-import { sendResponseNotFound } from '../utils/responses.js'
-import {noResults} from '../validators/result-validators.js'
-import {filterByStock} from '../validators/filters.js'
+import {error404, errorHandler} from '../../utils/errors.js'
+import { sendResponseNotFound } from '../../utils/responses.js'
+import {noResults} from '../../validators/result-validators.js'
+import {filterByStock} from '../../validators/filters.js'
 
 /**
  * Controller request for selecting all devices from database
