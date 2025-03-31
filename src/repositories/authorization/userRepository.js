@@ -11,6 +11,7 @@ const _userListSelectQuery = (_pagination = '') =>
     ({ count }) =>
       ({ uuid, username, loginUsername, uuidList, email, role }) => {
         const uuidCondition = uuid ? 'AND users.uuid = :uuid ' : '';
+        //for uuidList, we use IN clause to check if the uuid is in the list of uuids passed
         const uuidListCondition = uuidList ? 'AND users.uuid in(:uuidList)' : ''
 		    const loginUsernameCondition = loginUsername ? ' AND users.username = :loginUsername ' : ''
         const usernameCondition = username ? 'AND users.username LIKE CONCAT(\'%\',:username,\'%\')' : '';

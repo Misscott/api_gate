@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 31-03-2025 a las 12:00:57
+-- Tiempo de generación: 31-03-2025 a las 16:23:57
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -47,26 +47,10 @@ CREATE TABLE `devices` (
 --
 
 CREATE TABLE `permissions` (
-  `id` int(11) NOT NULL,
+  `id` bigint(20) NOT NULL,
   `uuid` varchar(255) NOT NULL,
   `action` enum('GET','POST','PUT','DELETE') NOT NULL,
   `resource_type` varchar(255) NOT NULL,
-  `created` datetime NOT NULL DEFAULT current_timestamp(),
-  `createdBy` varchar(255) DEFAULT NULL,
-  `deleted` datetime DEFAULT NULL,
-  `deletedBy` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `roles`
---
-
-CREATE TABLE `roles` (
-  `id` int(11) NOT NULL,
-  `uuid` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
   `created` datetime NOT NULL DEFAULT current_timestamp(),
   `createdBy` varchar(255) DEFAULT NULL,
   `deleted` datetime DEFAULT NULL,
@@ -81,8 +65,8 @@ CREATE TABLE `roles` (
 
 CREATE TABLE `roles_has_permissions` (
   `id` bigint(20) NOT NULL,
-  `fk_role` int(11) NOT NULL,
-  `fk_permission` int(11) NOT NULL,
+  `fk_role` bigint(20) NOT NULL,
+  `fk_permission` bigint(20) NOT NULL,
   `created` datetime NOT NULL DEFAULT current_timestamp(),
   `createdBy` varchar(255) DEFAULT NULL,
   `deleted` datetime DEFAULT NULL,
@@ -97,9 +81,9 @@ CREATE TABLE `roles_has_permissions` (
 --
 
 CREATE TABLE `users` (
-  `username` varchar(16) NOT NULL,
+  `username` varchar(255) NOT NULL,
   `email` varchar(255) DEFAULT NULL,
-  `password` varchar(32) NOT NULL,
+  `password` varchar(255) NOT NULL,
   `uuid` varchar(255) NOT NULL,
   `id` bigint(20) NOT NULL,
   `fk_role` int(11) NOT NULL,
@@ -148,14 +132,6 @@ ALTER TABLE `permissions`
   ADD UNIQUE KEY `uuid_UNIQUE` (`uuid`);
 
 --
--- Indices de la tabla `roles`
---
-ALTER TABLE `roles`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uuid_UNIQUE` (`uuid`),
-  ADD UNIQUE KEY `name_UNIQUE` (`name`);
-
---
 -- Indices de la tabla `roles_has_permissions`
 --
 ALTER TABLE `roles_has_permissions`
@@ -170,6 +146,7 @@ ALTER TABLE `roles_has_permissions`
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uuid_UNIQUE` (`uuid`),
+  ADD UNIQUE KEY `username_UNIQUE` (`username`),
   ADD KEY `fk_user_roles1_idx` (`fk_role`);
 
 --
@@ -190,19 +167,13 @@ ALTER TABLE `users_has_devices`
 -- AUTO_INCREMENT de la tabla `devices`
 --
 ALTER TABLE `devices`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `roles`
---
-ALTER TABLE `roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `roles_has_permissions`
