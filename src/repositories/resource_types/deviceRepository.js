@@ -135,4 +135,4 @@ const softDeleteDeviceQuery = () => {
         deleted is null`
 }
 
-export {countDeviceQuery, getDeviceQuery, insertDeviceQuery, modifyDeviceQuery, deleteDeviceQuery}
+export {countDeviceQuery, getDeviceQuery, insertDeviceQuery, modifyDeviceQuery, deleteDeviceQuery, softDeleteDeviceQuery}

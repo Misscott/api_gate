@@ -1,13 +1,14 @@
 const _rolesHasPermissionsQuery = (_pagination) => ({count}) => ({uuid, role_uuid}) => {
-    const uuidCondition = uuid ? 'AND uuid = :uuid ' : '';
-    const roleUuidCondition = role_uuid ? 'AND role_uuid = :role_uuid ' : '';
+    const uuidCondition = uuid ? 'and fk_role = (SELECT id from mydb.roles WHERE uuid = :roleUuid)' : '';
+    const permissionsUuidCondition = role_uuid ? 'AND fk_permission = (SELECT id from mydb.permissions WHERE uuid = :permissionUuid)' : '';
     return `
       SELECT
         ${count || 
             `r.*, r2.name as role_name, r2.uuid as role_uuid`}
       FROM
         mydb.roles_has_permissions as r
-        JOIN mydb.roles as r2 ON r.fk_role = r2.id
+        LEFT JOIN mydb.roles as r2 ON r.fk_role = r2.id
+        LEFT JOIN mydb.permissions as p ON r.fk_permission = p.id
       WHERE
         r.created <= :now
       AND
@@ -15,7 +16,7 @@ const _rolesHasPermissionsQuery = (_pagination) => ({count}) => ({uuid, role_uui
       AND
         true
         ${uuidCondition}
-        ${roleUuidCondition}
+        ${permissionsUuidCondition}
         ${_pagination}
     `;
     }
@@ -36,19 +37,26 @@ const insertRolesHasPermissionsQuery = () => {
     )
     VALUES (
       :uuid,
-      :fk_role,
-      :fk_permission,
+      (SELECT id FROM mydb.roles WHERE uuid = :roleUuid),
+      (SELECT id FROM mydb.permissions WHERE uuid = :permissionUuid),
       :now,
       :createdBy
     );
-    SELECT * FROM mydb.roles_has_permissions WHERE uuid = :uuid;
+    SELECT permissions.*,
+    permissions.uuid as permission_uuid,
+    roles.uuid as role_uuid,
+    roles.name as role_name
+    FROM mydb.roles_has_permissions as rp
+    LEFT JOIN mydb.permissions as permissions ON rp.fk_permission = permissions.id
+    LEFT JOIN mydb.roles as roles ON rp.fk_role = roles.id
+    WHERE rp.uuid = :uuid;
     `
 }
 
 const deleteRolesHasPermissionsQuery = () => {
     return `
     UPDATE 
-        mydb.roles_has_permissions
+        mydb.roles_has_permissions as roles_has_permissions
     SET 
         deleted = :now, deletedBy = :deletedBy
     WHERE
