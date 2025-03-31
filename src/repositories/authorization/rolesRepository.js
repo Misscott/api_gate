@@ -7,7 +7,7 @@ import { pagination } from "../../utils/pagination.js";
  * @param {Object} rest Rest of params involved on query
  * @returns {String} SELECT query
  */
-const _userSelectQuery = (_pagination = '') => 
+const _roleSelectQuery = (_pagination = '') => 
     ({ count }) =>
       ({ uuid, name }) => {
         const uuidCondition = uuid ? 'AND uuid = :uuid ' : '';
@@ -33,21 +33,21 @@ const _userSelectQuery = (_pagination = '') =>
  * Uses generic select query to return a simple query
  * @returns {String} simple select query
  */
-const getUserQuery = ({ limit, page, ...rest }) => 
-  _userSelectQuery(pagination({ limit, page }))({ count: false })(rest);
+const getRoleQuery = ({ limit, page, ...rest }) => 
+  _roleSelectQuery(pagination({ limit, page }))({ count: false })(rest);
 
 /**
  * Uses generic select query to return a select count type of query
  * @returns {String} SELECT COUNT(*) query
  */
-const countUserQuery = rest => 
-  _userSelectQuery()({ count: 'COUNT(*) AS count' })(rest);
+const countRoleQuery = rest => 
+  _roleSelectQuery()({ count: 'COUNT(*) AS count' })(rest);
 
 /**
  * Insert query using parameters passed in request
  * @returns {String} INSERT query
  */
-const insertUserQuery = () => {
+const insertRoleQuery = () => {
     return `
     INSERT INTO mydb.users (
       uuid,
@@ -69,7 +69,7 @@ const insertUserQuery = () => {
  * @param {Object} params All params involved in query to be modified in certain object matching uuid passed as req param
  * @returns {String} UPDATE query
  */
-const modifyUserQuery = ({ name }) => {
+const modifyRoleQuery = ({ name }) => {
   const nameCondition = name ? 'name = :name, ' : '';
 
   return `
@@ -89,7 +89,7 @@ const modifyUserQuery = ({ name }) => {
 /**
  * @returns {String} DELETE query
  */
-const deleteUserQuery = () => {
+const deleteRoleQuery = () => {
   return `
     DELETE FROM mydb.roles
     WHERE roles.uuid = :uuid
@@ -100,7 +100,7 @@ const deleteUserQuery = () => {
  * 
  * @returns {String} SOFT DELETE query
  */
-const softDeleteDeviceQuery = () => {
+const softDeleteRoleQuery = () => {
     return `
     UPDATE
         mydb.roles
@@ -113,9 +113,10 @@ const softDeleteDeviceQuery = () => {
 }
 
 export { 
-  countUserQuery, 
-  getUserQuery, 
-  insertUserQuery, 
-  modifyUserQuery, 
-  deleteUserQuery 
+  countRoleQuery,
+  getRoleQuery,
+  insertRoleQuery,
+  modifyRoleQuery,
+  deleteRoleQuery,
+  softDeleteRoleQuery
 };

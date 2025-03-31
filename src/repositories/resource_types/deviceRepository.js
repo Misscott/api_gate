@@ -13,16 +13,19 @@ const _deviceSelectQuery = (_pagination = '') =>
             const uuidCondition = uuid ? 'AND uuid = :uuid ' : ''
             const serial_numberCondition = serial_number ? 'AND serial_number = :serial_number ' : ''
             const modelCondition = model ? 'AND model = :model ' : ''
-            const brandCondition = brand ? 'AND brand = :brand ' : ''
+            const brandCondition = brand ? 'AND brand LIKE CONCAT(\'%\',:brand,\'%\')' : ''
             const descriptionCondition = description ?'AND description = :description ' : ''
             const stockCondition = stock ? 'AND stock = :stock ' : ''
-            const userCondition = user? 'AND user = :user' : ''
             return `
                 SELECT
-                    ${count || '*'}
+                    ${count || `*`}
                 FROM
-                    mydb.devices
+                    mydb.devices as devices
                 WHERE
+                    devices.created <= :now
+                AND
+                    (devices.created > :now OR devices.deleted IS NULL)
+                AND
                     true
                     ${uuidCondition}
                     ${serial_numberCondition}
@@ -30,7 +33,6 @@ const _deviceSelectQuery = (_pagination = '') =>
                     ${brandCondition}
                     ${descriptionCondition}
                     ${stockCondition}
-                    ${userCondition}
             `
 }
 
@@ -49,7 +51,7 @@ const countDeviceQuery = rest => _deviceSelectQuery()({count: 'COUNT(*) AS count
  * Insert query using parameters passed in request
  * @returns {String} INSERT query
  */
-const insertDeviceQuery = () =>{
+const insertDeviceQuery = (userUuid) =>{
     const descriptionCondition = description ?'AND description = :description ' : null
     return `
     INSERT INTO mydb.devices (
@@ -59,7 +61,6 @@ const insertDeviceQuery = () =>{
         brand, 
         description, 
         stock,
-        fk_user,
         created,
         createdBy
     )
@@ -70,7 +71,6 @@ const insertDeviceQuery = () =>{
         :brand, 
         ${descriptionCondition}, 
         :stock,
-        :user,
         :now,
         :createdBy
     );
@@ -83,7 +83,7 @@ const insertDeviceQuery = () =>{
  * @param {Object} params All params involved in query to be modified in certain object matching uuid passed as req param 
  * @returns {String} UPDATE query
  */
-const modifyDeviceQuery = ({serial_number, model, brand, description, stock}) => {
+const modifyDeviceQuery = ({user, serial_number, model, brand, description, stock}) => {
     const serial_numberCondition = serial_number ? 'serial_number = :serial_number, ' : ''
     const modelCondition = model ? 'model = :model, ' : ''
     const brandCondition = brand ? 'brand = :brand, ' : ''
@@ -100,7 +100,6 @@ const modifyDeviceQuery = ({serial_number, model, brand, description, stock}) =>
         ${descriptionCondition}
         ${stockCondition}
         uuid = :uuid
-        fk_user = :fk_user
         WHERE 
             devices.uuid = :uuid;
         SELECT mydb.devices.*

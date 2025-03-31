@@ -7,29 +7,34 @@ import { pagination } from "../../utils/pagination.js";
  * @param {Object} rest Rest of params involved on query
  * @returns {String} SELECT query
  */
-const _userSelectQuery = (_pagination = '') => 
+const _userListSelectQuery = (_pagination = '') => 
     ({ count }) =>
-      ({ uuid, username, email, role }) => {
-        const uuidCondition = uuid ? 'AND uuid = :uuid ' : '';
-        const usernameCondition = username ? 'AND username = :username ' : '';
-        const emailCondition = email ? 'AND email = :email ' : '';
-        const roleCondition = role ? 'AND u.fk_role = :role ' : '';  
+      ({ uuid, username, loginUsername, uuidList, email, role }) => {
+        const uuidCondition = uuid ? 'AND users.uuid = :uuid ' : '';
+        const uuidListCondition = uuidList ? 'AND users.uuid in(:uuidList)' : ''
+		    const loginUsernameCondition = loginUsername ? ' AND users.username = :loginUsername ' : ''
+        const usernameCondition = username ? 'AND users.username LIKE CONCAT(\'%\',:username,\'%\')' : '';
+        const emailCondition = email ? 'AND users.email = :email ' : '';
+        const roleCondition = role ? 'AND users.fk_role = :role ' : '';  
         return `
           SELECT
             ${count || `u.*, r.name AS role`}  
           FROM
-            mydb.users as u
+            mydb.users as users
             LEFT JOIN mydb.roles as r ON u.fk_role = r.id
           WHERE
-            u.created <= :now
+            users.created <= :now
           AND
-            (u.created > :now OR u.deleted IS NULL)
+            (users.created > :now OR users.deleted IS NULL)
           AND
             true
             ${uuidCondition}
+            ${uuidListCondition}
             ${usernameCondition}
             ${emailCondition}
             ${roleCondition}
+            ${loginUsernameCondition}
+            ${_pagination}
         `;
       };
   
@@ -38,15 +43,15 @@ const _userSelectQuery = (_pagination = '') =>
  * Uses generic select query to return a simple query
  * @returns {String} simple select query
  */
-const getUserQuery = ({ limit, page, ...rest }) => 
-  _userSelectQuery(pagination({ limit, page }))({ count: false })(rest);
+const getUserListQuery = ({ limit, page, ...rest }) => 
+  _userListSelectQuery(pagination({ limit, page }))({ count: false })(rest);
 
 /**
  * Uses generic select query to return a select count type of query
  * @returns {String} SELECT COUNT(*) query
  */
-const countUserQuery = rest => 
-  _userSelectQuery()({ count: 'COUNT(*) AS count' })(rest);
+const countUserListQuery = rest => 
+  _userListSelectQuery()({ count: 'COUNT(DISTINCT(users.uuid)) AS count' })(rest);
 
 /**
  * Insert query using parameters passed in request
@@ -86,6 +91,8 @@ const modifyUserQuery = ({ username, email, role }) => {
   const passwordCondition = password ? 'password = :password, ' : '';
   const emailCondition = email ? 'email = :email, ' : '';
   const roleCondition = role ? 'fk_role = (SELECT id FROM mydb.roles WHERE name = :role) ' : '';
+  const lastLoginDateCondition = lastLoginDate ? 'last_login_date = :lastLoginDate, ' : '';
+  const userStatusCondition = userStatus ? 'user_status = :userStatus, ' : '';
 
   return `
     UPDATE
@@ -95,6 +102,8 @@ const modifyUserQuery = ({ username, email, role }) => {
       ${passwordCondition}
       ${emailCondition}
       ${roleCondition}
+      ${lastLoginDateCondition}
+      ${userStatusCondition}
       uuid = :uuid
     WHERE
       users.uuid = :uuid;
@@ -118,7 +127,7 @@ const deleteUserQuery = () => {
  * 
  * @returns {String} SOFT DELETE query
  */
-const softDeleteDeviceQuery = () => {
+const softDeleteUserQuery = () => {
     return `
     UPDATE
         mydb.users
@@ -131,9 +140,10 @@ const softDeleteDeviceQuery = () => {
 }
 
 export { 
-  countUserQuery, 
-  getUserQuery, 
-  insertUserQuery, 
-  modifyUserQuery, 
-  deleteUserQuery 
+    getUserListQuery, 
+    countUserListQuery, 
+    insertUserQuery, 
+    modifyUserQuery, 
+    deleteUserQuery, 
+    softDeleteUserQuery
 };

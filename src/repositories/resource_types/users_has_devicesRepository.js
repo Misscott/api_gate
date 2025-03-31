@@ -15,9 +15,17 @@ const _usersHasDevicesSelectQuery = (_pagination = '') =>
             const stockCondition = stock ? 'AND stock = :stock ' : ''
             return `
                 SELECT
-                    ${count || '*'}
+                    ${count || 
+                        `users_has_devices.*,
+                        devices.uuid as device_uuid,
+                        devices.serial_number as serial_number,
+                        users.uuid as user_uuid,
+                        users.username as username,
+                        `}
                 FROM
-                    mydb.devices
+                    mydb.users_has_devices as users_has_devices
+                LEFT JOIN mydb.devices as devices ON users_has_devices.fk_device = devices.id
+                LEFT JOIN mydb.user as users ON users.id = users_has_devices.fk_user
                 WHERE
                     true
                     ${conditionUuid}

@@ -24,7 +24,7 @@ export default {
     return userRepository.findByIdWithRole(userId)
       .then(user => {
         if (!user) {
-          throw new Error('Usuario no encontrado o inactivo');
+          throw new Error('User not found or obsolete');
         }
         return permissionRepository.findByRoleAndAction(user.role.id, action, resourceType)
           .then(permission => ({
@@ -34,7 +34,7 @@ export default {
           }));
       })
       .catch(error => {
-        throw new Error(`Error verificando permisos: ${error.message}`);
+        throw new Error(`Error verifying permissions: ${error.message}`);
       });
   }
 };

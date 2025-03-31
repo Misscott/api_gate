@@ -1,6 +1,6 @@
-const _rolesHasPermissionsQuery = (_pagination) => ({count}) => ({uuid, role_uuid}) => {
-    const uuidCondition = uuid ? 'and fk_role = (SELECT id from mydb.roles WHERE uuid = :roleUuid)' : '';
-    const permissionsUuidCondition = role_uuid ? 'AND fk_permission = (SELECT id from mydb.permissions WHERE uuid = :permissionUuid)' : '';
+const _rolesHasPermissionsQuery = (_pagination) => ({count}) => ({uuid, permission_uuid}) => {
+    const uuidCondition = uuid ? 'AND fk_role = (SELECT id from mydb.roles WHERE uuid = :roleUuid)' : '';
+    const permissionsUuidCondition = permission_uuid ? 'AND fk_permission = (SELECT id from mydb.permissions WHERE uuid = :permissionUuid)' : '';
     return `
       SELECT
         ${count || 
@@ -53,7 +53,7 @@ const insertRolesHasPermissionsQuery = () => {
     `
 }
 
-const deleteRolesHasPermissionsQuery = () => {
+const softDeleteRolesHasPermissionsQuery = () => {
     return `
     UPDATE 
         mydb.roles_has_permissions as roles_has_permissions
@@ -69,4 +69,9 @@ const deleteRolesHasPermissionsQuery = () => {
     `
 }
 
-
+export{
+    getRolesHasPermissionsQuery,
+    countRolesHasPermissionsQuery,
+    insertRolesHasPermissionsQuery,
+    softDeleteRolesHasPermissionsQuery
+}
