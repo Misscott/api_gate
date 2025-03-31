@@ -1,12 +1,13 @@
 import {randomUUID as uuidv4} from 'node:crypto'
-import mysql from '../adapters/mysql.js'
+import mysql from '../../adapters/mysql.js'
 import {
     countDeviceQuery,
     getDeviceQuery,
     insertDeviceQuery,
     modifyDeviceQuery,
-    deleteDeviceQuery
-} from '../repositories/resource_types/deviceRepository.js'
+    deleteDeviceQuery,
+    softDeleteDeviceQuery
+} from '../../repositories/resource_types/deviceRepository.js'
 
 /**
  * select/get model for device
@@ -14,11 +15,12 @@ import {
  * @returns {Promise} resolve after executing select query and what happens if it is correctly resolved 
  */
 const getDeviceModel = ({conn, ...rest}) => {
-    const paramsToSearch = {...rest}
+    const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
+    const paramsToSearch = {...rest, now}
 
     return mysql
         .execute(getDeviceQuery(paramsToSearch), conn, paramsToSearch)
-        .then(queryResult => queryResult.map(({id, ...resultFiltered}) => resultFiltered))
+        .then(queryResult => queryResult.map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 /**
@@ -27,7 +29,8 @@ const getDeviceModel = ({conn, ...rest}) => {
  * @returns {Promise} resolve after executing selectcount query and what happens if it is correctly resolved 
  */
 const countDeviceModel = ({conn, ...rest}) => {
-    const paramsToSearch = {...rest}
+    const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
+    const paramsToSearch = {...rest, now}
 
     return mysql
         .execute(countDeviceQuery(paramsToSearch), conn, paramsToSearch)
@@ -40,13 +43,14 @@ const countDeviceModel = ({conn, ...rest}) => {
  * @returns {Promise} either resolve or reject
  */
 const insertDeviceModel = ({conn, ...params}) => {
+    const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
     const uuid = uuidv4()
+    const paramsToInsert = {...params, uuid, now}
     return mysql
-        .execute(insertDeviceQuery({...params, uuid}), conn, {...params, uuid})
-        .then(queryResult => queryResult[1].map(({id, ...resultFiltered}) => resultFiltered))
+        .execute(insertDeviceQuery(paramsToInsert), conn, paramsToInsert)
+        .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
         .catch(err => {
-            debugger
-            return Promise.reject(err)
+            reject(err)
         })
 }
 
@@ -58,7 +62,7 @@ const insertDeviceModel = ({conn, ...params}) => {
 const modifyDeviceModel = ({conn, ...params}) => {
     return mysql
         .execute(modifyDeviceQuery(params), conn, params)
-        .then(queryResult => queryResult[1].map(({id, ...resultFiltered}) => resultFiltered))
+        .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 /**
@@ -67,8 +71,10 @@ const modifyDeviceModel = ({conn, ...params}) => {
  * @returns {Promise} resolve after executing delete query  
  */
 const deleteDeviceModel = ({conn, ...params}) => {
-    return mysql    
-        .execute(deleteDeviceQuery({...params}), conn, {...params})
+    const deletedData = deleted ? dayjs.utc(deleted).format('YYYY-MM-DD HH:mm:ss') : dayjs.utc.format('YYYY-MM-DD HH:mm:ss')
+    
+    return mysql
+        .execute(softDeleteDeviceQuery({ ...params, deleted: deletedData }), conn, { ...params, deleted: deletedData })
 }
 
 export {countDeviceModel, getDeviceModel, insertDeviceModel, modifyDeviceModel, deleteDeviceModel}
