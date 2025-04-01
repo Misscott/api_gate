@@ -5,7 +5,7 @@ import {
     insertDeviceModel,
     modifyDeviceModel,
     deleteDeviceModel
-} from '../models/deviceModel.js'
+} from '../../models/resource_types/deviceModel.js'
 import {error404, errorHandler} from '../../utils/errors.js'
 import { sendResponseNotFound } from '../../utils/responses.js'
 import {noResults} from '../../validators/result-validators.js'

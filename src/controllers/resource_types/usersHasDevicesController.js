@@ -1,11 +1,11 @@
-import mysql from '../adapters/mysql'
+import mysql from '../../adapters/mysql'
 import { 
     getUsersHasDevicesModel,
     countUsersHasDevicesModel,
     insertUsersHasDevicesModel,
     softDeleteUsersHasDevicesModel,
     modifyUsersHasDevicesModel
-} from '../../repositories/resource_types/users_has_devicesRepository'
+} from '../../models/resource_types/user_has_devicesModel'
 import { errorHandler } from '../../utils/errors'
 import { noResults } from '../../validators/result-validators'
 

@@ -1,13 +1,13 @@
 /**
  * @fileoverview This file contains the route definitions for the user-related endpoints.
  */
-import {Router} from 'express'                         
-import { getDeviceController, postDeviceController, putDeviceController, deleteDeviceController, getDeviceByUuidController, getDeviceBySerialNumberController, getDeviceByModelController, getDeviceByBrandController, getDeviceswithMinimumStockController } from '../controllers/deviceController.js'
-import { getUserListController, getUserInfoController, postUserController, putUserController, softDeleteUserController } from '../controllers/userController.js'
-import { getRoleController, getRoleInfoController, postRoleController, putRoleController, deleteRoleController } from '../controllers/roleController.js'
-import { getPermissionController, getPermissionByUuidController, postPermissionController, putPermissionController, softDeletePermissionController } from '../controllers/permissionController.js'
+import {Router} from 'express'             
+import { getDeviceController, getDeviceByUuidController, postDeviceController, putDeviceController, deleteDeviceController, getDeviceswithMinimumStockController, getDeviceBySerialNumberController, getDeviceByModelController, getDeviceByBrandController } from '../controllers/resource_types/deviceController.js'
+import { getUserListController, getUserInfoController, postUserController, putUserController, softDeleteUserController } from '../controllers/authorization/userController.js'
+import { getRoleController, getRoleInfoController, postRoleController, putRoleController, deleteRoleController } from '../controllers/authorization/rolesController.js'
+import { getPermissionController, getPermissionByUuidController, postPermissionController, putPermissionController, softDeletePermissionController } from '../controllers/authorization/permissionsController.js'
 import { indexController } from '../controllers/indexController.js'
-import { postLoginController } from '../controllers/authController.js'
+import { postLoginController } from '../controllers/authorization/loginController.js'
 import { addLinks } from '../utils/links.js'
 import { linkRoutes } from '../index.js'
 import {
@@ -17,11 +17,9 @@ import {
     sendResponseNoContent,
 } from '../utils/responses.js'
 import { integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
-import { setToken } from '../utils/auth.js'
 import {payloadExpressValidator} from '../validators/expressValidator/payloadExpressValidator.js'
 import { error422, errorHandler } from '../utils/errors.js'
-import { authenticateToken } from '../validators/auth.js'
-import { authorizePermission } from '../middlewares/auth.js'
+import { authorizePermission, setToken, authenticateToken} from '../middlewares/auth.js'
 
 /**
  * @function default 
@@ -72,14 +70,8 @@ export default(config) => {
     */
     routes.get(
         '/devices',
-        [
-            uuid('uuid'),
-            varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
-            varChar('model').optional({ nullable: false, values: 'falsy' }),
-            varChar('brand').optional({ nullable: false, values: 'falsy' }),
-            varChar('description').optional({ nullable: true, values: 'falsy' }),
-            integer('stock').optional({ nullable: false, values: 'falsy' })
-        ],
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/devices')(req, res, next, config),
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getDeviceController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
@@ -101,7 +93,7 @@ export default(config) => {
     routes.post(
         '/devices',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('devices')(req, res, next),
+        (req, res, next) => authorizePermission('/devices')(req, res, next, config),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -139,8 +131,8 @@ export default(config) => {
     */
     routes.get(
         '/devices/inStock',
-        (req, res, next) => authenticateToken(req, res, next),
-        (req, res, next) => authorizePermission('devices')(req, res, next),
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/devices/inStock')(req, res, next, config),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -171,6 +163,8 @@ export default(config) => {
     */
     routes.get(
         '/devices/minStock/:stock',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/devices/minStock/:stock')(req, res, next, config),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -203,6 +197,8 @@ export default(config) => {
     */
     routes.get(
         '/devices/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/devices/:uuid')(req, res, next, config),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -233,7 +229,7 @@ export default(config) => {
     routes.get(
         '/devices/serial_number/:serial_number',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('devices')(req, res, next),
+        (req, res, next) => authorizePermission('/devices/serial_number/:serial_number')(req, res, next),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -264,7 +260,7 @@ export default(config) => {
     routes.get(
         '/devices/model/:model',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('devices')(req, res, next),
+        (req, res, next) => authorizePermission('/devices/model/:model')(req, res, next),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -295,7 +291,7 @@ export default(config) => {
     routes.get(
         '/devices/brand/:brand',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('devices')(req, res, next),
+        (req, res, next) => authorizePermission('/devices/brand/:brand')(req, res, next),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -326,6 +322,8 @@ export default(config) => {
     */
     routes.put(
         '/devices/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/devices/:uuid')(req, res, next, config),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
@@ -345,15 +343,17 @@ export default(config) => {
     * @function
     * @inner
     * @memberof deviceRouter
-    * @route DELETE /devices/{uuid}
+    * @route PUT /devices/{uuid}
     * @group Devices - Operations about devices
     * @param {string} uuid.path.required - The unique identifier for the device
     * @returns {SuccessResponse} 200 - Device deleted successfully
     * @returns {ErrorResponse} 404 - Device not found
     * @returns {ErrorResponse} 500 - Internal server error
     **/
-    routes.delete(
+    routes.put(
         '/devices/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/devices/:uuid')(req, res, next, config),
         [   
             uuid('uuid')
         ],
@@ -366,6 +366,7 @@ export default(config) => {
     routes.get(
         '/users',
         (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/users')(req, res, next, config),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('username').optional({ nullable: false, values: 'falsy' }),
@@ -380,6 +381,7 @@ export default(config) => {
     routes.get(
         '/users/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/users/:uuid')(req, res, next, config),
         [
             uuid('uuid')
         ],
@@ -392,6 +394,7 @@ export default(config) => {
     routes.post(
         '/users',
         (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/users')(req, res, next, config),
         [
             varChar('username'),
             varChar('password'),
@@ -407,6 +410,7 @@ export default(config) => {
     routes.put(
         '/users/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/users/:uuid')(req, res, next, config),
         [
             uuid('uuid'),
             varChar('username').optional({ nullable: false, values: 'falsy' }),
@@ -419,9 +423,10 @@ export default(config) => {
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
 
-    routes.delete(
+    routes.put(
         '/users/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/users/:uuid')(req, res, next, config),
         [
             uuid('uuid')
         ],
@@ -537,7 +542,7 @@ export default(config) => {
     routes.delete(
         '/permissions/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('permissions')(req, res, next),
+        (req, res, next) => authorizePermission('permissions')(req, res, next, config),
         [
             uuid('uuid')
         ],

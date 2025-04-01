@@ -8,6 +8,7 @@ import {
     deleteDeviceQuery,
     softDeleteDeviceQuery
 } from '../../repositories/resource_types/deviceRepository.js'
+import dayjs from 'dayjs'
 
 /**
  * select/get model for device

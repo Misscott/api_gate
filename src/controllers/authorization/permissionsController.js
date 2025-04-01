@@ -1,14 +1,14 @@
-import { error404, errorHandler } from '../utils/errors'
-import { sendResponseNotFound } from '../utils/responses'
-import { noResults } from '../validators/result-validators'
-import mysql from '../adapters/mysql'
+import { error404, errorHandler } from '../../utils/errors.js'
+import { sendResponseNotFound } from '../../utils/responses.js'
+import { noResults } from '../../validators/result-validators.js'
+import mysql from '../../adapters/mysql.js'
 import { 
     getPermissionModel,
     countPermissionModel,
     insertPermissionModel,
     modifyPermissionModel,
     softDeletePermissionModel
-} from '../../models/authorization/permissionsModel'
+} from '../../models/authorization/permissionsModel.js'
 
 const getPermissionController = (req, res, next, config) => {
     const conn = mysql.start(config)
@@ -111,7 +111,7 @@ const putPermissionController = (req, res, next, config) => {
 const softDeletePermissionController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const uuid_permission = req.params.uuid
-    const deleted_by = req.headers['uuid_requester'] || null
+    const deletedBy = req.headers['uuid_requester'] || null
     const {deleted} = req.body
 
     softDeletePermissionModel({uuid_permission, deleted, deletedBy, conn})

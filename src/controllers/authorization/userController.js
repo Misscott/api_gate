@@ -1,15 +1,15 @@
 import bcrypt from 'bcrypt'
-import mysql from '../adapters/mysql'
+import mysql from '../../adapters/mysql.js'
 import { 
     getUserListModel,
     countUserListModel,
     insertUserModel,
     modifyUserModel,
     softDeleteUserModel    
-} from '../../models/authorization/userModel'
-import { error404, errorHandler } from '../../utils/errors'
-import { sendResponseNotFound } from '../../utils/responses'
-import { noResults } from '../../validators/result-validators'
+} from '../../models/authorization/userModel.js'
+import { error404, errorHandler } from '../../utils/errors.js'
+import { sendResponseNotFound } from '../../utils/responses.js'
+import { noResults } from '../../validators/result-validators.js'
 
 const getUserListController = (req, res, next, config) => {
     const uuidList = req.query.uuidList && req.query.uuidList.split(',')

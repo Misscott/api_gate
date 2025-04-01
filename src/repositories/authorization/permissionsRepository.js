@@ -1,14 +1,22 @@
-const _permissionsQuery = (_pagination) => ({count}) => ({uuid, name, action, resource_type}) => {
+import { pagination } from '../../utils/pagination.js'
+
+const _permissionsQuery = (_pagination) => ({count}) => ({uuid, name, action, endpoint}) => {
     const uuidCondition = uuid ? 'AND uuid = :uuid ' : '';
     const nameCondition = name ? 'AND name = :name ' : '';
     const actionCondition = action ? 'AND action = :action ' : '';
-    const resourceTypeCondition = resource_type ? 'AND resource_type = :resource_type ' : '';
+    const endpointCondition = endpoint ? 'AND fk_endpoint = (SELECT id from mydb.endpoints WHERE route = :endpoint)' : '';
     return `
       SELECT
         ${count || 
             `*`}
       FROM
         mydb.permissions as p
+      LEFT JOIN
+        mydb.endpoints as e ON p.fk_endpoint = e.id 
+        AND e.created <= :now
+        AND (e.deleted > :now OR e.deleted IS NULL)
+      WHERE
+        p.created <= :now  
       WHERE
         p.created <= :now
       AND
@@ -18,7 +26,7 @@ const _permissionsQuery = (_pagination) => ({count}) => ({uuid, name, action, re
         ${uuidCondition}
         ${nameCondition}
         ${actionCondition}
-        ${resourceTypeCondition}
+        ${endpointCondition}
         ${_pagination}
     `;
 }
@@ -34,7 +42,7 @@ const insertPermissionsQuery = () => {
       uuid,
       name,
       action,
-      resource_type,
+      fk_endpoint,
       created,
       createdBy
     )
@@ -42,7 +50,7 @@ const insertPermissionsQuery = () => {
       :uuid,
       :name,
       :action,
-      :resource_type,
+      (SELECT id FROM mydb.endpoints WHERE route = :endpoint),
       :now,
       :createdBy
     );
@@ -50,7 +58,25 @@ const insertPermissionsQuery = () => {
     `
 }
 
-const deletePermissionsQuery = () => {
+const modifyPermissionsQuery = () => {
+  const nameCondition = name ? 'name = :name ' : '';
+  const actionCondition = action ? 'action = :action ' : '';
+  const endpointCondition = endpoint ? 'fk_endpoint = (SELECT id from mydb.endpoints WHERE route = :endpoint)' : '';
+  return `
+  UPDATE mydb.permissions
+  SET 
+      ${nameCondition}
+      ${actionCondition}
+      ${endpointCondition}
+  WHERE
+      permissions.uuid = :uuid
+  AND 
+      permissions.deleted IS NULL    
+  SELECT * FROM mydb.permissions WHERE uuid = :uuid;
+  `
+}
+
+const softDeletePermissionsQuery = () => {
     return `
     UPDATE 
         mydb.permissions
@@ -62,4 +88,12 @@ const deletePermissionsQuery = () => {
         permissions.deleted IS NULL    
     SELECT * FROM mydb.permissions WHERE uuid = :uuid;
     `
+}
+
+export {
+    getPermissionsQuery,
+    countPermissionsQuery,
+    insertPermissionsQuery,
+    modifyPermissionsQuery,
+    softDeletePermissionsQuery
 }

@@ -1,6 +1,6 @@
 import { randomUUID as uuidv4 } from 'node:crypto'
 import dayjs from 'dayjs'
-import mysql from '../adapters/mysql'
+import mysql from '../../adapters/mysql.js'
 import { 
     countRoleQuery,
     getRoleQuery,
@@ -8,7 +8,7 @@ import {
     modifyRoleQuery,
     deleteRoleQuery,
     softDeleteRoleQuery
- } from '../../repositories/authorization/rolesRepository'
+ } from '../../repositories/authorization/rolesRepository.js'
 
 const getRoleModel = ({conn, ...rest}) => {
     const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')

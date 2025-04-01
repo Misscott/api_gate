@@ -9,7 +9,7 @@ import {pagination} from "../../utils/pagination.js"
  */
 const _deviceSelectQuery = (_pagination = '') => 
     ({count}) => 
-        ({uuid, serial_number, model, brand, description, stock, user}) => {
+        ({uuid, serial_number, model, brand, description, stock}) => {
             const uuidCondition = uuid ? 'AND uuid = :uuid ' : ''
             const serial_numberCondition = serial_number ? 'AND serial_number = :serial_number ' : ''
             const modelCondition = model ? 'AND model = :model ' : ''

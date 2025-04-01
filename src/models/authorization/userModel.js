@@ -1,6 +1,6 @@
 import { randomUUID as uuidv4 } from 'node:crypto'
 import dayjs from 'dayjs'
-import mysql from '../adapters/mysql'
+import mysql from '../../adapters/mysql.js'
 import {
     countUserListQuery,
     getUserListQuery,
@@ -8,7 +8,7 @@ import {
     modifyUserQuery,
     deleteUserQuery,
     softDeleteUserQuery
-} from '../repositories/authorization/userRepository'
+} from '../../repositories/authorization/userRepository.js'
 
 const getUserListModel = ({conn, ...rest}) => {
     const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
@@ -46,7 +46,6 @@ const insertUserModel = ({conn, ...params}) => {
 }
 
 const modifyUserModel = ({conn, ...params}) => {
-    const params = {uuid, username, email, role, password, userStatus, lastLoginDate}
     return mysql
         .execute(modifyUserQuery(params), conn, params)
         .then(queryResult => queryResult[1].map(({id, password, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))

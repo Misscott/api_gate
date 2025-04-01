@@ -1,14 +1,14 @@
-import mysql from '../adapters/mysql'
+import mysql from '../../adapters/mysql.js'
 import { 
     getRoleModel,
     countRoleModel,
-    postRoleModel,
-    putRoleModel,
+    insertRoleModel,
+    modifyRoleModel,
     softDeleteRoleModel
- } from '../../models/authorization/roleModel'
-import { error404, errorHandler } from '../../utils/errors'
-import { sendResponseNotFound } from '../../utils/responses'
-import { noResults } from '../../validators/result-validators'
+ } from '../../models/authorization/roleModel.js'
+import { error404, errorHandler } from '../../utils/errors.js'
+import { sendResponseNotFound } from '../../utils/responses.js'
+import { noResults } from '../../validators/result-validators.js'
 
 const getRoleController = (req, res, next, config) => {
 	const conn = mysql.start(config)
@@ -64,11 +64,39 @@ const getRoleInfoController = (req, res, next, config) => {
 		})
 }
 
+const getRoleByNameController = (req, res, next, config) => {
+	const conn = mysql.start(config)
+	const name = req.params.name
+
+	getRoleModel({ name, conn })
+		.then((RoleInformation) => {
+			if (noResults(RoleInformation)) {
+				const err = error404()
+				const error = errorHandler(err, config.environment)
+				return sendResponseNotFound(res, error)
+			}
+
+			const result = {
+				_data: {
+					Role: RoleInformation
+				}
+			}
+			next(result)
+		})
+		.catch((err) => {
+			const error = errorHandler(err, config.environment)
+			res.status(error.code).json(error)
+		})
+		.finally(() => {
+			mysql.end(conn)
+		})
+}
+
 const postRoleController = (req, res, next, config) => {
 	const conn = mysql.start(config)
 	const createdby = req.headers['uuid-requester'] || null
 
-	postRoleModel({ ...req.body, createdby, conn })
+	insertRoleModel({ ...req.body, createdby, conn })
 		.then((RoleInformation) => {
 			const result = {
 				_data: { Role: RoleInformation }
@@ -89,7 +117,7 @@ const putRoleController = (req, res, next, config) => {
 	const conn = mysql.start(config)
 	const uuid = req.params.uuid
 
-	putRoleModel({ ...req.body, uuid, conn })
+	modifyRoleModel({ ...req.body, uuid, conn })
 		.then((RoleInformation) => {
 			const result = {
 				_data: {
@@ -133,5 +161,6 @@ export {
 	getRoleController,
 	getRoleInfoController,
 	postRoleController,
-	putRoleController
+	putRoleController,
+	getRoleByNameController
 }

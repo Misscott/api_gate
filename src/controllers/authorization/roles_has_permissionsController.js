@@ -1,4 +1,4 @@
-import mysql from '../adapters/mysql'
+import mysql from '../../adapters/mysql'
 import { 
     getRolesHasPermissionsModel,
     countRolesHasPermissionsModel,
@@ -6,9 +6,8 @@ import {
     modifyRolesHasPermissionsModel,
     softDeleteRolesHasPermissionsModel
 } from '../../repositories/authorization/roles_has_permissionsRepository'
-import { error404, errorHandler } from '../utils/errors'
-import { noResults } from '../validators/result-validators'
-import e from 'express'
+import { error404, errorHandler } from '../../utils/errors'
+import { noResults } from '../../validators/result-validators'
 
 const getRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
@@ -26,6 +25,34 @@ const getRolesHasPermissionsController = (req, res, next, config) => {
                     page: req.query.page || (countResults && 1) || 0
                 }
             })
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+}
+
+const getRolesHasPermissionsControllerByRoleName = (req, res, next, config) => {
+    const conn = mysql.start(config)
+    const roleName = req.params.name
+
+    getRolesHasPermissionsModel({ roleName, conn })
+        .then((response) => {
+            if (noResults(response)) {
+                const err = error404()
+                const error = errorHandler(err, config.environment)
+                return sendResponseNotFound(res, error)
+            }
+
+            const result = {
+                _data: {
+                    roles_has_permissions: response
+                }
+            }
+            next(result)
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
@@ -109,5 +136,6 @@ export {
     getRolesHasPermissionsController,
     getPermissionsByRoleController,
     postRolesHasPermissionsController,
-    softDeleteRolesHasPermissionsController
+    softDeleteRolesHasPermissionsController,
+    getRolesHasPermissionsControllerByRoleName
 }

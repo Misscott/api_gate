@@ -1,14 +1,28 @@
-const _rolesHasPermissionsQuery = (_pagination) => ({count}) => ({uuid, permission_uuid}) => {
+import { pagination } from '../../utils/pagination.js'
+
+const _rolesHasPermissionsQuery = (_pagination) => ({count}) => ({uuid, permission_uuid, roleName}) => {
+    const roleNameCondition = roleName ? 'AND fk_role = (SELECT id from mydb.roles WHERE name = :roleName)' : '';
     const uuidCondition = uuid ? 'AND fk_role = (SELECT id from mydb.roles WHERE uuid = :roleUuid)' : '';
     const permissionsUuidCondition = permission_uuid ? 'AND fk_permission = (SELECT id from mydb.permissions WHERE uuid = :permissionUuid)' : '';
     return `
       SELECT
         ${count || 
-            `r.*, r2.name as role_name, r2.uuid as role_uuid`}
+            `r.*, 
+            r2.name as role_name, 
+            r2.uuid as role_uuid, 
+            p.action as permission_action, 
+            p.uuid as permission_uuid, 
+            p.resource_type as permission_resource_type`}
       FROM
         mydb.roles_has_permissions as r
-        LEFT JOIN mydb.roles as r2 ON r.fk_role = r2.id
-        LEFT JOIN mydb.permissions as p ON r.fk_permission = p.id
+      JOIN 
+        mydb.roles as r2 ON r.fk_role = r2.id 
+        AND r2.created <= :now
+        AND (r2.deleted > :now OR r2.deleted IS NULL)
+      JOIN 
+        mydb.permissions as p ON r.fk_permission = p.id
+        AND p.created <= :now
+        AND (p.deleted > :now OR p.deleted IS NULL)
       WHERE
         r.created <= :now
       AND
@@ -17,6 +31,7 @@ const _rolesHasPermissionsQuery = (_pagination) => ({count}) => ({uuid, permissi
         true
         ${uuidCondition}
         ${permissionsUuidCondition}
+        ${roleNameCondition}
         ${_pagination}
     `;
     }

@@ -14,15 +14,15 @@ const _userListSelectQuery = (_pagination = '') =>
         //for uuidList, we use IN clause to check if the uuid is in the list of uuids passed
         const uuidListCondition = uuidList ? 'AND users.uuid in(:uuidList)' : ''
 		    const loginUsernameCondition = loginUsername ? ' AND users.username = :loginUsername ' : ''
-        const usernameCondition = username ? 'AND users.username LIKE CONCAT(\'%\',:username,\'%\')' : '';
+        const usernameCondition = username ? `AND users.username LIKE CONCAT('%',:username,'%')` : '';
         const emailCondition = email ? 'AND users.email = :email ' : '';
         const roleCondition = role ? 'AND users.fk_role = :role ' : '';  
         return `
           SELECT
-            ${count || `u.*, r.name AS role`}  
+            ${count || `users.*, r.name AS role`}  
           FROM
             mydb.users as users
-            LEFT JOIN mydb.roles as r ON u.fk_role = r.id
+            LEFT JOIN mydb.roles as r ON users.fk_role = r.id
           WHERE
             users.created <= :now
           AND
