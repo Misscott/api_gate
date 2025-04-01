@@ -472,7 +472,7 @@ export default(config) => {
 
     routes.delete(
         '/permissions/:uuid',
-        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authenticateToken(req, res, next),
         (req, res, next) => authorizePermission('permissions')(req, res, next),
         [
 			uuid('uuid')
@@ -491,8 +491,8 @@ export default(config) => {
 			varChar('password')
 		],
 		(req, res, next) => payloadExpressValidator(req, res, next, config),
-		(req, res, next) => postLoginController(req, res, next, config),
-		(result, req, res, next) => setToken(result, req, res, next, config),
+		(req, res, next) => postLoginController(req, res, next),
+		(result, req, res, next) => setToken(result, req, res, next),
 		(result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
 		(result, req, res, next) => sendLoginSuccessfullResponse(result, req, res, next)
     );

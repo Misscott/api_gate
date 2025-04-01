@@ -27,7 +27,7 @@ const postLoginController = (req, res, next, config) => {
                     return _getRolePermissions(config, roleUuid)
                         .then(rolePermissions => {
                             const roleData = {
-                                name: response[0].role_name || 'Default Role', 
+                                name: response[0].role_name || 'viewer', 
                                 roles_uuid: roleUuid
                             };
                             
