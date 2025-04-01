@@ -1,5 +1,5 @@
 import { sendResponseAccessDenied } from '../utils/responses';
-import { checkPermission, getDataFromToken } from '../services/authService';
+import { checkPermission, getDataFromToken, generateAccessToken} from '../services/authService';
 
 const obtainToken = (req, res) => {
     return new Promise((resolve, reject) => {
@@ -12,6 +12,15 @@ const obtainToken = (req, res) => {
         }
     });
 };
+
+const setToken = (result, req, res, next, config) => {
+	const { user, role } = result
+	const token = generateAccessToken({
+		payload: { user, role },
+		config
+	})
+	next({ _data: { ...result, token } })
+}
 
 const authenticateToken = (req, res, next) => {
     obtainToken(req, res)
@@ -63,5 +72,6 @@ const authorizePermission = (resourceType) => {
 
 export {
     authenticateToken,
-    authorizePermission
+    authorizePermission,
+    setToken
 };

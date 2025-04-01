@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 31-03-2025 a las 16:23:57
+-- Tiempo de generación: 01-04-2025 a las 09:49:39
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -60,6 +60,22 @@ CREATE TABLE `permissions` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `roles`
+--
+
+CREATE TABLE `roles` (
+  `id` bigint(20) NOT NULL,
+  `uuid` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp(),
+  `createdBy` varchar(255) DEFAULT NULL,
+  `deleted` datetime DEFAULT NULL,
+  `deletedBy` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `roles_has_permissions`
 --
 
@@ -86,7 +102,7 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `uuid` varchar(255) NOT NULL,
   `id` bigint(20) NOT NULL,
-  `fk_role` int(11) NOT NULL,
+  `fk_role` bigint(20) NOT NULL,
   `created` datetime NOT NULL DEFAULT current_timestamp(),
   `createdBy` varchar(255) DEFAULT NULL,
   `deleted` datetime DEFAULT NULL,
@@ -132,6 +148,14 @@ ALTER TABLE `permissions`
   ADD UNIQUE KEY `uuid_UNIQUE` (`uuid`);
 
 --
+-- Indices de la tabla `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uuid_UNIQUE` (`uuid`),
+  ADD UNIQUE KEY `name_UNIQUE` (`name`);
+
+--
 -- Indices de la tabla `roles_has_permissions`
 --
 ALTER TABLE `roles_has_permissions`
@@ -173,6 +197,12 @@ ALTER TABLE `devices`
 -- AUTO_INCREMENT de la tabla `permissions`
 --
 ALTER TABLE `permissions`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `roles`
+--
+ALTER TABLE `roles`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
