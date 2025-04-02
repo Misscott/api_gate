@@ -36,7 +36,7 @@ const insertRolesHasPermissionsModel = ({conn, ...rest}) => {
         .then(results => results[1].map(({id, uuid, fk_role, fk_permission, created, deleted, createdBy, deletedBy, ...rest}) => ({...rest})))
 }
 
-const softDeleteRolesHasPermissionsModel = ({conn, ...rest}) => {
+const softDeleteRolesHasPermissionsModel = ({conn, deleted, deletedBy, ...rest}) => {
     const deletedData = deleted ? dayjs.utc(deleted).format('YYYY-MM-DD HH:mm:ss') : dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
 	const params = { ...rest, deleted: deletedData }
 

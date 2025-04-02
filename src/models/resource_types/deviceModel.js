@@ -71,11 +71,11 @@ const modifyDeviceModel = ({conn, ...params}) => {
  * @param {Object} Object containing connection and parameters passed per as request 
  * @returns {Promise} resolve after executing delete query  
  */
-const deleteDeviceModel = ({conn, ...params}) => {
-    const deletedData = deleted ? dayjs.utc(deleted).format('YYYY-MM-DD HH:mm:ss') : dayjs.utc.format('YYYY-MM-DD HH:mm:ss')
+const deleteDeviceModel = ({conn, deleted, deletedBy, ...params}) => {
+    const deletedData = deleted ? dayjs.utc(deleted).format('YYYY-MM-DD HH:mm:ss') : dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
     
     return mysql
-        .execute(softDeleteDeviceQuery({ ...params, deleted: deletedData }), conn, { ...params, deleted: deletedData })
+        .execute(softDeleteDeviceQuery({ ...params, deleted: deletedData, deletedBy }), conn, { ...params, deleted: deletedData, deletedBy })
 }
 
 export {countDeviceModel, getDeviceModel, insertDeviceModel, modifyDeviceModel, deleteDeviceModel}

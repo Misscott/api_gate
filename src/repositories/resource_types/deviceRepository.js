@@ -51,8 +51,9 @@ const countDeviceQuery = rest => _deviceSelectQuery()({count: 'COUNT(*) AS count
  * Insert query using parameters passed in request
  * @returns {String} INSERT query
  */
-const insertDeviceQuery = (userUuid) =>{
-    const descriptionCondition = description ?'AND description = :description ' : null
+const insertDeviceQuery = (description) =>{
+    const descriptionCondition = description ? ':description ' : null
+    console.log(descriptionCondition)
     return `
     INSERT INTO mydb.devices (
         uuid, 
@@ -125,13 +126,13 @@ const deleteDeviceQuery = () => {
 const softDeleteDeviceQuery = () => {
     return `
     UPDATE
-        mydb.devices
+        mydb.devices as devices
     SET
-        deleted = :deleted, deletedby = :deletedBy
+        devices.deleted = :deleted, devices.deletedby = :deletedBy
     WHERE
         devices.uuid = :uuid
     AND
-        deleted is null`
+        devices.deleted is null`
 }
 
 export {countDeviceQuery, getDeviceQuery, insertDeviceQuery, modifyDeviceQuery, deleteDeviceQuery, softDeleteDeviceQuery}

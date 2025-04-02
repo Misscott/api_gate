@@ -50,7 +50,7 @@ const getDeviceswithMinimumStockController = (minStock) => (req, res, next, conf
     getDeviceModel({conn})
         .then((device) => {
             if(noResults(device)){
-                const err = error404
+                const err = error404()
                 const error = errorHandler(err, config.environment)
                 return sendResponseNotFound(res, error)
             }
@@ -82,7 +82,7 @@ const getDeviceByFieldController = (field) => (req, res, next, config) => {
     getDeviceModel({[field]: fieldValue, conn})
         .then((device) => {
             if(noResults(device)){
-                const err = error404
+                const err = error404()
                 const error = errorHandler(err, config.environment)
                 return sendResponseNotFound(res, error)
             }
@@ -111,7 +111,7 @@ const getDeviceByFieldController = (field) => (req, res, next, config) => {
  */
 const postDeviceController = (req, res, next, config) => {
     const conn = mysql.start(config)
-    const createdBy = req.headers['uuid-requester'] || null
+    const createdBy = req.auth.user || null
     
     insertDeviceModel({...req.body, createdBy, conn})
         .then((device) => {
@@ -172,15 +172,16 @@ const putDeviceController = (req, res, next, config) => {
 const deleteDeviceController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const uuid = req.params.uuid
+    const deletedBy = req.auth.user || null
 
-    deleteDeviceModel({uuid, conn})
+    deleteDeviceModel({uuid, conn, deletedBy})
         .then(() => {
             const result = {message: "Device deleted successfully"}
             next(result)
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            res.status(error.code).json(error)
+            return res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)

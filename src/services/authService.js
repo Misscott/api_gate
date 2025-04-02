@@ -30,7 +30,6 @@ const getDataFromToken = (token) => {
 const generateAccessToken = (payload) => {
   const JWT_SECRET = process.env.JWT_SECRET;
   const JWT_TIME = parseInt(process.env.JWT_TIME, 10);
-
   return jwt.sign(payload, JWT_SECRET, JWT_TIME ? { expiresIn: JWT_TIME } : {});
 };
 

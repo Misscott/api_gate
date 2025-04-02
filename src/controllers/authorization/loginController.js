@@ -46,7 +46,6 @@ const postLoginController = (req, res, next, config) => {
                                     role_permissions: rolePermissions
                                 },
                             };
-                            
                             next(result);
                         });
                 });

@@ -380,7 +380,7 @@ export default(config) => {
     * @route DELETE /devices/{uuid}
     * @group Devices - Operations about devices
     * @param {string} uuid.path.required - The unique identifier for the device
-    * @returns {SuccessResponse} 200 - Device deleted successfully
+    * @returns {SuccessResponse} 204 - Device deleted successfully
     * @returns {ErrorResponse} 404 - Device not found
     * @returns {ErrorResponse} 500 - Internal server error
     * @returns {ErrorResponse} 403 - Forbidden
