@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 01-04-2025 a las 17:41:24
+-- Tiempo de generación: 02-04-2025 a las 18:01:54
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -33,6 +33,7 @@ CREATE TABLE `devices` (
   `serial_number` varchar(255) NOT NULL,
   `model` varchar(255) NOT NULL,
   `brand` varchar(255) NOT NULL,
+  `stock` int(11) NOT NULL DEFAULT 0,
   `description` varchar(255) DEFAULT NULL,
   `createdBy` varchar(255) DEFAULT NULL,
   `deleted` datetime DEFAULT NULL,
@@ -44,10 +45,15 @@ CREATE TABLE `devices` (
 -- Volcado de datos para la tabla `devices`
 --
 
-INSERT INTO `devices` (`id`, `uuid`, `serial_number`, `model`, `brand`, `description`, `createdBy`, `deleted`, `deletedBy`, `created`) VALUES
-(1, '927a5436-0ed5-11f0-8154-bce92f8462b5', 'SN001', 'Laptop X1', 'TechBrand', 'High performance laptop', 'system', NULL, NULL, '2025-04-01 10:44:49'),
-(2, '927a6280-0ed5-11f0-8154-bce92f8462b5', 'SN002', 'Smartphone S22', 'MobileTech', 'Latest smartphone model', 'system', NULL, NULL, '2025-04-01 10:44:49'),
-(3, '927a6306-0ed5-11f0-8154-bce92f8462b5', 'SN003', 'Tablet Pro', 'TabletCo', 'Professional tablet for designers', 'system', NULL, NULL, '2025-04-01 10:44:49');
+INSERT INTO `devices` (`id`, `uuid`, `serial_number`, `model`, `brand`, `stock`, `description`, `createdBy`, `deleted`, `deletedBy`, `created`) VALUES
+(1, '927a5436-0ed5-11f0-8154-bce92f8462b5', 'SN001', 'Laptop X1', 'TechBrand', 0, 'High performance laptop', 'system', '2025-04-02 15:34:45', '00f6f64a-0ee1-11f0-8154-bce92f8462b5', '2025-04-01 10:44:49'),
+(2, '927a6280-0ed5-11f0-8154-bce92f8462b5', 'SN00HOLI', 'Smartphone Shey', 'MobileTechno', 10, 'Latest smartphone model', 'system', NULL, NULL, '2025-04-01 10:44:49'),
+(3, '927a6306-0ed5-11f0-8154-bce92f8462b5', 'SN003', 'Tablet Pro', 'TabletCo', 0, 'Professional tablet for designers', 'system', NULL, NULL, '2025-04-01 10:44:49'),
+(4, 'ced10df0-551a-49e6-b13f-50a3fbddb898', 'SN00HOLI2', 'Smartphone Shey2', 'MobileTechno2', 100, NULL, '00f6f64a-0ee1-11f0-8154-bce92f8462b5', NULL, NULL, '2025-04-02 15:50:58'),
+(5, '886cfb45-1d16-41c0-8fbd-ce401b7c1f37', 'SN00HOLI3', 'Smartphone Shey3', 'MobileTechno3', 100, NULL, '00f6f64a-0ee1-11f0-8154-bce92f8462b5', NULL, NULL, '2025-04-02 15:52:23'),
+(6, '093e9638-f6ff-41bc-859f-a3ab45658745', 'SN00HOLI4', 'Smartphone Shey4', 'MobileTechno4', 100, NULL, '00f6f64a-0ee1-11f0-8154-bce92f8462b5', NULL, NULL, '2025-04-02 15:53:39'),
+(7, 'b3095727-3009-459f-83fe-735c7c55c3e2', 'SN00HOLI5', 'Smartphone Shey5', 'MobileTechno5', 100, NULL, '00f6f64a-0ee1-11f0-8154-bce92f8462b5', NULL, NULL, '2025-04-02 15:54:34'),
+(8, 'f39c28c6-1f6f-4947-b784-15622f4e90d3', 'SN00HOLI5', 'Smartphone Shey5', 'MobileTechno5', 100, 'Latest smartphone model :D', '00f6f64a-0ee1-11f0-8154-bce92f8462b5', NULL, NULL, '2025-04-02 15:55:41');
 
 -- --------------------------------------------------------
 
@@ -64,6 +70,27 @@ CREATE TABLE `endpoints` (
   `deleted` datetime DEFAULT NULL,
   `deletedBy` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Volcado de datos para la tabla `endpoints`
+--
+
+INSERT INTO `endpoints` (`id`, `uuid`, `route`, `created`, `createdBy`, `deleted`, `deletedBy`) VALUES
+(1, 'c751f8fc-0f95-11f0-8cdf-bce92f8462b5', '/', '2025-04-02 09:40:41', NULL, NULL, NULL),
+(2, 'c7906461-0f95-11f0-8cdf-bce92f8462b5', '/devices', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(3, 'c79246bc-0f95-11f0-8cdf-bce92f8462b5', '/devices/inStock', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(4, 'c7941aa4-0f95-11f0-8cdf-bce92f8462b5', '/devices/minStock/:stock', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(5, 'c795ef5a-0f95-11f0-8cdf-bce92f8462b5', '/devices/:uuid', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(6, 'c797bce4-0f95-11f0-8cdf-bce92f8462b5', '/devices/serial_number/:serial_number', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(7, 'c7998153-0f95-11f0-8cdf-bce92f8462b5', '/devices/model/:model', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(8, 'c79b52a8-0f95-11f0-8cdf-bce92f8462b5', '/devices/brand/:brand', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(9, 'c79d1c65-0f95-11f0-8cdf-bce92f8462b5', '/users', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(10, 'c79ee77f-0f95-11f0-8cdf-bce92f8462b5', '/users/:uuid', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(11, 'c7a0c191-0f95-11f0-8cdf-bce92f8462b5', '/roles', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(12, 'c7a2994a-0f95-11f0-8cdf-bce92f8462b5', '/roles/:uuid', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(13, 'c7a4822c-0f95-11f0-8cdf-bce92f8462b5', '/permissions', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(14, 'c7a6561f-0f95-11f0-8cdf-bce92f8462b5', '/permissions/:uuid', '2025-04-02 09:40:42', NULL, NULL, NULL),
+(15, 'c7a85af5-0f95-11f0-8cdf-bce92f8462b5', '/login', '2025-04-02 09:40:42', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -87,22 +114,33 @@ CREATE TABLE `permissions` (
 --
 
 INSERT INTO `permissions` (`id`, `uuid`, `action`, `created`, `createdBy`, `deleted`, `deletedBy`, `fk_endpoint`) VALUES
-(1, '926cd785-0ed5-11f0-8154-bce92f8462b5', 'GET', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(2, '926ce6b4-0ed5-11f0-8154-bce92f8462b5', 'POST', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(3, '926ce794-0ed5-11f0-8154-bce92f8462b5', 'PUT', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(4, '926ce7d5-0ed5-11f0-8154-bce92f8462b5', 'DELETE', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(5, '926ce809-0ed5-11f0-8154-bce92f8462b5', 'GET', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(6, '926ce83b-0ed5-11f0-8154-bce92f8462b5', 'POST', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(7, '926ce866-0ed5-11f0-8154-bce92f8462b5', 'PUT', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(8, '926ce890-0ed5-11f0-8154-bce92f8462b5', 'DELETE', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(9, '926ce906-0ed5-11f0-8154-bce92f8462b5', 'GET', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(10, '926ce936-0ed5-11f0-8154-bce92f8462b5', 'POST', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(11, '926ce966-0ed5-11f0-8154-bce92f8462b5', 'PUT', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(12, '926ce9ca-0ed5-11f0-8154-bce92f8462b5', 'DELETE', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(13, '926ce9f6-0ed5-11f0-8154-bce92f8462b5', 'GET', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(14, '926cea20-0ed5-11f0-8154-bce92f8462b5', 'POST', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(15, '926cea4c-0ed5-11f0-8154-bce92f8462b5', 'PUT', '2025-04-01 10:44:49', 'system', NULL, NULL, 0),
-(16, '926cea78-0ed5-11f0-8154-bce92f8462b5', 'DELETE', '2025-04-01 10:44:49', 'system', NULL, NULL, 0);
+(44, '3b8ef98c-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 1),
+(45, '3b8f062f-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 2),
+(46, '3b8f0782-0f97-11f0-8cdf-bce92f8462b5', 'POST', '2025-04-02 09:51:06', NULL, NULL, NULL, 2),
+(47, '3b8f07d0-0f97-11f0-8cdf-bce92f8462b5', 'PUT', '2025-04-02 09:51:06', NULL, NULL, NULL, 5),
+(48, '3b8f089e-0f97-11f0-8cdf-bce92f8462b5', 'DELETE', '2025-04-02 09:51:06', NULL, NULL, NULL, 5),
+(49, '3b8f97a2-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 3),
+(50, '3b8f9950-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 4),
+(51, '3b8f9a97-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 5),
+(52, '3b8f9b2e-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 6),
+(53, '3b8f9b8e-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 7),
+(54, '3b8f9bf5-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 8),
+(55, '3b8f9c5a-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 9),
+(56, '3b8f9cba-0f97-11f0-8cdf-bce92f8462b5', 'POST', '2025-04-02 09:51:06', NULL, NULL, NULL, 9),
+(57, '3b8f9d1a-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 10),
+(58, '3b8f9d7a-0f97-11f0-8cdf-bce92f8462b5', 'PUT', '2025-04-02 09:51:06', NULL, NULL, NULL, 10),
+(59, '3b8f9e58-0f97-11f0-8cdf-bce92f8462b5', 'DELETE', '2025-04-02 09:51:06', NULL, NULL, NULL, 10),
+(60, '3b8f9f87-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 11),
+(61, '3b8f9ff7-0f97-11f0-8cdf-bce92f8462b5', 'POST', '2025-04-02 09:51:06', NULL, NULL, NULL, 11),
+(62, '3b8fa067-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 12),
+(63, '3b8fa0d2-0f97-11f0-8cdf-bce92f8462b5', 'PUT', '2025-04-02 09:51:06', NULL, NULL, NULL, 12),
+(64, '3b8fa1c4-0f97-11f0-8cdf-bce92f8462b5', 'DELETE', '2025-04-02 09:51:06', NULL, NULL, NULL, 12),
+(65, '3b8fa231-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 13),
+(66, '3b8fa29a-0f97-11f0-8cdf-bce92f8462b5', 'POST', '2025-04-02 09:51:06', NULL, NULL, NULL, 13),
+(67, '3b8fa2fd-0f97-11f0-8cdf-bce92f8462b5', 'GET', '2025-04-02 09:51:06', NULL, NULL, NULL, 14),
+(68, '3b8fa368-0f97-11f0-8cdf-bce92f8462b5', 'PUT', '2025-04-02 09:51:06', NULL, NULL, NULL, 14),
+(69, '3b8fa3d3-0f97-11f0-8cdf-bce92f8462b5', 'DELETE', '2025-04-02 09:51:06', NULL, NULL, NULL, 14),
+(70, '3b8fa43a-0f97-11f0-8cdf-bce92f8462b5', 'POST', '2025-04-02 09:51:06', NULL, NULL, NULL, 15);
 
 -- --------------------------------------------------------
 
@@ -150,26 +188,21 @@ CREATE TABLE `roles_has_permissions` (
 --
 
 INSERT INTO `roles_has_permissions` (`id`, `fk_role`, `fk_permission`, `created`, `createdBy`, `deleted`, `deletedBy`, `uuid`) VALUES
-(1, 1, 1, '2025-04-01 10:44:49', 'system', NULL, NULL, '927292b2-0ed5-11f0-8154-bce92f8462b5'),
-(2, 1, 2, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a176-0ed5-11f0-8154-bce92f8462b5'),
-(3, 1, 3, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a23e-0ed5-11f0-8154-bce92f8462b5'),
-(4, 1, 4, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a35d-0ed5-11f0-8154-bce92f8462b5'),
-(5, 1, 5, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a3c1-0ed5-11f0-8154-bce92f8462b5'),
-(6, 1, 6, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a41e-0ed5-11f0-8154-bce92f8462b5'),
-(7, 1, 7, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a473-0ed5-11f0-8154-bce92f8462b5'),
-(8, 1, 8, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a547-0ed5-11f0-8154-bce92f8462b5'),
-(9, 1, 9, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a5f1-0ed5-11f0-8154-bce92f8462b5'),
-(10, 1, 10, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a644-0ed5-11f0-8154-bce92f8462b5'),
-(11, 1, 11, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a690-0ed5-11f0-8154-bce92f8462b5'),
-(12, 1, 12, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a6f6-0ed5-11f0-8154-bce92f8462b5'),
-(13, 1, 13, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a748-0ed5-11f0-8154-bce92f8462b5'),
-(14, 1, 14, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a795-0ed5-11f0-8154-bce92f8462b5'),
-(15, 1, 15, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a7e3-0ed5-11f0-8154-bce92f8462b5'),
-(16, 1, 16, '2025-04-01 10:44:49', 'system', NULL, NULL, '9272a82e-0ed5-11f0-8154-bce92f8462b5'),
-(32, 2, 1, '2025-04-01 10:44:49', 'system', NULL, NULL, '92747663-0ed5-11f0-8154-bce92f8462b5'),
-(33, 2, 5, '2025-04-01 10:44:49', 'system', NULL, NULL, '92748409-0ed5-11f0-8154-bce92f8462b5'),
-(34, 2, 9, '2025-04-01 10:44:49', 'system', NULL, NULL, '927484ab-0ed5-11f0-8154-bce92f8462b5'),
-(35, 2, 13, '2025-04-01 10:44:49', 'system', NULL, NULL, '9274850f-0ed5-11f0-8154-bce92f8462b5');
+(49, 1, 44, '2025-04-02 09:57:21', NULL, NULL, NULL, '1b21126b-0f98-11f0-8cdf-bce92f8462b5'),
+(50, 1, 45, '2025-04-02 09:57:21', NULL, NULL, NULL, '1b211ce9-0f98-11f0-8cdf-bce92f8462b5'),
+(51, 1, 46, '2025-04-02 09:57:21', NULL, NULL, NULL, '1b211d8b-0f98-11f0-8cdf-bce92f8462b5'),
+(52, 1, 47, '2025-04-02 09:57:21', NULL, NULL, NULL, '1b211de6-0f98-11f0-8cdf-bce92f8462b5'),
+(53, 1, 48, '2025-04-02 09:57:21', NULL, NULL, NULL, '1b211e39-0f98-11f0-8cdf-bce92f8462b5'),
+(73, 1, 49, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb81f31-0f98-11f0-8cdf-bce92f8462b5'),
+(74, 1, 50, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb82bab-0f98-11f0-8cdf-bce92f8462b5'),
+(75, 1, 51, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb82c3d-0f98-11f0-8cdf-bce92f8462b5'),
+(76, 1, 52, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb82d55-0f98-11f0-8cdf-bce92f8462b5'),
+(77, 1, 53, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb82db1-0f98-11f0-8cdf-bce92f8462b5'),
+(78, 1, 54, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb82ebc-0f98-11f0-8cdf-bce92f8462b5'),
+(79, 1, 55, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb8c3c1-0f98-11f0-8cdf-bce92f8462b5'),
+(80, 1, 56, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb8c609-0f98-11f0-8cdf-bce92f8462b5'),
+(81, 1, 57, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb8c696-0f98-11f0-8cdf-bce92f8462b5'),
+(82, 1, 58, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb8c70a-0f98-11f0-8cdf-bce92f8462b5');
 
 -- --------------------------------------------------------
 
@@ -197,8 +230,6 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`username`, `email`, `password`, `uuid`, `id`, `fk_role`, `created`, `createdBy`, `deleted`, `deletedBy`, `status`, `lastLoginDate`) VALUES
-('admin', 'admin@example.com', '749f09bade8aca755660eeb17792da880218d4fbdc4e25fbec279d7fe9f65d70', '927658d5-0ed5-11f0-8154-bce92f8462b5', 1, 1, '2025-04-01 10:44:49', 'system', NULL, NULL, 'active', NULL),
-('viewer', 'viewer@example.com', '139f268dcb46dc0c1677f259fe231cb6fe9e1394116ae66cb85690b857f276c9', '92784a8a-0ed5-11f0-8154-bce92f8462b5', 2, 2, '2025-04-01 10:44:49', 'system', NULL, NULL, 'active', NULL),
 ('admin_user', 'admin@example.com', '$2b$12$VGJZSRyzzKPNRapXvVpFGu7dINaCASCLhalvecda3nM5ZHX2oisHu', '00f6f64a-0ee1-11f0-8154-bce92f8462b5', 3, 1, '2025-03-31 12:06:39', 'system', NULL, NULL, 'active', NULL);
 
 -- --------------------------------------------------------
@@ -218,15 +249,6 @@ CREATE TABLE `users_has_devices` (
   `deletedBy` varchar(255) DEFAULT NULL,
   `uuid` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Volcado de datos para la tabla `users_has_devices`
---
-
-INSERT INTO `users_has_devices` (`id`, `fk_device`, `fk_user`, `stock`, `created`, `createdBy`, `deleted`, `deletedBy`, `uuid`) VALUES
-(1, 1, 1, 5, '2025-04-01 10:44:49', 'system', NULL, NULL, '92856094-0ed5-11f0-8154-bce92f8462b5'),
-(2, 2, 1, 3, '2025-04-01 10:44:49', 'system', NULL, NULL, '92856c33-0ed5-11f0-8154-bce92f8462b5'),
-(3, 3, 2, 2, '2025-04-01 10:44:49', 'system', NULL, NULL, '92856d01-0ed5-11f0-8154-bce92f8462b5');
 
 --
 -- Índices para tablas volcadas
@@ -298,19 +320,19 @@ ALTER TABLE `users_has_devices`
 -- AUTO_INCREMENT de la tabla `devices`
 --
 ALTER TABLE `devices`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `endpoints`
 --
 ALTER TABLE `endpoints`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
@@ -322,7 +344,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT de la tabla `roles_has_permissions`
 --
 ALTER TABLE `roles_has_permissions`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 
 --
 -- AUTO_INCREMENT de la tabla `users`
@@ -334,7 +356,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT de la tabla `users_has_devices`
 --
 ALTER TABLE `users_has_devices`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- Restricciones para tablas volcadas
