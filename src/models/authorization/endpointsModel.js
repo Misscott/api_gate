@@ -5,7 +5,7 @@ import {
     countEndpointsQuery,
     getEndpointsQuery,
     insertEndpointsQuery,
-    modifyEndpointsQuery,
+    updateEndpointsQuery,
     deleteEndpointsQuery,
     softDeleteEndpointsQuery
 } from '../../repositories/authorization/endpointsRepository.js'
@@ -16,7 +16,7 @@ const getEndpointsModel = ({conn, ...rest}) => {
 
     return mysql
         .execute(getEndpointsQuery(paramsToSearch), conn, paramsToSearch)
-        .then(queryResult => queryResult.map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(queryResult => queryResult.map(({created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 const countEndpointsModel = ({conn, ...rest}) => {
@@ -42,7 +42,7 @@ const insertEndpointsModel = ({conn, ...params}) => {
 
 const modifyEndpointsModel = ({conn, ...params}) => {
     return mysql
-        .execute(modifyEndpointsQuery(params), conn, params)
+        .execute(updateEndpointsQuery(params), conn, params)
         .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 

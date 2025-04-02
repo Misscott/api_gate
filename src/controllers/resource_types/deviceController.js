@@ -79,7 +79,7 @@ const getDeviceByFieldController = (field) => (req, res, next, config) => {
     const conn = mysql.start(config)
     const fieldValue = req.params[field]
 
-    getDeviceModel({fieldValue, conn})
+    getDeviceModel({[field]: fieldValue, conn})
         .then((device) => {
             if(noResults(device)){
                 const err = error404

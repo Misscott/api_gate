@@ -1,4 +1,4 @@
-import { pagination } from "../../utils/pagination";
+import { pagination } from "../../utils/pagination.js";
 
 const _endpointsQuery = (_pagination) => ({ count }) => ({ uuid, route, method }) => {
     const uuidCondition = uuid ? "AND uuid = :uuid " : "";
@@ -12,7 +12,7 @@ const _endpointsQuery = (_pagination) => ({ count }) => ({ uuid, route, method }
             WHERE
             e.created <= :now
             AND
-            (e.created > :now OR e.deleted IS NULL)
+            (e.deleted > :now OR e.deleted IS NULL)
             AND
             true
             ${uuidCondition}

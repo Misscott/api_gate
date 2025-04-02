@@ -20,7 +20,7 @@ const _roleSelectQuery = (_pagination = '') =>
           WHERE
             r.created <= :now
           AND
-            (r.created > :now OR r.deleted IS NULL)
+            (r.deleted > :now OR r.deleted IS NULL)
           AND
             true
             ${uuidCondition}

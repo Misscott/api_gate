@@ -1,9 +1,10 @@
 import { sendResponseAccessDenied } from '../utils/responses.js';
 import { checkPermission, getDataFromToken, generateAccessToken} from '../services/authService.js';
 import { getRolesHasPermissionsModel } from '../models/authorization/roles_has_permissionsModel.js';
-import mysql from '../adapters/mysql.js';
 import { error404, errorHandler } from '../utils/errors.js';
 import { noResults } from '../validators/result-validators.js';
+import mysql from '../adapters/mysql.js';
+import { sendResponseNotFound } from '../utils/responses.js';
 
 const obtainToken = (req, res) => {
     return new Promise((resolve, reject) => {
@@ -49,13 +50,12 @@ const authorizePermission = (endpoint) => {
                     .then((rolePermissions) => {
                         const action = req.method
                         //check if the user has the necessary permissions
-                        return checkPermission(action, endpoint, rolePermissions)
+                        return checkPermission(action, endpoint, rolePermissions, config)
                             .then(({ hasPermission }) => {
                                 if (!hasPermission) {
-                                    sendResponseAccessDenied(res, {
-                                        message: `You don't have permission to ${action} on ${endpoint}`
+                                    return sendResponseAccessDenied(res, {
+                                        message: `Access denied. User does not have permission`
                                     });
-                                    throw new Error(`Permission denied for ${action} on ${endpoint}`);
                                 }
                             
                                 //attach user and role to the request object

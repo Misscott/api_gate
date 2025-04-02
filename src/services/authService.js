@@ -1,5 +1,10 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import mysql from '../adapters/mysql.js';
+import { errorHandler } from '../utils/errors.js';
+import { getEndpointsModel } from '../models/authorization/endpointsModel.js';
+import { noResults } from '../validators/result-validators.js';
+import { error404, error403 } from '../utils/errors.js';
 
 dotenv.config();
 
@@ -37,20 +42,44 @@ const generateAccessToken = (payload) => {
  * @param {Array} userPermissions - The list of permissions assigned to the user.
  * @returns {Promise<Object>} - Resolves with an object containing permission details.
  */
-const checkPermission = (action, endpoint, userPermissions) => {
-  return new Promise((resolve, reject) => {
-    const hasPermission = userPermissions.some(
-      (permission) =>
-        permission.permission_action === action && permission.permission_endpoint === endpoint
-    );
+const checkPermission = (action, endpoint, userPermissions, config) => {
+  return _getEndpointByRoute(endpoint, config) 
+    .then((endpointInfo) => {
+      const hasPermission = userPermissions.some(
+        (permission) =>
+          permission.permission_action === action &&
+          permission.permission_endpoint === endpointInfo.id // Comparar con el ID del endpoint
+      );
 
-    if (hasPermission) {
-      resolve({ hasPermission: true });
-    } else {
-      reject(new Error(`Permission denied for ${action} on ${endpoint}`));
-    }
-  });
+      if (hasPermission) {
+        return { hasPermission: true };
+      }
+      return { hasPermission: false };
+    })
+    .catch((error) => {
+      const err = error403()
+      return errorHandler(err, config.environment,`Authorization failed: ${error.message}`);
+    });
 };
+
+const _getEndpointByRoute = (route, config) => {
+  const conn = mysql.start(config)
+  return getEndpointsModel({ route, conn }) 
+    .then((endpointInformation) => {
+      if (noResults(endpointInformation)) {
+        const err = error404()
+        errorHandler(err, config.environment)
+      }
+
+      return endpointInformation[0]
+    })
+    .catch((err) => {
+      errorHandler(err, config.environment)
+    })
+    .finally(() => {
+      mysql.end(conn)
+    })
+}
 
 export {
   getDataFromToken,

@@ -12,7 +12,7 @@ const _rolesHasPermissionsQuery = (_pagination) => ({count}) => ({uuid, permissi
             r2.uuid as role_uuid, 
             p.action as permission_action, 
             p.uuid as permission_uuid, 
-            p.resource_type as permission_resource_type`}
+            p.fk_endpoint as permission_endpoint`}
       FROM
         mydb.roles_has_permissions as r
       JOIN 

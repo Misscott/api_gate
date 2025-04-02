@@ -11,9 +11,9 @@ const _deviceSelectQuery = (_pagination = '') =>
     ({count}) => 
         ({uuid, serial_number, model, brand, description, stock}) => {
             const uuidCondition = uuid ? 'AND uuid = :uuid ' : ''
-            const serial_numberCondition = serial_number ? 'AND serial_number = :serial_number ' : ''
+            const serial_numberCondition = serial_number ? 'AND serial_number = :serial_number' : ''
             const modelCondition = model ? 'AND model = :model ' : ''
-            const brandCondition = brand ? 'AND brand LIKE CONCAT(\'%\',:brand,\'%\')' : ''
+            const brandCondition = brand ? 'AND brand = :brand' : ''
             const descriptionCondition = description ?'AND description = :description ' : ''
             const stockCondition = stock ? 'AND stock = :stock ' : ''
             return `
@@ -24,7 +24,7 @@ const _deviceSelectQuery = (_pagination = '') =>
                 WHERE
                     devices.created <= :now
                 AND
-                    (devices.created > :now OR devices.deleted IS NULL)
+                    (devices.deleted > :now OR devices.deleted IS NULL)
                 AND
                     true
                     ${uuidCondition}

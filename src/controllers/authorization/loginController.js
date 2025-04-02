@@ -2,8 +2,8 @@ import { getUserListModel } from "../../models/authorization/userModel.js";
 import { noResults } from "../../validators/result-validators.js";
 import mysql from "../../adapters/mysql.js";
 import bcrypt from "bcrypt";
-import { error404, errorHandler } from "../../utils/errors.js";
-import { sendResponseNotFound, sendResponseUnauthorized } from "../../utils/responses.js";
+import { errorHandler } from "../../utils/errors.js";
+import { sendResponseUnauthorized } from "../../utils/responses.js";
 import { getRolesHasPermissionsModel } from "../../models/authorization/roles_has_permissionsModel.js";
 
 const postLoginController = (req, res, next, config) => {
@@ -60,19 +60,17 @@ const postLoginController = (req, res, next, config) => {
         });
 }
 
-const _getRolePermissions = (config, roleUuid, conn) => {
-    return getRolesHasPermissionsModel({ uuid_role: roleUuid, conn })
+const _getRolePermissions = (config, roleName, conn) => {
+    return getRolesHasPermissionsModel({ roleName: roleName, conn })
         .then((response) => {
             if (noResults(response)) {
-                const err = error404();
-                const error = errorHandler(err, config.environment);
-                return sendResponseNotFound(res, error);
+                return [] //if user has no role assigned/no permissions assigned to role, return empty array to allow log in
             }
             
-            return response.map(({ permission }) => permission);
+            return response
         })
         .catch((err) => {
-            throw errorHandler(err, config.environment);
+            return errorHandler(err, config.environment);
         })
 }
 

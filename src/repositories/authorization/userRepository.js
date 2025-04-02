@@ -9,7 +9,7 @@ import { pagination } from "../../utils/pagination.js";
  */
 const _userListSelectQuery = (_pagination = '') => 
     ({ count }) =>
-      ({ uuid, username, loginUsername, uuidList, email, role }) => {
+      ({ uuid, username, loginUsername, uuidList, email, role, roleName }) => {
         const uuidCondition = uuid ? 'AND users.uuid = :uuid ' : '';
         //for uuidList, we use IN clause to check if the uuid is in the list of uuids passed
         const uuidListCondition = uuidList ? 'AND users.uuid in(:uuidList)' : ''
@@ -17,6 +17,7 @@ const _userListSelectQuery = (_pagination = '') =>
         const usernameCondition = username ? `AND users.username LIKE CONCAT('%',:username,'%')` : '';
         const emailCondition = email ? 'AND users.email = :email ' : '';
         const roleCondition = role ? 'AND users.fk_role = :role ' : '';  
+        const roleNameCondition = roleName ? 'AND users.fk_role = (SELECT id FROM mydb.roles WHERE name = :roleName)' : '';
         return `
           SELECT
             ${count || `users.*, r.name AS role`}  
@@ -26,7 +27,7 @@ const _userListSelectQuery = (_pagination = '') =>
           WHERE
             users.created <= :now
           AND
-            (users.created > :now OR users.deleted IS NULL)
+            (users.deleted > :now OR users.deleted IS NULL)
           AND
             true
             ${uuidCondition}
@@ -35,6 +36,7 @@ const _userListSelectQuery = (_pagination = '') =>
             ${emailCondition}
             ${roleCondition}
             ${loginUsernameCondition}
+            ${roleNameCondition}
             ${_pagination}
         `;
       };
