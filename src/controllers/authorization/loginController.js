@@ -61,7 +61,6 @@ const postLoginController = (req, res, next, config) => {
 }
 
 const _getRolePermissions = (config, roleUuid, conn) => {
-    
     return getRolesHasPermissionsModel({ uuid_role: roleUuid, conn })
         .then((response) => {
             if (noResults(response)) {
@@ -73,12 +72,8 @@ const _getRolePermissions = (config, roleUuid, conn) => {
             return response.map(({ permission }) => permission);
         })
         .catch((err) => {
-            const error = errorHandler(err, config.environment);
-            response.status(error.code).json(error);
+            throw errorHandler(err, config.environment);
         })
-        .finally(() => {
-            mysql.end(conn);
-        });
 }
 
 export {
