@@ -121,7 +121,7 @@ const putRoleController = (req, res, next, config) => {
 		.then((RoleInformation) => {
 			const result = {
 				_data: {
-					message: 'Role created',
+					message: 'Role modified',
 					Role: RoleInformation
 				}
 			}

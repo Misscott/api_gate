@@ -68,8 +68,25 @@ const insertRolesHasPermissionsQuery = () => {
     `
 }
 
+const modifyRolesHasPermissionsQuery = (roleUuid, permissionUuid) => {
+  const roleUuidCondition = roleUuid ? '(SELECT id from mydb.roles WHERE uuid = :roleUuid)' : '';
+  const permissionUuidCondition = permissionUuid ? '(SELECT id from mydb.permissions WHERE uuid = :permissionUuid)' : '';
+  return `
+    UPDATE 
+        mydb.roles_has_permissions as roles_has_permissions
+    SET 
+        fk_role = ${roleUuidCondition},
+        fk_permission = ${permissionUuidCondition},
+    WHERE
+        roles_has_permissions.uuid = :uuid
+    AND 
+        roles_has_permissions.deleted IS NULL    
+    SELECT * FROM mydb.roles_has_permissions WHERE uuid = :uuid;
+  `
+}
+
 const softDeleteRolesHasPermissionsQuery = () => {
-    return `
+  return `
     UPDATE 
         mydb.roles_has_permissions as roles_has_permissions
     SET 
@@ -81,12 +98,13 @@ const softDeleteRolesHasPermissionsQuery = () => {
     AND 
         roles_has_permissions.deleted IS NULL    
     SELECT * FROM mydb.roles_has_permissions WHERE uuid = :uuid;
-    `
+  `
 }
 
 export{
     getRolesHasPermissionsQuery,
     countRolesHasPermissionsQuery,
     insertRolesHasPermissionsQuery,
-    softDeleteRolesHasPermissionsQuery
+    softDeleteRolesHasPermissionsQuery,
+    modifyRolesHasPermissionsQuery
 }

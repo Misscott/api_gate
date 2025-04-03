@@ -112,6 +112,26 @@ const postRolesHasPermissionsController = (req, res, next, config) => {
         })
 }
 
+const putRolesHasPermissionsController = (req, res, next, config) => {
+    const conn = mysql.start(config)
+    const uuid = req.params.uuid
+
+    modifyRolesHasPermissionsModel({ ...req.body, uuid, modifiedBy, conn })
+        .then((roles_has_permissions) => {
+            const result = {
+                _data: roles_has_permissions
+            }
+            next(result)
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            return res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+}
+
 const softDeleteRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const uuid = req.params.uuid
@@ -137,5 +157,7 @@ export {
     getPermissionsByRoleController,
     postRolesHasPermissionsController,
     softDeleteRolesHasPermissionsController,
+    getRolesHasPermissionsControllerByRoleName,
+    putRolesHasPermissionsController,
     getRolesHasPermissionsControllerByRoleName
 }
