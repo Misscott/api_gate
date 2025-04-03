@@ -22,7 +22,27 @@ import { error422, errorHandler } from '../utils/errors.js'
 import { authorizePermission, setToken, authenticateToken} from '../middlewares/auth.js'
 import { postRegisterController } from '../controllers/authorization/registerController.js'
 import { postRefreshTokenController } from '../controllers/authorization/refreshTokenController.js'
-
+import { 
+    getEndpointsByRouteController, 
+    getEndpointsController,
+    getEndpointsByUuidController,
+    postEndpointsController,
+    putEndpointsController,
+    deleteEndpointsController,
+    softDeleteEndpointsController
+} from '../controllers/authorization/endpointsController.js'
+import { 
+    getRolesHasPermissionsController, 
+    postRolesHasPermissionsController, 
+    putRolesHasPermissionsController, 
+    softDeleteRolesHasPermissionsController,
+ } from '../controllers/authorization/roles_has_permissionsController.js'
+import { 
+    getUsersHasDevicesController,
+    postUsersHasDevicesController, 
+    putUsersHasDevicesController, 
+    softDeleteUsersHasDevicesController,
+ } from '../controllers/resource_types/usersHasDevicesController.js'
 /**
  * @function default 
  * @param {Object} configuration based on environment
@@ -843,6 +863,384 @@ export default(config) => {
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => softDeletePermissionController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendResponseNoContent(result, req, res)
+    );
+
+    // User Permission Routes
+    /**
+     * @name GET/user_permissions
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route GET /user_permissions
+     * @group User Permissions - Operations about user permissions
+     * @param {string} uuid.path.required - The unique identifier for the user permission
+     * @param {string} fk_user.path.required - The unique identifier for the user
+     * @param {string} fk_permission.path.required - The unique identifier for the permission
+     * @returns {SuccessResponse} 200 - The user permission object
+     * @returns {ErrorResponse} 404 - User permission not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
+    routes.get(
+        '/user_permissions',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/user_permissions')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => getUserPermissionController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendOkResponse(result, req, res)
+    );
+
+    /**
+     * @name GET/user_permissions/:uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route GET /user_permissions/{uuid}
+     * @group User Permissions - Operations about user permissions
+     * @param {string} uuid.path.required - The unique identifier for the user permission
+     * @param {string} fk_user.path.required - The unique identifier for the user
+     * @param {string} fk_permission.path.required - The unique identifier for the permission
+     * @returns {SuccessResponse} 200 - The user permission object
+     * @returns {ErrorResponse} 404 - User permission not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
+    routes.get(
+        '/user_permissions/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/user_permissions/:uuid')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => getUserPermissionController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendOkResponse(result, req, res)
+    );
+
+    /**
+     * @name POST/user_permissions
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route POST /user_permissions
+     * @group User Permissions - Operations about user permissions
+     * @param {string} fk_user.path.required - The unique identifier for the user
+     * @param {string} fk_permission.path.required - The unique identifier for the permission
+     * @returns {SuccessResponse} 200 - User permission created successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - User permission not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
+    routes.post(
+        '/user_permissions',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/user_permissions')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => postUserPermissionController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendCreatedResponse(result, req, res)
+    );
+
+    /**
+     * @name PUT/user_permissions/:uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route PUT /user_permissions/{uuid}
+     * @group User Permissions - Operations about user permissions
+     * @param {string} uuid.path.required - The unique identifier for the user permission
+     * @param {string} fk_user.path.required - The unique identifier for the user
+     * @param {string} fk_permission.path.required - The unique identifier for the permission
+     * @returns {SuccessResponse} 200 - User permission updated successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - User permission not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
+    routes.put(
+        '/user_permissions/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/user_permissions/:uuid')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => putUserPermissionController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendCreatedResponse(result, req, res)
+    );
+
+    /**
+     * @name DELETE/user_permissions/:uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route DELETE /user_permissions/{uuid}
+     * @group User Permissions - Operations about user permissions
+     * @param {string} uuid.path.required - The unique identifier for the user permission
+     * @param {string} fk_user.path.required - The unique identifier for the user
+     * @param {string} fk_permission.path.required - The unique identifier for the permission
+     * @returns {SuccessResponse} 200 - User permission deleted successfully
+     * @returns {ErrorResponse} 404 - User permission not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+     * @returns {ErrorResponse} 401 - Unauthorized
+     * @returns {ErrorResponse} 400 - Bad request
+     */
+    routes.delete(
+        '/user_permissions/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/user_permissions/:uuid')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => softDeleteUserPermissionController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendResponseNoContent(result, req, res)
+    );
+
+    //Endpoints
+    routes.get(
+        '/endpoints',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/endpoints')(req, res, next, config),
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => getEndpointsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendOkResponse(result, req, res)
+    );
+
+    routes.get(
+        '/endpoints/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/endpoints/:uuid')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            varChar('name').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => getEndpointsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendOkResponse(result, req, res)
+    );
+
+    routes.post(
+        '/endpoints',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/endpoints')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            varChar('route').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => postEndpointsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendCreatedResponse(result, req, res)
+    );
+
+    routes.put(
+        '/endpoints/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/endpoints/:uuid')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            varChar('route').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => putEndpointsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendCreatedResponse(result, req, res)
+    );
+
+    routes.delete(
+        '/endpoints/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/endpoints/:uuid')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            varChar('route').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => softDeleteEndpointsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendResponseNoContent(result, req, res)
+    );
+
+    //roles_has_permissions routes
+    routes.get(
+        '/roles_has_permissions',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles_has_permissions')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_role').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => getRolesHasPermissionsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendOkResponse(result, req, res)
+    );
+
+    routes.get(
+        '/roles_has_permissions/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles_has_permissions/:uuid')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_role').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => getRolesHasPermissionsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendOkResponse(result, req, res)
+    );
+
+    routes.post(
+        '/roles_has_permissions',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles_has_permissions')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_role').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => postRolesHasPermissionsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendCreatedResponse(result, req, res)
+    );
+
+    routes.put(
+        '/roles_has_permissions/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles_has_permissions/:uuid')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_role').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => putRolesHasPermissionsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendCreatedResponse(result, req, res)
+    );
+
+    routes.delete(
+        '/roles_has_permissions/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles_has_permissions/:uuid')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_role').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => softDeleteRolesHasPermissionsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendResponseNoContent(result, req, res)
+    );
+
+    //users_has_devices routes
+    routes.get(
+        '/users_has_devices',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/users_has_devices')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_device').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => getUsersHasDevicesController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendOkResponse(result, req, res)
+    );
+
+    routes.get(
+        '/users_has_devices/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/users_has_devices/:uuid')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_device').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => getUsersHasDevicesController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendOkResponse(result, req, res)
+    );
+
+    routes.post(
+        '/users_has_devices',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/users_has_devices')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_device').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => postUsersHasDevicesController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendCreatedResponse(result, req, res)
+    );
+
+    routes.put(
+        '/users_has_devices/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/users_has_devices/:uuid')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_device').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => putUsersHasDevicesController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendCreatedResponse(result, req, res)
+    );
+
+    routes.delete(
+        '/users_has_devices/:uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/users_has_devices/:uuid')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
+            uuid('fk_device').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => softDeleteUsersHasDevicesController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendResponseNoContent(result, req, res)
     );
