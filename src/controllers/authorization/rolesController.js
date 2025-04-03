@@ -94,12 +94,12 @@ const getRoleByNameController = (req, res, next, config) => {
 
 const postRoleController = (req, res, next, config) => {
 	const conn = mysql.start(config)
-	const createdby = req.headers['uuid-requester'] || null
+	const createdBy = req.auth.user || null
 
-	insertRoleModel({ ...req.body, createdby, conn })
+	insertRoleModel({ ...req.body, createdBy, conn })
 		.then((RoleInformation) => {
 			const result = {
-				_data: { Role: RoleInformation }
+				_data: { role: RoleInformation }
 			}
 
 			next(result)
@@ -140,7 +140,7 @@ const deleteRoleController = (req, res, next, config) => {
 	const conn = mysql.start(config)
 	const uuid = req.params.uuid
 	const { deleted } = req.body
-	const deletedby = req.headers['uuid-requester'] || null
+	const deletedby = req.auth.user || null
 
 	softDeleteRoleModel({ uuid, deleted, deletedby, conn })
 		.then(() => {

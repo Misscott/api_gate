@@ -9,13 +9,15 @@ import {pagination} from "../../utils/pagination.js"
  */
 const _deviceSelectQuery = (_pagination = '') => 
     ({count}) => 
-        ({uuid, serial_number, model, brand, description, stock}) => {
+        ({uuid, serial_number, model, brand, description, stock, createdBy, created}) => {
             const uuidCondition = uuid ? 'AND uuid = :uuid ' : ''
             const serial_numberCondition = serial_number ? 'AND serial_number = :serial_number' : ''
             const modelCondition = model ? 'AND model = :model ' : ''
             const brandCondition = brand ? 'AND brand = :brand' : ''
             const descriptionCondition = description ?'AND description = :description ' : ''
             const stockCondition = stock ? 'AND stock = :stock ' : ''
+            const createdByCondition = createdBy ? 'AND createdBy = :createdBy ' : ''
+            const createdCondition = created ? 'AND created = :created ' : ''
             return `
                 SELECT
                     ${count || `*`}
@@ -33,6 +35,9 @@ const _deviceSelectQuery = (_pagination = '') =>
                     ${brandCondition}
                     ${descriptionCondition}
                     ${stockCondition}
+                    ${createdByCondition}
+                    ${createdCondition}
+                    ${_pagination}
             `
 }
 

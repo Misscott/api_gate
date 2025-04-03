@@ -74,13 +74,14 @@ const getUserInfoController = (req, res, next, config) => {
 
 const postUserController = (req, res, next, config) => {
 	const conn = mysql.start(config)
-	const createdby = req.headers['uuid-requester'] || null
-	const { username, password} = req.body
-
+	const createdBy = req.auth.user || null
+	const { username, password, email, fk_role} = req.body
+	const roleToAssign = fk_role || 'viewer'
+	
     //encrypt password
 	bcrypt
 		.hash(password, config.saltRounds)
-		.then(hash => insertUserModel({ username, password: hash, email, fk_role, createdby, conn }))
+		.then(hash => insertUserModel({ username, password: hash, email, fk_role: roleToAssign, createdBy, conn }))
 		.then((users) => {
 			const result = {
 				_data: {

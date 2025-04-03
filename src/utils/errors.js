@@ -11,6 +11,10 @@ const errorHandler = (err, environment, message) => {
 			responseJson.message = message || 'Bad Request'
 			responseJson.code = 400
 			break
+		case 'UNAUTHORIZED':
+			responseJson.message = message || 'Unauthorized'
+			responseJson.code = 401
+			break	
 		case 'FORBIDDEN':
 			responseJson.message = message || 'Forbidden'
 			responseJson.code = 403
@@ -37,6 +41,19 @@ const errorHandler = (err, environment, message) => {
 	return responseJson
 }
 
+const error400 = () => {
+	const err = new Error('Bad Request')
+	err.code = 'BAD_REQUEST'
+	err.status = 400
+}
+
+const error401 = () => {
+	const err = new Error('Unauthorized')
+	err.code = 'UNAUTHORIZED'
+	err.status = 401
+	return err
+}
+
 const error403 = () => {
 	const err = new Error('Forbidden')
 	err.code = 'FORBIDDEN'
@@ -51,6 +68,13 @@ const error404 = () => {
 	return err
 }
 
+const error409 = () => {
+	const err = new Error('Conflict')
+	err.code = 'CONFLICT'
+	err.status = 409
+	return err
+}
+
 const error422 = (message = 'Unprocessable Entity') => {
 	const err = new Error(message)
 	err.code = 'UNPROCESSABLE_ENTITY'
@@ -58,4 +82,4 @@ const error422 = (message = 'Unprocessable Entity') => {
 	return err
 }
 
-export { error403, error404, error422, errorHandler }
+export { error400, error401, error403, error404, error409, error422, errorHandler }

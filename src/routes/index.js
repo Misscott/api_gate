@@ -20,6 +20,7 @@ import { integer, uuid, varChar} from '../validators/expressValidator/customVali
 import {payloadExpressValidator} from '../validators/expressValidator/payloadExpressValidator.js'
 import { error422, errorHandler } from '../utils/errors.js'
 import { authorizePermission, setToken, authenticateToken} from '../middlewares/auth.js'
+import { postRegisterController } from '../controllers/authorization/registerController.js'
 
 /**
  * @function default 
@@ -579,6 +580,7 @@ export default(config) => {
     routes.get(
         '/roles',
         (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles')(req, res, next, config),
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getRoleController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
@@ -638,7 +640,7 @@ export default(config) => {
         (req, res, next) => authorizePermission('/roles')(req, res, next, config),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            varChar('name')
+            varChar('name').optional({nullable: false, values: 'falsy'})
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postRoleController(req, res, next, config),
@@ -873,6 +875,20 @@ export default(config) => {
         (result, req, res, next) => setToken(result, req, res, next),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendLoginSuccessfullResponse(result, req, res)
+    );
+
+    routes.post(
+        '/signin',
+        [
+            varChar('username').optional({ nullable: false, values: 'falsy' }),
+            varChar('password').optional({ nullable: false, values: 'falsy' }),
+            varChar('email').optional({ nullable: true, values: 'falsy' }),
+            varChar('fk_role').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => postRegisterController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
 
     return routes;

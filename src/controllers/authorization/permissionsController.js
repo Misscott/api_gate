@@ -66,7 +66,7 @@ const getPermissionByUuidController = (req, res, next, config) => {
 
 const postPermissionController = (req, res, next, config) => {
     const conn = mysql.start(config)
-    const created_by = req.headers['uuid_requester'] || null
+    const created_by = req.auth.user || null
 
     insertPermissionModel({...req.body, created_by, conn})
         .then((response) => {
@@ -111,7 +111,7 @@ const putPermissionController = (req, res, next, config) => {
 const softDeletePermissionController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const uuid_permission = req.params.uuid
-    const deletedBy = req.headers['uuid_requester'] || null
+    const deletedBy = req.auth.user || null
     const {deleted} = req.body
 
     softDeletePermissionModel({uuid_permission, deleted, deletedBy, conn})

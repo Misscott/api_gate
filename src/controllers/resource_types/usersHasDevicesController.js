@@ -65,7 +65,7 @@ const getDevicesByUserController = (req, res, next, config) => {
 
 const postUsersHasDevicesController = (req, res, next, config) => {
     const conn = mysql.start(config)
-    const createdBy = req.headers['uuid_requester'] || null
+    const createdBy = req.auth.user || null
 
     insertUsersHasDevicesModel({...req.body, createdBy, conn})
         .then((users_has_devices) => {

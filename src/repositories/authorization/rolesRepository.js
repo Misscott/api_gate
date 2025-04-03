@@ -49,7 +49,7 @@ const countRoleQuery = rest =>
  */
 const insertRoleQuery = () => {
     return `
-    INSERT INTO mydb.users (
+    INSERT INTO mydb.roles (
       uuid,
       name,
       created,
@@ -80,6 +80,8 @@ const modifyRoleQuery = ({ name }) => {
       uuid = :uuid
     WHERE
       roles.uuid = :uuid;
+    AND
+      roles.deleted IS NULL  
     SELECT mydb.roles.*
     FROM mydb.roles
     WHERE roles.uuid = :uuid

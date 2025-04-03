@@ -93,7 +93,7 @@ const getPermissionsByRoleController = (req, res, next, config) => {
 
 const postRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
-    const createdBy = req.headers['uuid-requester'] || null
+    const createdBy = req.auth.user || null
     const roleUuid = req.body.uuid
 
     insertRolesHasPermissionsModel({...req.body, roleUuid, createdBy, conn})
@@ -116,7 +116,7 @@ const softDeleteRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const uuid = req.params.uuid
     const { deleted } = req.body
-	const deletedby = req.headers['uuid-requester'] || null
+	const deletedby = req.auth.user || null
 
     softDeleteRolesHasPermissionsModel({ uuid, deleted, deletedby, conn })
         .then(() => {
