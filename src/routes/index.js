@@ -21,6 +21,7 @@ import {payloadExpressValidator} from '../validators/expressValidator/payloadExp
 import { error422, errorHandler } from '../utils/errors.js'
 import { authorizePermission, setToken, authenticateToken} from '../middlewares/auth.js'
 import { postRegisterController } from '../controllers/authorization/registerController.js'
+import { postRefreshTokenController } from '../controllers/authorization/refreshTokenController.js'
 
 /**
  * @function default 
@@ -881,7 +882,7 @@ export default(config) => {
         '/refresh_token', //body contains refresh_token
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => refreshTokenController(req, res, next, config),
+        (req, res, next) => postRefreshTokenController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendLoginSuccessfullResponse(result, req, res)
     );
