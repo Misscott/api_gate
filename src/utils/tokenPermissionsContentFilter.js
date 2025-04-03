@@ -1,10 +1,10 @@
-import { sendErrorForbidden } from './errorUtils'
+/*import { sendErrorForbidden } from './errorUtils'
 
 // Simplified version focusing on roles instead of parties
 const getPermittedBusinessUnits = (req) => {
   // Instead of extracting from parties_accesses, 
   // extract from user roles or permissions
-  const userRoles = req.auth.user.roles || []
+  const userRole = req.auth.role || ''
   
   // Example: Map roles to allowed business units
   const businessUnitsByRole = {
@@ -62,4 +62,4 @@ const tokenPermissionsContentFilter = (req, res, next, config) => {
   }
 }
 
-export { tokenPermissionsContentFilter }
+export { tokenPermissionsContentFilter }*/
