@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-04-2025 a las 18:01:54
+-- Tiempo de generación: 03-04-2025 a las 17:19:09
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -164,7 +164,9 @@ CREATE TABLE `roles` (
 
 INSERT INTO `roles` (`id`, `uuid`, `name`, `created`, `createdBy`, `deleted`, `deletedBy`) VALUES
 (1, '92691396-0ed5-11f0-8154-bce92f8462b5', 'admin', '2025-04-01 10:44:49', 'system', NULL, NULL),
-(2, '92692470-0ed5-11f0-8154-bce92f8462b5', 'viewer', '2025-04-01 10:44:49', 'system', NULL, NULL);
+(2, '92692470-0ed5-11f0-8154-bce92f8462b5', 'viewer', '2025-04-01 10:44:49', 'system', NULL, NULL),
+(3, '79808d52-81e1-4d16-8624-9c21753d8150', 'moderator2', '2025-04-03 13:40:37', '00f6f64a-0ee1-11f0-8154-bce92f8462b5', '2025-04-03 13:43:27', NULL),
+(4, '3665ceab-6748-4beb-a7b0-18e6f1a50344', 'moderator', '2025-04-03 13:52:02', '00f6f64a-0ee1-11f0-8154-bce92f8462b5', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -202,7 +204,19 @@ INSERT INTO `roles_has_permissions` (`id`, `fk_role`, `fk_permission`, `created`
 (79, 1, 55, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb8c3c1-0f98-11f0-8cdf-bce92f8462b5'),
 (80, 1, 56, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb8c609-0f98-11f0-8cdf-bce92f8462b5'),
 (81, 1, 57, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb8c696-0f98-11f0-8cdf-bce92f8462b5'),
-(82, 1, 58, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb8c70a-0f98-11f0-8cdf-bce92f8462b5');
+(82, 1, 58, '2025-04-02 10:01:30', NULL, NULL, NULL, 'afb8c70a-0f98-11f0-8cdf-bce92f8462b5'),
+(83, 1, 59, '2025-04-03 09:58:26', NULL, NULL, NULL, '6ca75596-1061-11f0-b86d-bce92f8462b5'),
+(84, 1, 60, '2025-04-03 09:58:26', NULL, NULL, NULL, '6ca7722a-1061-11f0-b86d-bce92f8462b5'),
+(85, 1, 61, '2025-04-03 09:58:26', NULL, NULL, NULL, '6ca772e7-1061-11f0-b86d-bce92f8462b5'),
+(86, 1, 62, '2025-04-03 09:58:26', NULL, NULL, NULL, '6ca77361-1061-11f0-b86d-bce92f8462b5'),
+(87, 1, 63, '2025-04-03 09:58:26', NULL, NULL, NULL, '6ca7746c-1061-11f0-b86d-bce92f8462b5'),
+(88, 1, 64, '2025-04-03 09:58:26', NULL, NULL, NULL, '6ca774c6-1061-11f0-b86d-bce92f8462b5'),
+(89, 1, 65, '2025-04-03 09:58:26', NULL, NULL, NULL, '6ca7751b-1061-11f0-b86d-bce92f8462b5'),
+(90, 1, 66, '2025-04-03 09:58:26', NULL, NULL, NULL, '6ca7756d-1061-11f0-b86d-bce92f8462b5'),
+(91, 1, 67, '2025-04-03 09:58:26', NULL, NULL, NULL, '6ca78687-1061-11f0-b86d-bce92f8462b5'),
+(92, 1, 68, '2025-04-03 09:58:26', NULL, NULL, NULL, '6ca82160-1061-11f0-b86d-bce92f8462b5'),
+(93, 1, 69, '2025-04-03 09:58:26', NULL, NULL, NULL, '6ca822df-1061-11f0-b86d-bce92f8462b5'),
+(94, 1, 70, '2025-04-03 09:58:26', NULL, NULL, NULL, '6ca8239a-1061-11f0-b86d-bce92f8462b5');
 
 -- --------------------------------------------------------
 
@@ -220,17 +234,15 @@ CREATE TABLE `users` (
   `created` datetime NOT NULL DEFAULT current_timestamp(),
   `createdBy` varchar(255) DEFAULT NULL,
   `deleted` datetime DEFAULT NULL,
-  `deletedBy` varchar(255) DEFAULT NULL,
-  `status` varchar(45) DEFAULT NULL,
-  `lastLoginDate` datetime DEFAULT NULL
+  `deletedBy` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Volcado de datos para la tabla `users`
 --
 
-INSERT INTO `users` (`username`, `email`, `password`, `uuid`, `id`, `fk_role`, `created`, `createdBy`, `deleted`, `deletedBy`, `status`, `lastLoginDate`) VALUES
-('admin_user', 'admin@example.com', '$2b$12$VGJZSRyzzKPNRapXvVpFGu7dINaCASCLhalvecda3nM5ZHX2oisHu', '00f6f64a-0ee1-11f0-8154-bce92f8462b5', 3, 1, '2025-03-31 12:06:39', 'system', NULL, NULL, 'active', NULL);
+INSERT INTO `users` (`username`, `email`, `password`, `uuid`, `id`, `fk_role`, `created`, `createdBy`, `deleted`, `deletedBy`) VALUES
+('admin_user', 'admin@example.com', '$2b$12$VGJZSRyzzKPNRapXvVpFGu7dINaCASCLhalvecda3nM5ZHX2oisHu', '00f6f64a-0ee1-11f0-8154-bce92f8462b5', 3, 1, '2025-03-31 12:06:39', 'system', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -338,13 +350,13 @@ ALTER TABLE `permissions`
 -- AUTO_INCREMENT de la tabla `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `roles_has_permissions`
 --
 ALTER TABLE `roles_has_permissions`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
 
 --
 -- AUTO_INCREMENT de la tabla `users`
