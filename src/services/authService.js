@@ -28,10 +28,25 @@ const getDataFromToken = (token) => {
  * @returns {string} - The generated JWT token.
 */
 const generateAccessToken = (payload) => {
+  const contents = { ...payload, type: 'access' };
   const JWT_SECRET = process.env.JWT_SECRET;
   const JWT_TIME = parseInt(process.env.JWT_TIME, 10);
-  return jwt.sign(payload, JWT_SECRET, JWT_TIME ? { expiresIn: JWT_TIME } : {});
+  return jwt.sign(contents, JWT_SECRET, JWT_TIME ? { expiresIn: JWT_TIME } : {});
 };
+
+const generateRefreshToken = (payload) => {
+  const contents = { ...payload, type: 'refresh' };
+  const JWT_SECRET = process.env.JWT_REFRESH_SECRET
+  const JWT_TIME = parseInt(process.env.JWT_REFRESH_TIME, 10);
+  return jwt.sign(contents, JWT_SECRET, JWT_TIME ? { expiresIn: JWT_TIME } : {});
+}
+
+const generateTokens = (payload) => {
+  const accessToken = generateAccessToken(payload);
+  const refreshToken = generateRefreshToken(payload);
+
+  return { accessToken, refreshToken };
+}
 
 /**
  * Checks if a user has permission to perform an action on a resource.
@@ -82,6 +97,6 @@ const _getEndpointByRoute = (route, config) => {
 
 export {
   getDataFromToken,
-  generateAccessToken,
+  generateTokens,
   checkPermission,
 };

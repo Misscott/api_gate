@@ -878,6 +878,15 @@ export default(config) => {
     );
 
     routes.post(
+        '/refresh_token', //body contains refresh_token
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => refreshTokenController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendLoginSuccessfullResponse(result, req, res)
+    );
+
+    routes.post(
         '/signin',
         [
             varChar('username').optional({ nullable: false, values: 'falsy' }),

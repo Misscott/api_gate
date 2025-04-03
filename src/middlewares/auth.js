@@ -1,5 +1,5 @@
-import { sendResponseAccessDenied } from '../utils/responses.js';
-import { checkPermission, getDataFromToken, generateAccessToken} from '../services/authService.js';
+import { sendResponseAccessDenied, sendResponseUnauthorized } from '../utils/responses.js';
+import { checkPermission, getDataFromToken, generateTokens} from '../services/authService.js';
 import { getRolesHasPermissionsModel } from '../models/authorization/roles_has_permissionsModel.js';
 import { error404, errorHandler } from '../utils/errors.js';
 import { noResults } from '../validators/result-validators.js';
@@ -12,7 +12,7 @@ const obtainToken = (req, res) => {
         if (token) {
             resolve(token);
         } else {
-            return sendResponseAccessDenied(res, { message: 'No authorization provided. Access token required' })
+            return sendResponseUnauthorized(res, { message: 'No authorization provided. Access token required' })
         }
     });
 };
@@ -20,8 +20,8 @@ const obtainToken = (req, res) => {
 const setToken = (result, req, res, next, config) => {
 	const { uuid, role } = result._data
     const payload = {role, user: uuid}
-	const token = generateAccessToken(payload)
-	next({ user: { ...result, token } })
+	const {token, refreshToken} = generateTokens(payload)
+	next({ user: { ...result, token, refreshToken} })
 }
 
 const authenticateToken = (req, res, next) => {
