@@ -94,7 +94,7 @@ const getEndpointsByRouteController = (req, res, next, config) => {
 
 const postEndpointsController = (req, res, next, config) => {
     const conn = mysql.start(config)
-    const created_by = req.headers['uuid_requester'] || null
+    const created_by = req.auth.user || null
 
     insertEndpointsModel({ ...req.body, created_by, conn })
         .then((endpoints) => {
@@ -136,7 +136,7 @@ const softDeleteEndpointsController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const uuid = req.params.uuid
     const { deleted } = req.body
-    const deletedby = req.headers['uuid_requester'] || null
+    const deletedby = req.auth.user || null
 
     softDeleteEndpointsModel({ uuid, deleted, deletedby, conn })
         .then(() => {

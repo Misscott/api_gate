@@ -65,7 +65,7 @@ const getUserInfoController = (req, res, next, config) => {
 		})
 		.catch((err) => {
 			const error = errorHandler(err, config.environment)
-			res.status(error.code).json(error)
+			return res.status(error.code).json(error)
 		})
 		.finally(() => {
 			mysql.end(conn)
@@ -93,7 +93,7 @@ const postUserController = (req, res, next, config) => {
 		})
 		.catch((err) => {
 			const error = errorHandler(err, config.environment)
-			res.status(error.code).json(error)
+			return res.status(error.code).json(error)
 		})
 		.finally(() => {
 			mysql.end(conn)
@@ -116,7 +116,7 @@ const putUserController = (req, res, next, config) => {
 		})
 		.catch((err) => {
 			const error = errorHandler(err, config.environment)
-			res.status(error.code).json(error)
+			return res.status(error.code).json(error)
 		})
 		.finally(() => {
 			mysql.end(conn)
@@ -127,7 +127,7 @@ const softDeleteUserController = (req, res, next, config) => {
 	const conn = mysql.start(config)
 	const uuid = req.params.uuid
 	const { deleted } = req.body
-	const deletedby = req.headers['uuid-requester'] || null
+	const deletedby = req.auth.user || null
 
 	softDeleteUserModel({ uuid, deleted, deletedby, conn })
 		.then(() => {
@@ -136,7 +136,7 @@ const softDeleteUserController = (req, res, next, config) => {
 		})
 		.catch((err) => {
 			const error = errorHandler(err, config.environment)
-			res.status(error.code).json(error)
+			return res.status(error.code).json(error)
 		})
 		.finally(() => {
 			mysql.end(conn)
