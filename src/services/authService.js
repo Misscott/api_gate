@@ -36,7 +36,7 @@ const generateAccessToken = (payload) => {
 
 const generateRefreshToken = (payload) => {
   const contents = { ...payload, type: 'refresh' };
-  const JWT_SECRET = process.env.JWT_REFRESH_SECRET
+  const JWT_SECRET = process.env.JWT_SECRET
   const JWT_TIME = parseInt(process.env.JWT_REFRESH_TIME, 10);
   return jwt.sign(contents, JWT_SECRET, JWT_TIME ? { expiresIn: JWT_TIME } : {});
 }
