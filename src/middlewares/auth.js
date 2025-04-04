@@ -31,7 +31,7 @@ const authenticateToken = (req, res, next) => {
             next();
         })
         .catch((error) => {
-            return sendResponseAccessDenied(res, error);
+            return sendResponseUnauthorized(res, error);
         });
 };
 
