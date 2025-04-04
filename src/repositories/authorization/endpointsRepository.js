@@ -1,6 +1,6 @@
 import { pagination } from "../../utils/pagination.js";
 
-const _endpointsQuery = (_pagination) => ({ count }) => ({ uuid, route, method }) => {
+const _endpointsQuery = (_pagination = '') => ({ count }) => ({ uuid, route, method }) => {
     const uuidCondition = uuid ? "AND uuid = :uuid " : "";
     const routeCondition = route ? "AND route = :route " : "";
     const methodCondition = method ? "AND method = :method " : "";

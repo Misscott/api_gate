@@ -89,7 +89,7 @@ const insertDeviceQuery = (description) =>{
  * @param {Object} params All params involved in query to be modified in certain object matching uuid passed as req param 
  * @returns {String} UPDATE query
  */
-const modifyDeviceQuery = ({user, serial_number, model, brand, description, stock}) => {
+const modifyDeviceQuery = ({serial_number, model, brand, description, stock}) => {
     const serial_numberCondition = serial_number ? 'serial_number = :serial_number, ' : ''
     const modelCondition = model ? 'model = :model, ' : ''
     const brandCondition = brand ? 'brand = :brand, ' : ''

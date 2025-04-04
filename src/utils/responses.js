@@ -46,7 +46,6 @@ const sendUnprocessableEntityResponse = (res, environment, err = error422()) => 
 
 const sendLoginSuccessfullResponse = (result, req, res) => {
 	res.status(201).json(result)
-	console.warn(`User ${result.user._data.username} has logged in`)
 }
 
 export { sendResponseConflict, sendLoginSuccessfullResponse, sendCreatedResponse, sendResponseAccessDenied, sendOkResponse, sendResponseBadRequest, sendResponseNoContent, sendResponseNotFound, sendResponseServerError, sendResponseUnauthorized, sendResponseUnprocessableEntity, sendUnprocessableEntityResponse }

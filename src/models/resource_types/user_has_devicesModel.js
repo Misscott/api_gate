@@ -1,6 +1,6 @@
 import { randomUUID as uuidv4 } from 'node:crypto'
 import dayjs from 'dayjs'
-import mysql from '../adapters/mysql'
+import mysql from '../../adapters/mysql.js'
 import { 
     getUsersHasDevicesQuery,
     countUsersHasDevicesQuery,
@@ -8,7 +8,7 @@ import {
     modifyUsersHasDevicesQuery,
     softDeleteUsersHasDevicesQuery,
     deleteUsersHasDevicesQuery
-} from '../../repositories/resource_types/users_has_devicesRepository'
+} from '../../repositories/resource_types/users_has_devicesRepository.js'
 
 const getUsersHasDevicesModel = ({conn, ...rest}) => {
     const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
@@ -45,13 +45,12 @@ const modifyUsersHasDevicesModel = ({conn, ...rest}) => {
         .then(results => results[1].map(({id, uuid, fk_user, fk_device, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
-const softDeleteUsersHasDevicesModel = ({conn, ...rest}) => {
+const softDeleteUsersHasDevicesModel = ({conn, deleted, deletedBy, ...rest}) => {
     const deletedData = rest.deleted ? dayjs.utc(rest.deleted).format('YYYY-MM-DD HH:mm:ss') : dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
-    const params = { ...rest, deleted: deletedData }
+    const params = { ...rest, deleted: deletedData, deletedBy }
 
     return mysql
         .execute(softDeleteUsersHasDevicesQuery(params), conn, params)
-        .then(results => results[1].map(({id, uuid, fk_user, fk_device, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 export {

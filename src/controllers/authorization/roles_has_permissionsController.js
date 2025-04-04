@@ -1,13 +1,13 @@
-import mysql from '../../adapters/mysql'
+import mysql from '../../adapters/mysql.js'
 import { 
     getRolesHasPermissionsModel,
     countRolesHasPermissionsModel,
     insertRolesHasPermissionsModel,
     modifyRolesHasPermissionsModel,
     softDeleteRolesHasPermissionsModel
-} from '../../repositories/authorization/roles_has_permissionsRepository'
-import { error404, errorHandler } from '../../utils/errors'
-import { noResults } from '../../validators/result-validators'
+} from '../../models/authorization/roles_has_permissionsModel.js'
+import { error404, errorHandler } from '../../utils/errors.js'
+import { noResults } from '../../validators/result-validators.js'
 
 const getRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
@@ -159,5 +159,4 @@ export {
     softDeleteRolesHasPermissionsController,
     getRolesHasPermissionsControllerByRoleName,
     putRolesHasPermissionsController,
-    getRolesHasPermissionsControllerByRoleName
 }

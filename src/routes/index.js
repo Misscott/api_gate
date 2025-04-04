@@ -86,7 +86,7 @@ export default(config) => {
     */
     routes.get(
         '/',
-        (req, res, next) => indexController(req, res, next, config),
+        (req, res, next) => indexController(req, res, next),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendOkResponse(result, req, res)
     )
@@ -1031,6 +1031,10 @@ export default(config) => {
         '/endpoints',
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/endpoints')(req, res, next, config),
+        [
+            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            varChar('route').optional({ nullable: false, values: 'falsy' })
+        ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getEndpointsController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
@@ -1277,7 +1281,7 @@ export default(config) => {
     );
 
     routes.post(
-        '/refresh_token', //body contains refresh_token
+        '/refresh_token', //header contains refresh_token
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => postRefreshTokenController(req, res, next, config),

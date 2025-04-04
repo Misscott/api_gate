@@ -60,7 +60,7 @@ const countUserListQuery = rest =>
  * Insert query using parameters passed in request
  * @returns {String} INSERT query
  */
-const insertUserQuery = () => {
+const insertUserQuery = (email) => {
     const emailCondition = email ? ':email ' : null;
     return `
     INSERT INTO mydb.users (

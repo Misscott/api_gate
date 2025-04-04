@@ -1,10 +1,9 @@
-import { sendResponseAccessDenied, sendResponseUnauthorized } from '../utils/responses.js';
+import { sendResponseAccessDenied, sendResponseUnauthorized, sendResponseNotFound } from '../utils/responses.js';
 import { checkPermission, getDataFromToken, generateTokens} from '../services/authService.js';
 import { getRolesHasPermissionsModel } from '../models/authorization/roles_has_permissionsModel.js';
 import { error404, errorHandler } from '../utils/errors.js';
 import { noResults } from '../validators/result-validators.js';
 import mysql from '../adapters/mysql.js';
-import { sendResponseNotFound } from '../utils/responses.js';
 
 const obtainToken = (req, res) => {
     return new Promise((resolve, reject) => {

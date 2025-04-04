@@ -1,13 +1,13 @@
-import mysql from '../../adapters/mysql'
+import mysql from '../../adapters/mysql.js'
 import { 
     getUsersHasDevicesModel,
     countUsersHasDevicesModel,
     insertUsersHasDevicesModel,
     softDeleteUsersHasDevicesModel,
     modifyUsersHasDevicesModel
-} from '../../models/resource_types/user_has_devicesModel'
-import { errorHandler } from '../../utils/errors'
-import { noResults } from '../../validators/result-validators'
+} from '../../models/resource_types/user_has_devicesModel.js'
+import { errorHandler } from '../../utils/errors.js'
+import { noResults } from '../../validators/result-validators.js'
 
 const getUsersHasDevicesController = (req, res, next, config) => {
     const conn = mysql.start(config)
@@ -103,7 +103,7 @@ const putUsersHasDevicesController = (req, res, next, config) => {
         })
 }
 
-const deleteUsersHasDevicesController = (req, res, next, config) => {
+const softDeleteUsersHasDevicesController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const uuid = req.params.uuid
     const { deleted } = req.body
@@ -127,6 +127,6 @@ export {
     getUsersHasDevicesController,
     postUsersHasDevicesController,
     putUsersHasDevicesController,
-    deleteUsersHasDevicesController,
+    softDeleteUsersHasDevicesController,
     getDevicesByUserController
 }

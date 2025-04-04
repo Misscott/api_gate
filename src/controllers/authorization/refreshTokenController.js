@@ -1,9 +1,9 @@
-import { getUserListModel } from "../../models/authorization/userModel"
-import { sendResponseUnauthorized } from "../../utils/responses"
-import { noResults } from "../../validators/result-validators"
-import mysql from "../../adapters/mysql"
-import { error401, errorHandler } from "../../utils/errors"
-import { generateTokens } from "../../services/authService"
+import { getUserListModel } from "../../models/authorization/userModel.js"
+import { sendResponseUnauthorized } from "../../utils/responses.js"
+import { noResults } from "../../validators/result-validators.js"
+import mysql from "../../adapters/mysql.js"
+import { error401, errorHandler } from "../../utils/errors.js"
+import { generateTokens } from "../../services/authService.js"
 import dotenv from "dotenv"
 dotenv.config();
 
@@ -20,9 +20,9 @@ const postRefreshTokenController = (req, res, next, config) => {
             }
 
             // only include uuid and username in the response
-            const user = response.map(({ id, password, createdBy, deleted, deletedBy, createdBy, ...rest }) => rest)
+            const user = response.map(({ id, password, createdBy, deleted, deletedBy, ...rest }) => rest)
 
-            return getUserListModel({ uuid, conn })
+            return getUserListModel({ uuid: user.uuid, conn })
                 .then((response) => {
                     if (noResults(response)) {
                         const err = error401()

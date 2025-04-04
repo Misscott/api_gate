@@ -1,6 +1,6 @@
 import { pagination } from '../../utils/pagination.js'
 
-const _permissionsQuery = (_pagination) => ({count}) => ({uuid, action, endpoint}) => {
+const _permissionsQuery = (_pagination = '') => ({count}) => ({uuid, action, endpoint}) => {
     const uuidCondition = uuid ? 'AND uuid = :uuid ' : '';
     const actionCondition = action ? 'AND action = :action ' : '';
     const endpointCondition = endpoint ? 'AND fk_endpoint = (SELECT id from mydb.endpoints WHERE route = :endpoint)' : '';
@@ -20,7 +20,6 @@ const _permissionsQuery = (_pagination) => ({count}) => ({uuid, action, endpoint
       AND
         true
         ${uuidCondition}
-        ${nameCondition}
         ${actionCondition}
         ${endpointCondition}
         ${_pagination}

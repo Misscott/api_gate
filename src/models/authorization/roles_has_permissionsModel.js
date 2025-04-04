@@ -5,7 +5,8 @@ import {
     getRolesHasPermissionsQuery,
     countRolesHasPermissionsQuery,
     insertRolesHasPermissionsQuery,
-    softDeleteRolesHasPermissionsQuery
+    softDeleteRolesHasPermissionsQuery,
+    modifyRolesHasPermissionsQuery
 } from '../../repositories/authorization/roles_has_permissionsRepository.js'
 
 const getRolesHasPermissionsModel = ({conn, ...rest}) => {
@@ -38,13 +39,13 @@ const insertRolesHasPermissionsModel = ({conn, ...rest}) => {
 
 const modifyRolesHasPermissionsModel = ({conn, ...params}) => {
     return mysql
-        .execute(modifyPermissionsQuery(params), conn, params)
+        .execute(modifyRolesHasPermissionsQuery(params), conn, params)
         .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 const softDeleteRolesHasPermissionsModel = ({conn, deleted, deletedBy, ...rest}) => {
     const deletedData = deleted ? dayjs.utc(deleted).format('YYYY-MM-DD HH:mm:ss') : dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
-	const params = { ...rest, deleted: deletedData }
+	const params = { ...rest, deleted: deletedData, deletedBy }
 
 	return mysql
 		.execute(softDeleteRolesHasPermissionsQuery(params), conn, params)

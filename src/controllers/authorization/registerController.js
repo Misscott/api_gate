@@ -1,6 +1,6 @@
 import { insertUserModel } from "../../models/authorization/userModel.js";
 import { error400, error409, errorHandler } from "../../utils/errors.js";
-import { sendResponseBadRequest, sendCreatedResponse, sendResponseConflict } from "../../utils/responses.js";
+import { sendResponseBadRequest, sendResponseConflict } from "../../utils/responses.js";
 import { noResults } from "../../validators/result-validators.js";
 import mysql from "../../adapters/mysql.js";
 import bcrypt from "bcrypt";
@@ -36,14 +36,16 @@ const postRegisterController = (req, res, next, config) => {
                 const err = error409();
                 return sendResponseConflict(res, err);
             }
-            return sendCreatedResponse(res, {
+
+            const result = {
                 message: 'User registered successfully',
                 user: {
                     username: user,
                     email: email || null,
                     role: fk_role || 'viewer'
                 }
-            });
+            }
+            next(result);
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment);

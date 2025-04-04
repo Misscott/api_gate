@@ -1,6 +1,6 @@
 import { pagination } from '../../utils/pagination.js'
 
-const _rolesHasPermissionsQuery = (_pagination) => ({count}) => ({uuid, permission_uuid, roleName}) => {
+const _rolesHasPermissionsQuery = (_pagination = '') => ({count}) => ({uuid, permission_uuid, roleName}) => {
     const roleNameCondition = roleName ? 'AND fk_role = (SELECT id from mydb.roles WHERE name = :roleName)' : '';
     const uuidCondition = uuid ? 'AND fk_role = (SELECT id from mydb.roles WHERE uuid = :roleUuid)' : '';
     const permissionsUuidCondition = permission_uuid ? 'AND fk_permission = (SELECT id from mydb.permissions WHERE uuid = :permissionUuid)' : '';
@@ -103,8 +103,8 @@ const softDeleteRolesHasPermissionsQuery = () => {
 
 export{
     getRolesHasPermissionsQuery,
-    countRolesHasPermissionsQuery,
     insertRolesHasPermissionsQuery,
+    countRolesHasPermissionsQuery,
     softDeleteRolesHasPermissionsQuery,
     modifyRolesHasPermissionsQuery
 }
