@@ -42,11 +42,18 @@ const modifyUsersHasDevicesModel = ({conn, ...rest}) => {
     const params = { ...rest }
     return mysql
         .execute(modifyUsersHasDevicesQuery(params), conn, params)
-        .then(results => results[1].map(({id, uuid, fk_user, fk_device, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(results => {
+            const deletedItem = results[1].find(item => item.deleted !== null);
+  
+            if (deletedItem) {
+                throw error404()
+            }
+            results[1].map(({id, uuid, fk_user, fk_device, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered)
+        })
 }
 
 const softDeleteUsersHasDevicesModel = ({conn, deleted, deletedBy, ...rest}) => {
-    const deletedData = rest.deleted ? dayjs.utc(rest.deleted).format('YYYY-MM-DD HH:mm:ss') : dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
+    const deletedData = deleted ? dayjs.utc(deleted).format('YYYY-MM-DD HH:mm:ss') : dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
     const params = { ...rest, deleted: deletedData, deletedBy }
 
     return mysql

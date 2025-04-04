@@ -39,7 +39,15 @@ const insertPermissionModel = ({conn, ...params}) => {
 const modifyPermissionModel = ({conn, ...params}) => {
     return mysql
         .execute(modifyPermissionsQuery(params), conn, params)
-        .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(queryResult => {
+            const deletedItem = queryResult[1].find(item => item.deleted !== null);
+  
+            if (deletedItem) {
+                throw error404()
+            }
+            
+            return queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered)
+        })
 }
 
 const softDeletePermissionModel = ({uuid, deleted, deletedBy, conn}) => {

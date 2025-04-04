@@ -138,7 +138,7 @@ const softDeleteRolesHasPermissionsController = (req, res, next, config) => {
     const { deleted } = req.body
 	const deletedby = req.auth.user || null
 
-    softDeleteRolesHasPermissionsModel({ uuid, deleted, deletedby, conn })
+    softDeleteRolesHasPermissionsModel({ uuid, deletedby, conn })
         .then(() => {
             const result = {}
             next(result)

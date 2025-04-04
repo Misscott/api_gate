@@ -69,18 +69,19 @@ const insertRolesHasPermissionsQuery = () => {
 }
 
 const modifyRolesHasPermissionsQuery = (roleUuid, permissionUuid) => {
-  const roleUuidCondition = roleUuid ? '(SELECT id from mydb.roles WHERE uuid = :roleUuid)' : '';
-  const permissionUuidCondition = permissionUuid ? '(SELECT id from mydb.permissions WHERE uuid = :permissionUuid)' : '';
+  const roleUuidCondition = roleUuid ? 'fk_role = (SELECT id from mydb.roles WHERE uuid = :roleUuid),' : '';
+  const permissionUuidCondition = permissionUuid ? 'fk_permission = (SELECT id from mydb.permissions WHERE uuid = :permissionUuid),' : '';
   return `
     UPDATE 
         mydb.roles_has_permissions as roles_has_permissions
     SET 
-        fk_role = ${roleUuidCondition},
-        fk_permission = ${permissionUuidCondition},
+        ${roleUuidCondition}
+        ${permissionUuidCondition}
+        uuid = :uuid
     WHERE
         roles_has_permissions.uuid = :uuid
     AND 
-        roles_has_permissions.deleted IS NULL    
+        roles_has_permissions.deleted IS NULL; 
     SELECT * FROM mydb.roles_has_permissions WHERE uuid = :uuid;
   `
 }

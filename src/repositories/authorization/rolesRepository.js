@@ -79,9 +79,9 @@ const modifyRoleQuery = ({ name }) => {
       ${nameCondition}
       uuid = :uuid
     WHERE
-      roles.uuid = :uuid;
+      roles.uuid = :uuid
     AND
-      roles.deleted IS NULL  
+      roles.deleted IS NULL;
     SELECT mydb.roles.*
     FROM mydb.roles
     WHERE roles.uuid = :uuid

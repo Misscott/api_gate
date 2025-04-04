@@ -62,7 +62,7 @@ app.use((req, res) => {
 const port = config.port || 3000
 
 const server = (NODE_ENV === 'development' ? app : https.createServer(httpsOptions(), app)).listen(port, () => {
-	// eslint-disable-next-line no-console
+	//eslint-disable-next-line no-console
 	console.log(`Server listening on port ${port}`)
 })
 

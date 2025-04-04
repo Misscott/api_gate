@@ -46,12 +46,14 @@ const insertEndpointsQuery = () => {
 }
 
 const updateEndpointsQuery = () => {
-    const routeCondition = route ? 'route = :route ' : '';
+    const routeCondition = route ? 'route = :route,' : '';
     return `
     UPDATE mydb.endpoints
     SET
         ${routeCondition}
+        uuid = :uuid
     WHERE uuid = :uuid;
+    AND deleted IS NULL;
     SELECT * FROM mydb.endpoints WHERE uuid = :uuid;
     `
 }

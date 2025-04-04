@@ -54,17 +54,18 @@ const insertPermissionsQuery = () => {
 }
 
 const modifyPermissionsQuery = (action, endpoint) => {
-  const actionCondition = action ? 'action = :action ' : '';
-  const endpointCondition = endpoint ? 'fk_endpoint = (SELECT id from mydb.endpoints WHERE route = :endpoint)' : '';
+  const actionCondition = action ? 'action = :action ,' : '';
+  const endpointCondition = endpoint ? 'fk_endpoint = (SELECT id from mydb.endpoints WHERE route = :endpoint),' : '';
   return `
   UPDATE mydb.permissions
   SET 
       ${actionCondition}
       ${endpointCondition}
+      uuid = :uuid
   WHERE
       permissions.uuid = :uuid
   AND 
-      permissions.deleted IS NULL    
+      permissions.deleted IS NULL;
   SELECT * FROM mydb.permissions WHERE uuid = :uuid;
   `
 }

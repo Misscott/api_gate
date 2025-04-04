@@ -63,7 +63,14 @@ const insertDeviceModel = ({conn, ...params}) => {
 const modifyDeviceModel = ({conn, ...params}) => {
     return mysql
         .execute(modifyDeviceQuery(params), conn, params)
-        .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(queryResult => {
+            const deletedItem = queryResult[1].find(item => item.deleted !== null);
+  
+            if (deletedItem) {
+                throw error404()
+            }
+            return queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered)
+        })
 }
 
 /**

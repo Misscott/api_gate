@@ -11,8 +11,8 @@ const sendResponseNoContent = (result, req, res) => {
 	res.status(204).json(result)
 }
 
-const sendResponseConflict = (result, req, res) => {
-	res.status(409).json(result)
+const sendResponseConflict = (res, err) => {
+	res.status(409).json(err)
 }
 
 const sendResponseServerError = (res, err) => {

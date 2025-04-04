@@ -402,7 +402,7 @@ export default(config) => {
     * @route DELETE /devices/{uuid}
     * @group Devices - Operations about devices
     * @param {string} uuid.path.required - The unique identifier for the device
-    * @returns {SuccessResponse} 204 - Device deleted successfully
+    * @returns {SuccessResponse} 204 - Device deleted successfully. No content
     * @returns {ErrorResponse} 404 - Device not found
     * @returns {ErrorResponse} 500 - Internal server error
     * @returns {ErrorResponse} 403 - Forbidden
@@ -562,7 +562,7 @@ export default(config) => {
      * @route DELETE /users/{uuid}
      * @group Users - Operations about users
      * @param {string} uuid.path.required - The unique identifier for the user
-     * @returns {SuccessResponse} 200 - User deleted successfully
+     * @returns {SuccessResponse} 204 - User deleted successfully. No content
      * @returns {ErrorResponse} 404 - User not found
      * @returns {ErrorResponse} 422 - Unprocessable entity
      * @returns {ErrorResponse} 500 - Internal server error
@@ -710,7 +710,7 @@ export default(config) => {
      * @group Roles - Operations about roles
      * @param {string} uuid.path.required - The unique identifier for the role
      * @param {string} name.path.required - The name of the role
-     * @returns {SuccessResponse} 200 - Role deleted successfully
+     * @returns {SuccessResponse} 204 - Role deleted successfully. No content
      * @returns {ErrorResponse} 404 - Role not found
      * @returns {ErrorResponse} 422 - Unprocessable entity
      * @returns {ErrorResponse} 500 - Internal server error

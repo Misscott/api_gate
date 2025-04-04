@@ -19,8 +19,8 @@ const obtainToken = (req, res) => {
 const setToken = (result, req, res, next, config) => {
 	const { uuid, role } = result._data
     const payload = {role, user: uuid}
-	const {token, refreshToken} = generateTokens(payload)
-	next({ user: { ...result, token, refreshToken} })
+	const {accessToken, refreshToken} = generateTokens(payload)
+	next({ user: { ...result, accessToken, refreshToken} })
 }
 
 const authenticateToken = (req, res, next) => {

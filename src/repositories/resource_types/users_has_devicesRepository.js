@@ -75,21 +75,25 @@ const insertUsersHasDevicesQuery = () =>{
  * @param {Object} params All params involved in query to be modified in certain object matching uuid passed as req param 
  * @returns {String} UPDATE query
  */
-const modifyUsersHasDevicesQuery = ({stock}) => {
-    const stockCondition = stock ? 'stock = :stock ' : ''
+const modifyUsersHasDevicesQuery = ({stock, fk_user, fk_devices}) => {
+    const stockCondition = stock ? 'stock = :stock, ' : ''
+    const userCondition = fk_user ? 'fk_user = (SELECT id FROM mydb.user WHERE uuid = :uuidUsers),' : ''
+    const devicesCondition = fk_devices ? 'fk_device = (SELECT id FROM mydb.devices WHERE uuid = :uuidDevices),' : ''
     return `
         UPDATE
             mydb.users_has_devices
         SET
-            fk_user = (SELECT id FROM mydb.user WHERE uuid = :uuidUsers),
-            fk_device = (SELECT id FROM mydb.devices WHERE uuid = :uuidDevices),
-            ${stockCondition},
-            modified = :now,
-            modifiedBy = :modifiedBy
+            ${userCondition}
+            ${devicesCondition}
+            ${stockCondition}
+            uuid = :uuid
         WHERE
             users_has_devices.uuid = :uuid
         AND
-            deleted IS NULL
+            deleted IS NULL;
+        SELECT mydb.users_has_devices.*
+        FROM mydb.users_has_devices
+        WHERE users_has_devices.uuid = :uuid    
     `
 }
 

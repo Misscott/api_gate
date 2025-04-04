@@ -5,15 +5,14 @@ import { noResults } from "../../validators/result-validators.js";
 import mysql from "../../adapters/mysql.js";
 import bcrypt from "bcrypt";
 
-const postRegisterController = (req, res, next, config) => {    
-    const { user, password, email, fk_role} = req.body;
-    
-    if (!user || !password) {
+const postRegisterController = (req, res, next, config) => { 
+    const { username, password, email, fk_role} = req.body
+    if (!username || !password) {
         const err = error400();
         return sendResponseBadRequest(res, err);
     }
     
-    if (!user.match(/^[a-zA-Z0-9]+$/)) {
+    if (!username.match(/^[a-zA-Z0-9]+$/)) {
         const err = error400();
         return sendResponseBadRequest(res, err);
     }
@@ -23,13 +22,7 @@ const postRegisterController = (req, res, next, config) => {
     return bcrypt
         .hash(password, config.saltRounds)
         .then(hashedPassword => {
-            return insertUserModel({
-                username: user,
-                password: hashedPassword,
-                email: email || null, 
-                fk_role, 
-                conn
-            });
+            return insertUserModel({ conn, username, password: hashedPassword, email, fk_role }) 
         })
         .then((response) => {
             if (noResults(response)) {
@@ -38,18 +31,20 @@ const postRegisterController = (req, res, next, config) => {
             }
 
             const result = {
-                message: 'User registered successfully',
-                user: {
-                    username: user,
-                    email: email || null,
-                    role: fk_role || 'viewer'
-                }
-            }
-            next(result);
+				_data: {
+					message: 'User created',
+					response
+				}
+			}
+			next(result)
         })
         .catch((err) => {
+            if (err.code === 'ER_DUP_ENTRY') {
+                const error = error409();
+                return sendResponseConflict(res, error);
+            }
             const error = errorHandler(err, config.environment);
-            return res.status(err.code).json(error);
+            return res.status(err).json(error);
         })
         .finally(() => {
             mysql.end(conn);

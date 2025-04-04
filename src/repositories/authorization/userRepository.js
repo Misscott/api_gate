@@ -60,8 +60,10 @@ const countUserListQuery = rest =>
  * Insert query using parameters passed in request
  * @returns {String} INSERT query
  */
-const insertUserQuery = (email) => {
-    const emailCondition = email ? ':email ' : null;
+const insertUserQuery = ({email, fk_role, createdBy}) => {
+    const emailCondition = email ? ':email' : null;
+    const roleCondition = fk_role ? '(SELECT id FROM mydb.roles WHERE name = :fk_role)' : `(SELECT id FROM mydb.roles WHERE name = 'viewer')`;
+    const createdByCondition = createdBy ? 'createdBy = :createdBy' : null;
     return `
     INSERT INTO mydb.users (
       uuid,
@@ -77,9 +79,9 @@ const insertUserQuery = (email) => {
       :username,
       :password,
       ${emailCondition},
-      :role
+      ${roleCondition},
       :now,
-      :createdBy
+      ${createdByCondition}
     );
     SELECT * FROM mydb.users WHERE uuid = :uuid;
     `
@@ -89,13 +91,11 @@ const insertUserQuery = (email) => {
  * @param {Object} params All params involved in query to be modified in certain object matching uuid passed as req param
  * @returns {String} UPDATE query
  */
-const modifyUserQuery = ({ username, email, role }) => {
-  const usernameCondition = username ? 'username = :username, ' : '';
-  const passwordCondition = password ? 'password = :password, ' : '';
-  const emailCondition = email ? 'email = :email, ' : '';
-  const roleCondition = role ? 'fk_role = (SELECT id FROM mydb.roles WHERE name = :role) ' : '';
-  const lastLoginDateCondition = lastLoginDate ? 'last_login_date = :lastLoginDate, ' : '';
-  const userStatusCondition = userStatus ? 'user_status = :userStatus, ' : '';
+const modifyUserQuery = ({ username, password, email, role }) => {
+  const usernameCondition = username ? `username = :username, ` : ``;
+  const passwordCondition = password ? `password = :password, ` : ``;
+  const emailCondition = email ? `email = :email, ` : ``;
+  const roleCondition = role ? `fk_role = (SELECT id FROM mydb.roles WHERE name = :role) ` : ``;
 
   return `
     UPDATE
@@ -105,11 +105,11 @@ const modifyUserQuery = ({ username, email, role }) => {
       ${passwordCondition}
       ${emailCondition}
       ${roleCondition}
-      ${lastLoginDateCondition}
-      ${userStatusCondition}
       uuid = :uuid
     WHERE
-      users.uuid = :uuid;
+      users.uuid = :uuid
+    AND
+      users.deleted IS NULL; 
     SELECT mydb.users.*
     FROM mydb.users
     WHERE users.uuid = :uuid

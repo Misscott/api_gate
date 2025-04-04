@@ -139,10 +139,9 @@ const putRoleController = (req, res, next, config) => {
 const deleteRoleController = (req, res, next, config) => {
 	const conn = mysql.start(config)
 	const uuid = req.params.uuid
-	const { deleted } = req.body
 	const deletedby = req.auth.user || null
 
-	softDeleteRoleModel({ uuid, deleted, deletedby, conn })
+	softDeleteRoleModel({ uuid, deletedby, conn })
 		.then(() => {
 			const result = {}
 			next(result)

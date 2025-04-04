@@ -40,7 +40,14 @@ const modifyRoleModel = ({uuid, name, conn}) => {
 
     return mysql
         .execute(modifyRoleQuery(params), conn, params)
-        .then(res => res[1].map(({id, created, deleted, createdBy, deletedBy, ...rest}) => ({...rest})))
+        .then(res => {
+            const deletedItem = res[1].find(item => item.deleted !== null);
+  
+            if (deletedItem) {
+                throw error404()
+            }
+            return res[1].map(({id, created, deleted, createdBy, deletedBy, ...rest}) => ({...rest}))
+        })
 }
 
 const softDeleteRoleModel = ({uuid, deleted, deletedBy, conn}) => {

@@ -69,7 +69,8 @@ const _getRolePermissions = (config, roleName, conn) => {
             return response
         })
         .catch((err) => {
-            return errorHandler(err, config.environment);
+            const error = errorHandler(err, config.environment);
+            return sendResponseUnauthorized(res, error);
         })
 }
 

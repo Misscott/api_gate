@@ -9,6 +9,7 @@ import {
     deleteUserQuery,
     softDeleteUserQuery
 } from '../../repositories/authorization/userRepository.js'
+import { error404 } from '../../utils/errors.js'
 
 const getUserListModel = ({conn, ...rest}) => {
     const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
@@ -40,19 +41,23 @@ const insertUserModel = ({conn, ...params}) => {
     return mysql
         .execute(insertUserQuery({...params, uuid, now}), conn, {...params, uuid, now})
         .then(queryResult => queryResult[1].map(({id, password, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
-        .catch(err => {
-            reject(err)
-        })
 }
 
 const modifyUserModel = ({conn, ...params}) => {
     return mysql
         .execute(modifyUserQuery(params), conn, params)
-        .then(queryResult => queryResult[1].map(({id, password, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(queryResult => {
+            const deletedItem = queryResult[1].find(item => item.deleted !== null);
+  
+                if (deletedItem) {
+                    throw error404()
+                }
+            return queryResult[1].map(({id, password, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered)
+        })
 }
 
 const softDeleteUserModel = ({uuid, deleted, deletedBy, conn}) => {
-    const deletedData = deleted ? dayjs.utc(deleted).format('YYYY-MM-DD HH:mm:ss') : dayjs.utc.format('YYYY-MM-DD HH:mm:ss')
+    const deletedData = deleted ? dayjs.utc(deleted).format('YYYY-MM-DD HH:mm:ss') : dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
     const params = {uuid, deletedBy, deleted: deletedData}
 
     return mysql

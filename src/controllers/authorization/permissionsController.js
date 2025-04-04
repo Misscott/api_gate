@@ -112,9 +112,8 @@ const softDeletePermissionController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const uuid_permission = req.params.uuid
     const deletedBy = req.auth.user || null
-    const {deleted} = req.body
 
-    softDeletePermissionModel({uuid_permission, deleted, deletedBy, conn})
+    softDeletePermissionModel({uuid_permission, deletedBy, conn})
         .then(() => {
             const result = {}
             next(result)

@@ -108,6 +108,8 @@ const modifyDeviceQuery = ({serial_number, model, brand, description, stock}) =>
         uuid = :uuid
         WHERE 
             devices.uuid = :uuid;
+        AND
+            devices.deleted IS NULL;
         SELECT mydb.devices.*
         FROM mydb.devices
         WHERE devices.uuid = :uuid
