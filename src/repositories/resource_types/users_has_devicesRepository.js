@@ -65,8 +65,8 @@ const insertUsersHasDevicesQuery = () =>{
         )
         VALUES (
             :uuid,
-            (SELECT id FROM mydb.user WHERE uuid = :uuidUsers),
-            (SELECT id FROM mydb.devices WHERE uuid = :uuidDevices),
+            (SELECT id FROM mydb.users WHERE uuid = :fk_user),
+            (SELECT id FROM mydb.devices WHERE uuid = :fk_device),
             :stock,
             :now,
             :createdBy
@@ -81,8 +81,8 @@ const insertUsersHasDevicesQuery = () =>{
  */
 const modifyUsersHasDevicesQuery = ({stock, fk_user, fk_devices}) => {
     const stockCondition = stock ? 'stock = :stock, ' : ''
-    const userCondition = fk_user ? 'fk_user = (SELECT id FROM mydb.user WHERE uuid = :uuidUsers),' : ''
-    const devicesCondition = fk_devices ? 'fk_device = (SELECT id FROM mydb.devices WHERE uuid = :uuidDevices),' : ''
+    const userCondition = fk_user ? 'fk_user = (SELECT id FROM mydb.user WHERE uuid = :fk_user),' : ''
+    const devicesCondition = fk_devices ? 'fk_device = (SELECT id FROM mydb.devices WHERE uuid = :fk_device),' : ''
     return `
         UPDATE
             mydb.users_has_devices
