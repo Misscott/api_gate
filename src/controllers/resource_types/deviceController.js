@@ -9,7 +9,6 @@ import {
 import {error404, errorHandler} from '../../utils/errors.js'
 import { sendResponseNotFound } from '../../utils/responses.js'
 import {noResults} from '../../validators/result-validators.js'
-import {filterByStock} from '../../validators/filters.js'
 
 /**
  * Controller request for selecting all devices from database
@@ -30,38 +29,6 @@ const getDeviceController = (req, res, next, config) => {
                 _data: {devices: getResults}
             })
         )
-        .catch((err) => {
-            const error = errorHandler(err, config.environment)
-            res.status(error.code).json(error)
-        })
-        .finally(() => {
-            mysql.end(conn)
-        })
-}
-
-/**
- * Gets devices based on a minimum stock from request params
- * @param {Integer} minStock 
- * @returns {errorHandler} if there are no results, error 404 for not found
- */
-const getDeviceswithMinimumStockController = (minStock) => (req, res, next, config) => {
-    const conn = mysql.start(config)
-
-    getDeviceModel({conn})
-        .then((device) => {
-            if(noResults(device)){
-                const err = error404()
-                const error = errorHandler(err, config.environment)
-                return sendResponseNotFound(res, error)
-            }
-
-            const filteredDevices = filterByStock(device, minStock, Number.MAX_VALUE)
-            const result = {
-                _data : {filteredDevices}
-            }
-
-            next(result)
-        })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
             res.status(error.code).json(error)
@@ -201,6 +168,5 @@ export {
     getDeviceByUuidController,
     getDeviceBySerialNumberController,
     getDeviceByBrandController,
-    getDeviceByModelController,
-    getDeviceswithMinimumStockController
+    getDeviceByModelController
 }

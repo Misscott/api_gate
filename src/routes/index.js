@@ -2,7 +2,7 @@
  * @fileoverview This file contains the route definitions for the user-related endpoints.
  */
 import {Router} from 'express'             
-import { getDeviceController, getDeviceByUuidController, postDeviceController, putDeviceController, deleteDeviceController, getDeviceswithMinimumStockController, getDeviceBySerialNumberController, getDeviceByModelController, getDeviceByBrandController } from '../controllers/resource_types/deviceController.js'
+import { getDeviceController, getDeviceByUuidController, postDeviceController, putDeviceController, deleteDeviceController, getDeviceBySerialNumberController, getDeviceByModelController, getDeviceByBrandController } from '../controllers/resource_types/deviceController.js'
 import { getUserListController, getUserInfoController, postUserController, putUserController, softDeleteUserController } from '../controllers/authorization/userController.js'
 import { getRoleController, getRoleInfoController, postRoleController, putRoleController, deleteRoleController } from '../controllers/authorization/rolesController.js'
 import { getPermissionController, getPermissionByUuidController, postPermissionController, putPermissionController, softDeletePermissionController } from '../controllers/authorization/permissionsController.js'
@@ -16,7 +16,7 @@ import {
 	sendOkResponse,
     sendResponseNoContent,
 } from '../utils/responses.js'
-import { integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
+import { bigInt, integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
 import {payloadExpressValidator} from '../validators/expressValidator/payloadExpressValidator.js'
 import { error422, errorHandler } from '../utils/errors.js'
 import { authorizePermission, setToken, authenticateToken} from '../middlewares/auth.js'
@@ -137,12 +137,11 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/devices')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
-            varChar('model').optional({ nullable: false, values: 'falsy' }),
-            varChar('brand').optional({ nullable: false, values: 'falsy' }),
-            varChar('description').optional({ nullable: true, values: 'falsy' }),
-            integer('stock').optional({ nullable: false, values: 'falsy' })
+            uuid('uuid'),
+            varChar('serial_number'),
+            varChar('model'),
+            varChar('brand'),
+            varChar('description').optional({ nullable: true, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => {
@@ -152,77 +151,6 @@ export default(config) => {
                 return res.status(error.code).json(error)
             } 
             return postDeviceController(req, res, next, config)
-        },
-        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
-        (result, req, res, _) => sendOkResponse(result, req, res)
-    )
-
-    /**
-     * Gets devices with a stock greater than zero
-    * @name get/devices/inStock
-    * @function
-    * @inner
-    * @memberof deviceRouter
-    * @route GET /devices/inStock
-    * @group Devices - Operations about devices
-    * @param {string} serial_number.path.required - The unique identifier for the device
-    * @returns {Device} 200 - The device object
-    * @returns {ErrorResponse} 404 - Device not found
-    * @returns {ErrorResponse} 422 - Unprocessable entity
-    * @returns {ErrorResponse} 500 - Internal server error
-    * @returns {ErrorResponse} 403 - Forbidden
-    * @returns {ErrorResponse} 401 - Unauthorized
-    */
-    routes.get(
-        '/devices/inStock',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/devices/inStock')(req, res, next, config),
-        [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
-            varChar('model').optional({ nullable: false, values: 'falsy' }),
-            varChar('brand').optional({ nullable: false, values: 'falsy' }),
-            varChar('description').optional({ nullable: true, values: 'falsy' }),
-            integer('stock').optional({ nullable: false, values: 'falsy' })
-        ],
-        (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => getDeviceswithMinimumStockController(1)(req, res, next, config),
-        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
-        (result, req, res, _) => sendOkResponse(result, req, res)
-    )
-
-    /**
-    * Gets all the devices with a stock greater or equal to minStock
-    * @name get/devices/minStock/:stock
-    * @function
-    * @inner
-    * @memberof deviceRouter
-    * @route GET /devices/minStock/{minStock}
-    * @group Devices - Operations about devices
-    * @param {string} minStock param for minimum stock search
-    * @returns {Device} 200 - The device object
-    * @returns {ErrorResponse} 404 - Device not found
-    * @returns {ErrorResponse} 422 - Unprocessable entity
-    * @returns {ErrorResponse} 500 - Internal server error
-    * @returns {ErrorResponse} 403 - Forbidden
-    * @returns {ErrorResponse} 401 - Unauthorized
-    */
-    routes.get(
-        '/devices/minStock/:stock',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/devices/minStock/:stock')(req, res, next, config),
-        [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
-            varChar('model').optional({ nullable: false, values: 'falsy' }),
-            varChar('brand').optional({ nullable: false, values: 'falsy' }),
-            varChar('description').optional({ nullable: true, values: 'falsy' }),
-            integer('stock').optional({ nullable: false, values: 'falsy' })
-        ],
-        (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => {
-            const minStock = Number(req.params.stock)
-            getDeviceswithMinimumStockController(minStock)(req, res, next, config)
         },
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendOkResponse(result, req, res)
@@ -248,12 +176,11 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/devices/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
             varChar('model').optional({ nullable: false, values: 'falsy' }),
             varChar('brand').optional({ nullable: false, values: 'falsy' }),
-            varChar('description').optional({ nullable: true, values: 'falsy' }),
-            integer('stock').optional({ nullable: false, values: 'falsy' })
+            varChar('description').optional({ nullable: true, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getDeviceByUuidController(req, res, next, config),
@@ -281,15 +208,13 @@ export default(config) => {
         (req, res, next) => authorizePermission('/devices/serial_number/:serial_number')(req, res, next, config),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
+            varChar('serial_number'),
             varChar('model').optional({ nullable: false, values: 'falsy' }),
             varChar('brand').optional({ nullable: false, values: 'falsy' }),
-            varChar('description').optional({ nullable: true, values: 'falsy' }),
-            integer('stock').optional({ nullable: false, values: 'falsy' })
+            varChar('description').optional({ nullable: true, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => {
-            const serial_number = req.params.serial_number
             getDeviceBySerialNumberController(req, res, next, config)
         },
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
@@ -317,10 +242,9 @@ export default(config) => {
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
-            varChar('model').optional({ nullable: false, values: 'falsy' }),
+            varChar('model'),
             varChar('brand').optional({ nullable: false, values: 'falsy' }),
-            varChar('description').optional({ nullable: true, values: 'falsy' }),
-            integer('stock').optional({ nullable: false, values: 'falsy' })
+            varChar('description').optional({ nullable: true, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getDeviceByModelController(req, res, next, config),
@@ -350,7 +274,7 @@ export default(config) => {
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
             varChar('model').optional({ nullable: false, values: 'falsy' }),
-            varChar('brand').optional({ nullable: false, values: 'falsy' }),
+            varChar('brand'),
             varChar('description').optional({ nullable: true, values: 'falsy' }),
             integer('stock').optional({ nullable: false, values: 'falsy' })
         ],
@@ -381,7 +305,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/devices/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
             varChar('model').optional({ nullable: false, values: 'falsy' }),
             varChar('brand').optional({ nullable: false, values: 'falsy' }),
@@ -505,9 +429,8 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/users')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            varChar('username').optional({ nullable: false, values: 'falsy' }),
-            varChar('password').optional({ nullable: false, values: 'falsy' }),
+            varChar('username'),
+            varChar('password'),
             varChar('email').optional({ nullable: true, values: 'falsy' }),
             varChar('fk_role').optional({ nullable: false, values: 'falsy' })
 
@@ -630,7 +553,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/roles/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             varChar('name').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
@@ -660,8 +583,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/roles')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            varChar('name').optional({nullable: false, values: 'falsy'})
+            varChar('name')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postRoleController(req, res, next, config),
@@ -692,7 +614,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/roles/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             varChar('name').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
@@ -723,8 +645,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/roles/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            varChar('name').optional({ nullable: false, values: 'falsy' })
+            uuid('uuid')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => deleteRoleController(req, res, next, config),
@@ -757,7 +678,7 @@ export default(config) => {
             varChar('name').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => getPermissionListController(req, res, next, config),
+        (req, res, next) => getPermissionController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendOkResponse(result, req, res)
     );
@@ -782,11 +703,11 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/permissions')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             varChar('name').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => getPermissionListController(req, res, next, config),
+        (req, res, next) => getPermissionByUuidController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendOkResponse(result, req, res)
     );
@@ -796,8 +717,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/permissions')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            varChar('name').optional({ nullable: false, values: 'falsy' })
+            varChar('name')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postPermissionController(req, res, next, config),
@@ -828,7 +748,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/permissions/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             varChar('action').optional({ nullable: false, values: 'falsy' }),
             varChar('endpoint').optional({ nullable: false, values: 'falsy' })
         ],
@@ -858,7 +778,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/permissions/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid')
 
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
@@ -867,27 +787,27 @@ export default(config) => {
         (result, req, res, _) => sendResponseNoContent(result, req, res)
     );
 
-    // User Permission Routes
+    // Roles Permissions Routes
     /**
-     * @name GET/user_permissions
+     * @name GET/roles_permissions
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route GET /user_permissions
+     * @route GET /roles_permissions
      * @group User Permissions - Operations about user permissions
      * @param {string} uuid.path.required - The unique identifier for the user permission
      * @param {string} fk_user.path.required - The unique identifier for the user
      * @param {string} fk_permission.path.required - The unique identifier for the permission
-     * @returns {SuccessResponse} 200 - The user permission object
+     * @returns {SuccessResponse} 200 - The role permission object
      * @returns {ErrorResponse} 404 - User permission not found
      * @returns {ErrorResponse} 422 - Unprocessable entity
      * @returns {ErrorResponse} 500 - Internal server error
      * @returns {ErrorResponse} 403 - Forbidden
     */
     routes.get(
-        '/user_permissions',
+        '/roles_permissions',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/user_permissions')(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles_permissions')(req, res, next, config),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
@@ -900,27 +820,27 @@ export default(config) => {
     );
 
     /**
-     * @name GET/user_permissions/:uuid
+     * @name GET/roles_permissions/:uuid
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route GET /user_permissions/{uuid}
+     * @route GET /roles_permissions/{uuid}
      * @group User Permissions - Operations about user permissions
      * @param {string} uuid.path.required - The unique identifier for the user permission
      * @param {string} fk_user.path.required - The unique identifier for the user
      * @param {string} fk_permission.path.required - The unique identifier for the permission
-     * @returns {SuccessResponse} 200 - The user permission object
-     * @returns {ErrorResponse} 404 - User permission not found
+     * @returns {SuccessResponse} 200 - The role permission object
+     * @returns {ErrorResponse} 404 - Role permission not found
      * @returns {ErrorResponse} 422 - Unprocessable entity
      * @returns {ErrorResponse} 500 - Internal server error
      * @returns {ErrorResponse} 403 - Forbidden
     */
     routes.get(
-        '/user_permissions/:uuid',
+        '/roles_permissions/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/user_permissions/:uuid')(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles_permissions/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
             uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
         ],
@@ -931,29 +851,28 @@ export default(config) => {
     );
 
     /**
-     * @name POST/user_permissions
+     * @name POST/roles_permissions
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route POST /user_permissions
-     * @group User Permissions - Operations about user permissions
+     * @route POST /roles_permissions
+     * @group Role Permissions - Operations about user permissions
      * @param {string} fk_user.path.required - The unique identifier for the user
      * @param {string} fk_permission.path.required - The unique identifier for the permission
      * @returns {SuccessResponse} 200 - User permission created successfully
      * @returns {ErrorResponse} 400 - Bad request
-     * @returns {ErrorResponse} 404 - User permission not found
+     * @returns {ErrorResponse} 404 - Role permission not found
      * @returns {ErrorResponse} 422 - Unprocessable entity
      * @returns {ErrorResponse} 500 - Internal server error
      * @returns {ErrorResponse} 403 - Forbidden
     */
     routes.post(
-        '/user_permissions',
+        '/roles_permissions',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/user_permissions')(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles_permissions')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+            uuid('fk_user'),
+            uuid('fk_permission')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postUserPermissionController(req, res, next, config),
@@ -962,11 +881,11 @@ export default(config) => {
     );
 
     /**
-     * @name PUT/user_permissions/:uuid
+     * @name PUT/roles_permissions/:uuid
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route PUT /user_permissions/{uuid}
+     * @route PUT /roles_permissions/{uuid}
      * @group User Permissions - Operations about user permissions
      * @param {string} uuid.path.required - The unique identifier for the user permission
      * @param {string} fk_user.path.required - The unique identifier for the user
@@ -979,16 +898,16 @@ export default(config) => {
      * @returns {ErrorResponse} 403 - Forbidden
     */
     routes.put(
-        '/user_permissions/:uuid',
+        '/roles_permissions/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/user_permissions/:uuid')(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles_permissions/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
             uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => putUserPermissionController(req, res, next, config),
+        (req, res, next) => putRolesHasPermissionsController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
@@ -1012,16 +931,14 @@ export default(config) => {
      * @returns {ErrorResponse} 400 - Bad request
      */
     routes.delete(
-        '/user_permissions/:uuid',
+        '/roles_permissions/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/user_permissions/:uuid')(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles_permissions/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+            uuid('uuid').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => softDeleteUserPermissionController(req, res, next, config),
+        (req, res, next) => softDeleteRolesHasPermissionsController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendResponseNoContent(result, req, res)
     );
@@ -1046,7 +963,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/endpoints/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             varChar('name').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
@@ -1060,8 +977,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/endpoints')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            varChar('route').optional({ nullable: false, values: 'falsy' })
+            varChar('route')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postEndpointsController(req, res, next, config),
@@ -1074,7 +990,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/endpoints/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             varChar('route').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
@@ -1088,8 +1004,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/endpoints/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            varChar('route').optional({ nullable: false, values: 'falsy' })
+            uuid('uuid')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => softDeleteEndpointsController(req, res, next, config),
@@ -1118,7 +1033,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/roles_has_permissions/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             uuid('fk_role').optional({ nullable: false, values: 'falsy' }),
             uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
         ],
@@ -1133,7 +1048,6 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/roles_has_permissions')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             uuid('fk_role').optional({ nullable: false, values: 'falsy' }),
             uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
         ],
@@ -1148,7 +1062,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/roles_has_permissions/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             uuid('fk_role').optional({ nullable: false, values: 'falsy' }),
             uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
         ],
@@ -1209,9 +1123,8 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/users_has_devices')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_device').optional({ nullable: false, values: 'falsy' })
+            uuid('fk_user'),
+            uuid('fk_device')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postUsersHasDevicesController(req, res, next, config),
@@ -1292,10 +1205,10 @@ export default(config) => {
     routes.post(
         '/signin',
         [
-            varChar('username').optional({ nullable: false, values: 'falsy' }),
-            varChar('password').optional({ nullable: false, values: 'falsy' }),
+            varChar('username'),
+            varChar('password'),
             varChar('email').optional({ nullable: true, values: 'falsy' }),
-            varChar('fk_role').optional({ nullable: false, values: 'falsy' })
+            varChar('fk_role')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postRegisterController(req, res, next, config),

@@ -63,6 +63,35 @@ const getDevicesByUserController = (req, res, next, config) => {
         })
 }
 
+const getDeviceByStockController = (req, res, next, config) => {
+    const stock = req.params.stock
+    const conn = mysql.start(config)
+    
+    getUsersHasDevicesModel({ stock, conn })
+        .then((response) => {
+            if (noResults(response)) {
+                const err = error404()
+                const error = errorHandler(err, config.environment)
+                return sendResponseNotFound(res, error)
+            }
+
+            const result = {
+                _data: {
+                    users_has_devices: response
+                }
+            }
+            next(result)
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+    }
+
+
 const postUsersHasDevicesController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const createdBy = req.auth.user || null

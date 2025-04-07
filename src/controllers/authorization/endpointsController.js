@@ -9,6 +9,7 @@ import {
 import { error404, errorHandler } from "../../utils/errors.js";
 import { sendResponseNotFound } from "../../utils/responses.js";
 import { noResults } from "../../validators/result-validators.js";
+import mysql from "../../adapters/mysql.js";
 
 const getEndpointsController = (req, res, next, config) => {
     const conn = mysql.start(config)

@@ -9,9 +9,9 @@ import {pagination} from "../../utils/pagination.js"
  */
 const _usersHasDevicesSelectQuery = (_pagination = '') => 
     ({count}) => 
-        ({uuidDevices, stock}) => {
-            const conditionUuid = ' AND fk_user = (SELECT id FROM mydb.user WHERE uuid = :uuidUsers) '
-	        const conditionUuidDevices = uuidDevices ? ' AND fk_device = (SELECT id FROM mydb.devices WHERE uuid = :uuidDevices) ' : ''
+        ({fk_device, fk_user, stock}) => {
+            const conditionUuid = fk_user? ' AND fk_user = (SELECT id FROM mydb.users WHERE uuid = :fk_user) ' : ''
+	        const conditionUuidDevices = fk_device ? ' AND fk_device = (SELECT id FROM mydb.devices WHERE uuid = :fk_device) ' : ''
             const stockCondition = stock ? 'AND stock = :stock ' : ''
             return `
                 SELECT
@@ -20,17 +20,21 @@ const _usersHasDevicesSelectQuery = (_pagination = '') =>
                         devices.uuid as device_uuid,
                         devices.serial_number as serial_number,
                         users.uuid as user_uuid,
-                        users.username as username,
+                        users.username as username
                         `}
                 FROM
                     mydb.users_has_devices as users_has_devices
                 LEFT JOIN mydb.devices as devices ON users_has_devices.fk_device = devices.id
-                LEFT JOIN mydb.user as users ON users.id = users_has_devices.fk_user
+                LEFT JOIN mydb.users as users ON users.id = users_has_devices.fk_user
                 WHERE
                     true
                     ${conditionUuid}
                     ${conditionUuidDevices}
                     ${stockCondition}
+                AND users_has_devices.deleted IS NULL
+                AND devices.deleted IS NULL
+                AND users.deleted IS NULL
+                    ${_pagination}
             `
 }
 
