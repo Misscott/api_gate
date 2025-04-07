@@ -7,10 +7,11 @@ import {
     softDeleteRolesHasPermissionsModel
 } from '../../models/authorization/roles_has_permissionsModel.js'
 import { errorHandler } from '../../utils/errors.js'
+import { noResults } from '../../validators/result-validators.js'
 
 const getRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
-
+    const uuidList = req.query.uuidList && req.query.uuidList.split(',')
     Promise.all([
         getRolesHasPermissionsModel({...req.query, uuidList, conn}),
         countRolesHasPermissionsModel({...req.query, uuidList, conn})
@@ -34,12 +35,38 @@ const getRolesHasPermissionsController = (req, res, next, config) => {
         })
 }
 
+const getRolesHasPermissionsByUuidController = (req, res, next, config) => {
+    const uuid = req.params.uuid
+    const conn = mysql.start(config)
+    getRolesHasPermissionsModel({ uuid, conn })
+        .then((response) => {
+            if (noResults(response)) {
+                const err = error404()
+                const error = errorHandler(err, config.environment)
+                return sendResponseNotFound(res, error)
+            }
+
+            const result = {
+                _data: {
+                    roles_has_permissions: response
+                }
+            }
+            next(result)
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            return res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+}
+
 const postRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const createdBy = req.auth.user || null
-    const roleUuid = req.body.uuid
 
-    insertRolesHasPermissionsModel({...req.body, roleUuid, createdBy, conn})
+    insertRolesHasPermissionsModel({...req.body, createdBy, conn})
         .then((roles_has_permissions) => {
             const result = {
                 _data: roles_has_permissions
@@ -97,6 +124,7 @@ const softDeleteRolesHasPermissionsController = (req, res, next, config) => {
 
 export {
     getRolesHasPermissionsController,
+    getRolesHasPermissionsByUuidController,
     postRolesHasPermissionsController,
     softDeleteRolesHasPermissionsController,
     putRolesHasPermissionsController,

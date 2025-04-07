@@ -30,6 +30,7 @@ import {
     softDeleteEndpointsController
 } from '../controllers/authorization/endpointsController.js'
 import { 
+    getRolesHasPermissionsByUuidController,
     getRolesHasPermissionsController, 
     postRolesHasPermissionsController, 
     putRolesHasPermissionsController, 
@@ -940,7 +941,7 @@ export default(config) => {
             uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => getRolesHasPermissionsController(req, res, next, config),
+        (req, res, next) => getRolesHasPermissionsByUuidController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendOkResponse(result, req, res)
     );
