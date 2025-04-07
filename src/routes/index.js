@@ -1,7 +1,7 @@
 /**
  * @fileoverview This file contains the route definitions for the user-related endpoints.
  */
-import {Router} from 'express'             
+import {Router, text} from 'express'             
 import { getDeviceController, getDeviceByUuidController, postDeviceController, putDeviceController, deleteDeviceController} from '../controllers/resource_types/deviceController.js'
 import { getUserListController, getUserInfoController, postUserController, putUserController, softDeleteUserController } from '../controllers/authorization/userController.js'
 import { getRoleController, getRoleInfoController, postRoleController, putRoleController, deleteRoleController } from '../controllers/authorization/rolesController.js'
@@ -19,7 +19,7 @@ import {
 import { integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
 import {payloadExpressValidator} from '../validators/expressValidator/payloadExpressValidator.js'
 import { error422, errorHandler } from '../utils/errors.js'
-import { authorizePermission, setToken, authenticateToken} from '../middlewares/auth.js'
+import { authorizePermission, setToken, authenticateToken, refreshAuthenticate} from '../middlewares/auth.js'
 import { postRegisterController } from '../controllers/authorization/registerController.js'
 import { postRefreshTokenController } from '../controllers/authorization/refreshTokenController.js'
 import { 
@@ -1098,8 +1098,11 @@ export default(config) => {
 
     routes.post(
         '/refresh_token', //header contains refresh_token
+        [
+            text('refresh_token')
+        ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => refreshAuthenticate(req, res, next, config),
         (req, res, next) => postRefreshTokenController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendLoginSuccessfullResponse(result, req, res)

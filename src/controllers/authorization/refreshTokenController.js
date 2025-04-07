@@ -11,7 +11,7 @@ const postRefreshTokenController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const { user } = req.auth
 
-    getUserListModel({ uuid: user })
+    getUserListModel({conn, uuid: user})
         .then((response) => {
             if (noResults(response)) {
                 const err = error401()
@@ -35,9 +35,9 @@ const postRefreshTokenController = (req, res, next, config) => {
                         role: response[0].role
                     }
                     
-                    const {token, refreshToken} = generateTokens(tokenPayload) 
+                    const {accessToken, refreshToken} = generateTokens(tokenPayload) 
                     //token application in frontend
-                    next({token, refreshToken})
+                    next({accessToken, refreshToken})
                 })
         })
         .catch((err) => {

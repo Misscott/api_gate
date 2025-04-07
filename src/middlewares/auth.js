@@ -35,6 +35,18 @@ const authenticateToken = (req, res, next) => {
         });
 };
 
+const refreshAuthenticate = (req, res, next) => {
+    const token = req.body.refreshToken
+    getDataFromToken(token)
+        .then((decoded) => {
+            req.auth = decoded;
+            next();
+        })
+        .catch((error) => {
+            return sendResponseUnauthorized(res, error);
+        });
+  }
+
 const authorizePermission = (endpoint) => {
     return (req, res, next, config) => {
         obtainToken(req, res)
@@ -90,5 +102,6 @@ const _getRolePermissionsByName = (roleName, config) => {
 export {
     authenticateToken,
     authorizePermission,
-    setToken
+    setToken,
+    refreshAuthenticate
 };

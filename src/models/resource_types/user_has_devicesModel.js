@@ -16,7 +16,7 @@ const getUsersHasDevicesModel = ({conn, ...rest}) => {
 
     return mysql    
         .execute(getUsersHasDevicesQuery(paramsToSearch), conn, paramsToSearch)
-        .then(results => results.map(({id, uuid, fk_user, fk_device, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(results => results.map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 const countUsersHasDevicesModel = ({conn, ...rest}) => {
@@ -24,7 +24,7 @@ const countUsersHasDevicesModel = ({conn, ...rest}) => {
     const paramsToSearch = { ...rest, now }
 
     return mysql
-        .execute(countUsersHasDevicesQuery(params), conn, paramsToSearch)
+        .execute(countUsersHasDevicesQuery(paramsToSearch), conn, paramsToSearch)
         .then(results => results[0].count)
 }
 
