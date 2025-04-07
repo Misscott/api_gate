@@ -29,7 +29,7 @@ const getRoleController = (req, res, next, config) => {
 		)
 		.catch((err) => {
 			const error = errorHandler(err, config.environment)
-			res.status(error.code).json(error)
+			return res.status(error.code).json(error)
 		})
 		.finally(() => {
 			mysql.end(conn)
@@ -57,7 +57,7 @@ const getRoleInfoController = (req, res, next, config) => {
 		})
 		.catch((err) => {
 			const error = errorHandler(err, config.environment)
-			res.status(error.code).json(error)
+			return res.status(error.code).json(error)
 		})
 		.finally(() => {
 			mysql.end(conn)
@@ -85,7 +85,7 @@ const getRoleByNameController = (req, res, next, config) => {
 		})
 		.catch((err) => {
 			const error = errorHandler(err, config.environment)
-			res.status(error.code).json(error)
+			return res.status(error.code).json(error)
 		})
 		.finally(() => {
 			mysql.end(conn)
@@ -106,7 +106,7 @@ const postRoleController = (req, res, next, config) => {
 		})
 		.catch((err) => {
 			const error = errorHandler(err, config.environment)
-			res.status(error.code).json(error)
+			return res.status(error.code).json(error)
 		})
 		.finally(() => {
 			mysql.end(conn)
@@ -129,7 +129,7 @@ const putRoleController = (req, res, next, config) => {
 		})
 		.catch((err) => {
 			const error = errorHandler(err, config.environment)
-			res.status(error.code).json(error)
+			return res.status(error.code).json(error)
 		})
 		.finally(() => {
 			mysql.end(conn)
@@ -148,7 +148,7 @@ const deleteRoleController = (req, res, next, config) => {
 		})
 		.catch((err) => {
 			const error = errorHandler(err, config.environment)
-			res.status(error.code).json(error)
+			return res.status(error.code).json(error)
 		})
 		.finally(() => {
 			mysql.end(conn)

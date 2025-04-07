@@ -50,9 +50,6 @@ const insertDeviceModel = ({conn, ...params}) => {
     return mysql
         .execute(insertDeviceQuery(paramsToInsert), conn, paramsToInsert)
         .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
-        .catch(err => {
-            reject(err)
-        })
 }
 
 /**
