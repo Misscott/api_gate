@@ -690,163 +690,23 @@ export default(config) => {
         (result, req, res, _) => sendResponseNoContent(result, req, res)
     );
 
-    // Roles Permissions Routes
+    //Endpoints
     /**
-     * @name GET/roles_permissions
+     * @name GET/endpoints
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route GET /roles_permissions
-     * @group User Permissions - Operations about user permissions
-     * @param {string} uuid.path.required - The unique identifier for the user permission
-     * @param {string} fk_user.path.required - The unique identifier for the user
-     * @param {string} fk_permission.path.required - The unique identifier for the permission
-     * @returns {SuccessResponse} 200 - The role permission object
-     * @returns {ErrorResponse} 404 - User permission not found
-     * @returns {ErrorResponse} 422 - Unprocessable entity
-     * @returns {ErrorResponse} 500 - Internal server error
-     * @returns {ErrorResponse} 403 - Forbidden
-    */
-    routes.get(
-        '/roles_permissions',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/roles_permissions')(req, res, next, config),
-        [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
-        ],
-        (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => getUserPermissionController(req, res, next, config),
-        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
-        (result, req, res, _) => sendOkResponse(result, req, res)
-    );
-
-    /**
-     * @name GET/roles_permissions/:uuid
-     * @function
-     * @inner
-     * @memberof deviceRouter
-     * @route GET /roles_permissions/{uuid}
-     * @group User Permissions - Operations about user permissions
-     * @param {string} uuid.path.required - The unique identifier for the user permission
-     * @param {string} fk_user.path.required - The unique identifier for the user
-     * @param {string} fk_permission.path.required - The unique identifier for the permission
-     * @returns {SuccessResponse} 200 - The role permission object
-     * @returns {ErrorResponse} 404 - Role permission not found
-     * @returns {ErrorResponse} 422 - Unprocessable entity
-     * @returns {ErrorResponse} 500 - Internal server error
-     * @returns {ErrorResponse} 403 - Forbidden
-    */
-    routes.get(
-        '/roles_permissions/:uuid',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/roles_permissions/:uuid')(req, res, next, config),
-        [
-            uuid('uuid'),
-            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
-        ],
-        (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => getUserPermissionController(req, res, next, config),
-        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
-        (result, req, res, _) => sendOkResponse(result, req, res)
-    );
-
-    /**
-     * @name POST/roles_permissions
-     * @function
-     * @inner
-     * @memberof deviceRouter
-     * @route POST /roles_permissions
-     * @group Role Permissions - Operations about user permissions
-     * @param {string} fk_user.path.required - The unique identifier for the user
-     * @param {string} fk_permission.path.required - The unique identifier for the permission
-     * @returns {SuccessResponse} 200 - User permission created successfully
-     * @returns {ErrorResponse} 400 - Bad request
-     * @returns {ErrorResponse} 404 - Role permission not found
-     * @returns {ErrorResponse} 422 - Unprocessable entity
-     * @returns {ErrorResponse} 500 - Internal server error
-     * @returns {ErrorResponse} 403 - Forbidden
-    */
-    routes.post(
-        '/roles_permissions',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/roles_permissions')(req, res, next, config),
-        [
-            uuid('fk_user'),
-            uuid('fk_permission')
-        ],
-        (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => postUserPermissionController(req, res, next, config),
-        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
-        (result, req, res, _) => sendCreatedResponse(result, req, res)
-    );
-
-    /**
-     * @name PUT/roles_permissions/:uuid
-     * @function
-     * @inner
-     * @memberof deviceRouter
-     * @route PUT /roles_permissions/{uuid}
-     * @group User Permissions - Operations about user permissions
-     * @param {string} uuid.path.required - The unique identifier for the user permission
-     * @param {string} fk_user.path.required - The unique identifier for the user
-     * @param {string} fk_permission.path.required - The unique identifier for the permission
-     * @returns {SuccessResponse} 200 - User permission updated successfully
-     * @returns {ErrorResponse} 400 - Bad request
-     * @returns {ErrorResponse} 404 - User permission not found
-     * @returns {ErrorResponse} 422 - Unprocessable entity
-     * @returns {ErrorResponse} 500 - Internal server error
-     * @returns {ErrorResponse} 403 - Forbidden
-    */
-    routes.put(
-        '/roles_permissions/:uuid',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/roles_permissions/:uuid')(req, res, next, config),
-        [
-            uuid('uuid'),
-            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
-        ],
-        (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => putRolesHasPermissionsController(req, res, next, config),
-        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
-        (result, req, res, _) => sendCreatedResponse(result, req, res)
-    );
-
-    /**
-     * @name DELETE/user_permissions/:uuid
-     * @function
-     * @inner
-     * @memberof deviceRouter
-     * @route DELETE /user_permissions/{uuid}
-     * @group User Permissions - Operations about user permissions
-     * @param {string} uuid.path.required - The unique identifier for the user permission
-     * @param {string} fk_user.path.required - The unique identifier for the user
-     * @param {string} fk_permission.path.required - The unique identifier for the permission
-     * @returns {SuccessResponse} 200 - User permission deleted successfully
-     * @returns {ErrorResponse} 404 - User permission not found
+     * @route GET /endpoints
+     * @group Endpoints - Operations about endpoints
+     * @param {string} uuid.path.required - The unique identifier for the endpoint
+     * @param {string} route.path.required - The name of the endpoint
+     * @returns {SuccessResponse} 200 - The endpoint object
+     * @returns {ErrorResponse} 404 - Endpoint not found
      * @returns {ErrorResponse} 422 - Unprocessable entity
      * @returns {ErrorResponse} 500 - Internal server error
      * @returns {ErrorResponse} 403 - Forbidden
      * @returns {ErrorResponse} 401 - Unauthorized
-     * @returns {ErrorResponse} 400 - Bad request
-     */
-    routes.delete(
-        '/roles_permissions/:uuid',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/roles_permissions/:uuid')(req, res, next, config),
-        [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' })
-        ],
-        (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => softDeleteRolesHasPermissionsController(req, res, next, config),
-        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
-        (result, req, res, _) => sendResponseNoContent(result, req, res)
-    );
-
-    //Endpoints
+    */
     routes.get(
         '/endpoints',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -861,6 +721,22 @@ export default(config) => {
         (result, req, res, _) => sendOkResponse(result, req, res)
     );
 
+    /**
+     * @name GET/endpoints/:uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route GET /endpoints/{uuid}
+     * @group Endpoints - Operations about endpoints
+     * @param {string} uuid.path.required - The unique identifier for the endpoint
+     * @param {string} route.path.required - The name of the endpoint
+     * @returns {SuccessResponse} 200 - The endpoint object
+     * @returns {ErrorResponse} 404 - Endpoint not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+     * @returns {ErrorResponse} 401 - Unauthorized
+    */
     routes.get(
         '/endpoints/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -875,6 +751,21 @@ export default(config) => {
         (result, req, res, _) => sendOkResponse(result, req, res)
     );
 
+    /**
+     * @name POST/endpoints
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route POST /endpoints
+     * @group Endpoints - Operations about endpoints
+     * @param {string} route.path.required - The name of the endpoint
+     * @returns {SuccessResponse} 200 - Endpoint created successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - Endpoint not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.post(
         '/endpoints',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -888,6 +779,22 @@ export default(config) => {
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
 
+    /**
+     * @name PUT/endpoints/:uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route PUT /endpoints/{uuid}
+     * @group Endpoints - Operations about endpoints
+     * @param {string} uuid.path.required - The unique identifier for the endpoint
+     * @param {string} route.path.required - The name of the endpoint
+     * @returns {SuccessResponse} 200 - Endpoint updated successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - Endpoint not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.put(
         '/endpoints/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -902,6 +809,21 @@ export default(config) => {
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
 
+    /**
+     * @name DELETE/endpoints/:uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route DELETE /endpoints/{uuid}
+     * @group Endpoints - Operations about endpoints
+     * @param {string} uuid.path.required - The unique identifier for the endpoint
+     * @param {string} route.path.required - The name of the endpoint
+     * @returns {SuccessResponse} 200 - Endpoint deleted successfully. No content
+     * @returns {ErrorResponse} 404 - Endpoint not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.delete(
         '/endpoints/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -916,6 +838,22 @@ export default(config) => {
     );
 
     //roles_has_permissions routes
+    /**
+     * @name GET/roles_has_permissions
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route GET /roles_has_permissions
+     * @group Roles Permissions - Operations about roles permissions
+     * @param {string} uuid.path.required - The unique identifier for the role permission
+     * @param {string} fk_role.path.required - The unique identifier for the role
+     * @param {string} fk_permission.path.required - The unique identifier for the permission
+     * @returns {SuccessResponse} 200 - The role permission object
+     * @returns {ErrorResponse} 404 - Role permission not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.get(
         '/roles_has_permissions',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -931,6 +869,22 @@ export default(config) => {
         (result, req, res, _) => sendOkResponse(result, req, res)
     );
 
+    /**
+     * @name GET/roles_has_permissions/:uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route GET /roles_has_permissions/{uuid}
+     * @group Roles Permissions - Operations about roles permissions
+     * @param {string} uuid.path.required - The unique identifier for the role permission
+     * @param {string} fk_role.path.required - The unique identifier for the role
+     * @param {string} fk_permission.path.required - The unique identifier for the permission
+     * @returns {SuccessResponse} 200 - The role permission object
+     * @returns {ErrorResponse} 404 - Role permission not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.get(
         '/roles_has_permissions/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -946,13 +900,29 @@ export default(config) => {
         (result, req, res, _) => sendOkResponse(result, req, res)
     );
 
+    /**
+     * @name POST/roles_has_permissions
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route POST /roles_has_permissions
+     * @group Roles Permissions - Operations about roles permissions
+     * @param {string} fk_role.path.required - The unique identifier for the role
+     * @param {string} fk_permission.path.required - The unique identifier for the permission
+     * @returns {SuccessResponse} 200 - Role permission created successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - Role permission not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.post(
         '/roles_has_permissions',
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/roles_has_permissions')(req, res, next, config),
         [
-            uuid('fk_role').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+            uuid('fk_role'),
+            uuid('fk_permission')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postRolesHasPermissionsController(req, res, next, config),
@@ -960,6 +930,23 @@ export default(config) => {
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
 
+    /**
+     * @name PUT/roles_has_permissions/:uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route PUT /roles_has_permissions/{uuid}
+     * @group Roles Permissions - Operations about roles permissions
+     * @param {string} uuid.path.required - The unique identifier for the role permission
+     * @param {string} fk_role.path.required - The unique identifier for the role
+     * @param {string} fk_permission.path.required - The unique identifier for the permission
+     * @returns {SuccessResponse} 200 - Role permission updated successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - Role permission not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.put(
         '/roles_has_permissions/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -975,6 +962,22 @@ export default(config) => {
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
 
+    /**
+     * @name DELETE/roles_has_permissions/:uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route DELETE /roles_has_permissions/{uuid}
+     * @group Roles Permissions - Operations about roles permissions
+     * @param {string} uuid.path.required - The unique identifier for the role permission
+     * @param {string} fk_role.path.required - The unique identifier for the role
+     * @param {string} fk_permission.path.required - The unique identifier for the permission
+     * @returns {SuccessResponse} 200 - Role permission deleted successfully. No content
+     * @returns {ErrorResponse} 404 - Role permission not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.delete(
         '/roles_has_permissions/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -989,6 +992,23 @@ export default(config) => {
     );
 
     //users_has_devices routes
+    /**
+     * @name GET/users_has_devices
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route GET /users_has_devices
+     * @group Users Devices - Operations about users devices
+     * @param {string} uuid.path.required - The unique identifier for the user device
+     * @param {string} fk_user.path.required - The unique identifier for the user
+     * @param {string} fk_device.path.required - The unique identifier for the device
+     * @param {integer} stock.path.required - The stock of the device
+     * @returns {SuccessResponse} 200 - The user device object
+     * @returns {ErrorResponse} 404 - User device not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.get(
         '/users_has_devices',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -1005,6 +1025,23 @@ export default(config) => {
         (result, req, res, _) => sendOkResponse(result, req, res)
     );
 
+    /**
+     * @name GET/users_has_devices/:uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route GET /users_has_devices/{uuid}
+     * @group Users Devices - Operations about users devices
+     * @param {string} uuid.path.required - The unique identifier for the user device
+     * @param {string} fk_user.path.required - The unique identifier for the user
+     * @param {string} fk_device.path.required - The unique identifier for the device
+     * @param {integer} stock.path.required - The stock of the device
+     * @returns {SuccessResponse} 200 - The user device object
+     * @returns {ErrorResponse} 404 - User device not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.get(
         '/users_has_devices/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -1021,6 +1058,23 @@ export default(config) => {
         (result, req, res, _) => sendOkResponse(result, req, res)
     );
 
+    /**
+     * @name POST/users_has_devices
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route POST /users_has_devices
+     * @group Users Devices - Operations about users devices
+     * @param {string} fk_user.path.required - The unique identifier for the user
+     * @param {string} fk_device.path.required - The unique identifier for the device
+     * @param {integer} stock.path.required - The stock of the device
+     * @returns {SuccessResponse} 200 - User device created successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - User device not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.post(
         '/users_has_devices',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -1036,6 +1090,24 @@ export default(config) => {
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
 
+    /**
+     * @name PUT/users_has_devices/:uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route PUT /users_has_devices/{uuid}
+     * @group Users Devices - Operations about users devices
+     * @param {string} uuid.path.required - The unique identifier for the user device
+     * @param {string} fk_user.path.required - The unique identifier for the user
+     * @param {string} fk_device.path.required - The unique identifier for the device
+     * @param {integer} stock.path.required - The stock of the device
+     * @returns {SuccessResponse} 200 - User device updated successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - User device not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.put(
         '/users_has_devices/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -1052,6 +1124,23 @@ export default(config) => {
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
 
+    /**
+     * @name DELETE/users_has_devices/:uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route DELETE /users_has_devices/{uuid}
+     * @group Users Devices - Operations about users devices
+     * @param {string} uuid.path.required - The unique identifier for the user device
+     * @param {string} fk_user.path.required - The unique identifier for the user
+     * @param {string} fk_device.path.required - The unique identifier for the device
+     * @param {integer} stock.path.required - The stock of the device
+     * @returns {SuccessResponse} 200 - User device deleted successfully. No content
+     * @returns {ErrorResponse} 404 - User device not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.delete(
         '/users_has_devices/:uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -1096,6 +1185,21 @@ export default(config) => {
         (result, req, res, _) => sendLoginSuccessfullResponse(result, req, res)
     );
 
+    /**
+     * @name POST/refresh_token
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route POST /refresh_token
+     * @group Login - Operations about login
+     * @param {string} refresh_token.path.required - The refresh token of the user
+     * @returns {SuccessResponse} 200 - User logged in successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - User not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.post(
         '/refresh_token', //header contains refresh_token
         [
@@ -1108,6 +1212,24 @@ export default(config) => {
         (result, req, res, _) => sendLoginSuccessfullResponse(result, req, res)
     );
 
+    /**
+     * @name POST/signin
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route POST /signin
+     * @group Login - Operations about login
+     * @param {string} username.path.required - The username of the user
+     * @param {string} password.path.required - The password of the user
+     * @param {string} email.path.required - The email of the user
+     * @param {string} fk_role.path.required - The role of the user
+     * @returns {SuccessResponse} 200 - User logged in successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - User not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
     routes.post(
         '/signin',
         [
