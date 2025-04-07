@@ -2,7 +2,7 @@
  * @fileoverview This file contains the route definitions for the user-related endpoints.
  */
 import {Router} from 'express'             
-import { getDeviceController, getDeviceByUuidController, postDeviceController, putDeviceController, deleteDeviceController, getDeviceBySerialNumberController, getDeviceByModelController, getDeviceByBrandController } from '../controllers/resource_types/deviceController.js'
+import { getDeviceController, getDeviceByUuidController, postDeviceController, putDeviceController, deleteDeviceController} from '../controllers/resource_types/deviceController.js'
 import { getUserListController, getUserInfoController, postUserController, putUserController, softDeleteUserController } from '../controllers/authorization/userController.js'
 import { getRoleController, getRoleInfoController, postRoleController, putRoleController, deleteRoleController } from '../controllers/authorization/rolesController.js'
 import { getPermissionController, getPermissionByUuidController, postPermissionController, putPermissionController, softDeletePermissionController } from '../controllers/authorization/permissionsController.js'
@@ -23,12 +23,10 @@ import { authorizePermission, setToken, authenticateToken} from '../middlewares/
 import { postRegisterController } from '../controllers/authorization/registerController.js'
 import { postRefreshTokenController } from '../controllers/authorization/refreshTokenController.js'
 import { 
-    getEndpointsByRouteController, 
     getEndpointsController,
     getEndpointsByUuidController,
     postEndpointsController,
     putEndpointsController,
-    deleteEndpointsController,
     softDeleteEndpointsController
 } from '../controllers/authorization/endpointsController.js'
 import { 
@@ -871,7 +869,7 @@ export default(config) => {
             varChar('name').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => getEndpointsController(req, res, next, config),
+        (req, res, next) => getEndpointsByUuidController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendOkResponse(result, req, res)
     );

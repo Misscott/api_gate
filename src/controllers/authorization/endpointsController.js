@@ -65,34 +65,6 @@ const getEndpointsByUuidController = (req, res, next, config) => {
         })
 }
 
-const getEndpointsByRouteController = (req, res, next, config) => {
-    const conn = mysql.start(config)
-    const route = req.params.route
-
-    getEndpointsModel({ route, conn })
-        .then((response) => {
-            if (noResults(response)) {
-                const err = error404()
-                const error = errorHandler(err, config.environment)
-                return sendResponseNotFound(res, error)
-            }
-
-            const result = {
-                _data: {
-                    endpoints: response
-                }
-            }
-            next(result)
-        })
-        .catch((err) => {
-            const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
-        })
-        .finally(() => {
-            mysql.end(conn)
-        })
-}
-
 const postEndpointsController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const created_by = req.auth.user || null
@@ -173,7 +145,6 @@ const deleteEndpointsController = (req, res, next, config) => {
 export {
     getEndpointsController,
     getEndpointsByUuidController,
-    getEndpointsByRouteController,
     postEndpointsController,
     putEndpointsController,
     softDeleteEndpointsController,
