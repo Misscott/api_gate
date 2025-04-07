@@ -11,29 +11,44 @@ import { sendResponseNotFound } from '../../utils/responses.js'
 import { noResults } from '../../validators/result-validators.js'
 
 const getRoleController = (req, res, next, config) => {
-	const conn = mysql.start(config)
+    // Parse and validate pagination parameters with defaults
+    const limit = parseInt(req.query.limit, 10) || 100;
+    const page = parseInt(req.query.page, 10) || 1;
+    
+    // Create sanitized query object
+    const queryParams = { 
+        ...req.query,
+        limit,
+        page
+    };
+    
+    const conn = mysql.start(config)
 
-	Promise.all([
-		getRoleModel({ ...req.query, conn }),
-		countRoleModel({ ...req.query, conn })
-	])
-		.then(([getResults, countResults]) =>
-			next({
-				_data: { Role: getResults },
-				_page: {
-					totalElements: countResults,
-					limit: req.query.limit || 100,
-					page: req.query.page || (countResults && 1) || 0
-				}
-			})
-		)
-		.catch((err) => {
-			const error = errorHandler(err, config.environment)
-			return res.status(error.code).json(error)
-		})
-		.finally(() => {
-			mysql.end(conn)
-		})
+    Promise.all([
+        getRoleModel({ ...queryParams, conn }),
+        countRoleModel({ ...queryParams, conn })
+    ])
+        .then(([getResults, countResults]) => {
+            // Calculate total pages for frontend pagination
+            const totalPages = Math.ceil(countResults / limit);
+            
+            next({
+                _data: { Role: getResults },
+                _page: {
+                    totalElements: countResults,
+                    totalPages,
+                    limit,
+                    page
+                }
+            })
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            return res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
 }
 
 const getRoleInfoController = (req, res, next, config) => {
@@ -41,34 +56,6 @@ const getRoleInfoController = (req, res, next, config) => {
 	const uuid = req.params.uuid
 
 	getRoleModel({ uuid, conn })
-		.then((RoleInformation) => {
-			if (noResults(RoleInformation)) {
-				const err = error404()
-				const error = errorHandler(err, config.environment)
-				return sendResponseNotFound(res, error)
-			}
-
-			const result = {
-				_data: {
-					Role: RoleInformation
-				}
-			}
-			next(result)
-		})
-		.catch((err) => {
-			const error = errorHandler(err, config.environment)
-			return res.status(error.code).json(error)
-		})
-		.finally(() => {
-			mysql.end(conn)
-		})
-}
-
-const getRoleByNameController = (req, res, next, config) => {
-	const conn = mysql.start(config)
-	const name = req.params.name
-
-	getRoleModel({ name, conn })
 		.then((RoleInformation) => {
 			if (noResults(RoleInformation)) {
 				const err = error404()
@@ -160,6 +147,5 @@ export {
 	getRoleController,
 	getRoleInfoController,
 	postRoleController,
-	putRoleController,
-	getRoleByNameController
+	putRoleController
 }

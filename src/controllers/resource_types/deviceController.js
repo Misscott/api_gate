@@ -26,7 +26,12 @@ const getDeviceController = (req, res, next, config) => {
     ])    
         .then(([getResults]) =>
             next({
-                _data: {devices: getResults}
+                _data: {devices: getResults},
+                _page: {
+                    totalElements: getResults.length,
+                    limit: req.query.limit || 100,
+                    page: req.query.page || (getResults.length && 1) || 0
+                }
             })
         )
         .catch((err) => {
@@ -156,17 +161,11 @@ const deleteDeviceController = (req, res, next, config) => {
 }
 
 const getDeviceByUuidController = getDeviceByFieldController('uuid')
-const getDeviceBySerialNumberController = getDeviceByFieldController('serial_number')
-const getDeviceByModelController = getDeviceByFieldController('model')
-const getDeviceByBrandController = getDeviceByFieldController('brand')
 
 export {
     getDeviceController,
     postDeviceController,
     putDeviceController,
     deleteDeviceController,
-    getDeviceByUuidController,
-    getDeviceBySerialNumberController,
-    getDeviceByBrandController,
-    getDeviceByModelController
+    getDeviceByUuidController
 }

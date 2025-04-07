@@ -78,6 +78,11 @@ const getDeviceByStockController = (req, res, next, config) => {
             const result = {
                 _data: {
                     users_has_devices: response
+                },
+                _page: {
+                    totalElements: response.length,
+                    limit: req.query.limit || 100,
+                    page: req.query.page || (response.length && 1) || 0
                 }
             }
             next(result)

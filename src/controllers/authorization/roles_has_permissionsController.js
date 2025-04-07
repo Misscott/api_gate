@@ -78,6 +78,11 @@ const getPermissionsByRoleController = (req, res, next, config) => {
             const result = {
                 _data: {
                     roles_has_permissions: response
+                },
+                _page: {
+                    totalElements: response.length,
+                    limit: req.query.limit || 100,
+                    page: req.query.page || (response.length && 1) || 0
                 }
             }
             next(result)
@@ -138,7 +143,7 @@ const softDeleteRolesHasPermissionsController = (req, res, next, config) => {
     const { deleted } = req.body
 	const deletedby = req.auth.user || null
 
-    softDeleteRolesHasPermissionsModel({ uuid, deletedby, conn })
+    softDeleteRolesHasPermissionsModel({ uuid, deleted, deletedby, conn })
         .then(() => {
             const result = {}
             next(result)
