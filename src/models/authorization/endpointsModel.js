@@ -31,13 +31,10 @@ const countEndpointsModel = ({conn, ...rest}) => {
 const insertEndpointsModel = ({conn, ...params}) => {
     const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
     const uuid = uuidv4()
-    const paramsToInsert = {...params, uuid, now}
+    const paramsToInsert = {...params, uuid, now, createdBy: params.createdBy}
     return mysql
         .execute(insertEndpointsQuery(paramsToInsert), conn, paramsToInsert)
         .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
-        .catch(err => {
-            reject(err)
-        })
 }
 
 const modifyEndpointsModel = ({conn, ...params}) => {

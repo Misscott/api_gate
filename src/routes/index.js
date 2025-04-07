@@ -16,7 +16,7 @@ import {
 	sendOkResponse,
     sendResponseNoContent,
 } from '../utils/responses.js'
-import { bigInt, integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
+import { integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
 import {payloadExpressValidator} from '../validators/expressValidator/payloadExpressValidator.js'
 import { error422, errorHandler } from '../utils/errors.js'
 import { authorizePermission, setToken, authenticateToken} from '../middlewares/auth.js'
@@ -979,9 +979,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/roles_has_permissions/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_role').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_permission').optional({ nullable: false, values: 'falsy' })
+            uuid('uuid')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => softDeleteRolesHasPermissionsController(req, res, next, config),
@@ -997,7 +995,8 @@ export default(config) => {
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_device').optional({ nullable: false, values: 'falsy' })
+            uuid('fk_device').optional({ nullable: false, values: 'falsy' }),
+            integer('stock').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getUsersHasDevicesController(req, res, next, config),
@@ -1010,9 +1009,10 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/users_has_devices/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_device').optional({ nullable: false, values: 'falsy' })
+            uuid('fk_device').optional({ nullable: false, values: 'falsy' }),
+            integer('stock').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getUsersHasDevicesController(req, res, next, config),
@@ -1026,7 +1026,8 @@ export default(config) => {
         (req, res, next) => authorizePermission('/users_has_devices')(req, res, next, config),
         [
             uuid('fk_user'),
-            uuid('fk_device')
+            uuid('fk_device'),
+            integer('stock')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postUsersHasDevicesController(req, res, next, config),
@@ -1039,9 +1040,10 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/users_has_devices/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('uuid'),
             uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_device').optional({ nullable: false, values: 'falsy' })
+            uuid('fk_device').optional({ nullable: false, values: 'falsy' }),
+            integer('stock').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => putUsersHasDevicesController(req, res, next, config),
@@ -1054,9 +1056,7 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/users_has_devices/:uuid')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_device').optional({ nullable: false, values: 'falsy' })
+            uuid('uuid')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => softDeleteUsersHasDevicesController(req, res, next, config),

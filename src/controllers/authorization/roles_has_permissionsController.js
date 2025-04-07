@@ -6,8 +6,7 @@ import {
     modifyRolesHasPermissionsModel,
     softDeleteRolesHasPermissionsModel
 } from '../../models/authorization/roles_has_permissionsModel.js'
-import { error404, errorHandler } from '../../utils/errors.js'
-import { noResults } from '../../validators/result-validators.js'
+import { errorHandler } from '../../utils/errors.js'
 
 const getRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
@@ -25,67 +24,6 @@ const getRolesHasPermissionsController = (req, res, next, config) => {
                     page: req.query.page || (countResults && 1) || 0
                 }
             })
-        })
-        .catch((err) => {
-            const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
-        })
-        .finally(() => {
-            mysql.end(conn)
-        })
-}
-
-const getRolesHasPermissionsControllerByRoleName = (req, res, next, config) => {
-    const conn = mysql.start(config)
-    const roleName = req.params.name
-
-    getRolesHasPermissionsModel({ roleName, conn })
-        .then((response) => {
-            if (noResults(response)) {
-                const err = error404()
-                const error = errorHandler(err, config.environment)
-                return sendResponseNotFound(res, error)
-            }
-
-            const result = {
-                _data: {
-                    roles_has_permissions: response
-                }
-            }
-            next(result)
-        })
-        .catch((err) => {
-            const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
-        })
-        .finally(() => {
-            mysql.end(conn)
-        })
-}
-
-const getPermissionsByRoleController = (req, res, next, config) => {
-    const uuid_role = req.params.uuid
-    const conn = mysql.start(config)
-
-    getRolesHasPermissionsModel({ uuid_role, conn })
-        .then((response) => {
-            if (noResults(response)) {
-                const err = error404()
-                const error = errorHandler(err, config.environment)
-                return sendResponseNotFound(res, error)
-            }
-
-            const result = {
-                _data: {
-                    roles_has_permissions: response
-                },
-                _page: {
-                    totalElements: response.length,
-                    limit: req.query.limit || 100,
-                    page: req.query.page || (response.length && 1) || 0
-                }
-            }
-            next(result)
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
@@ -159,9 +97,7 @@ const softDeleteRolesHasPermissionsController = (req, res, next, config) => {
 
 export {
     getRolesHasPermissionsController,
-    getPermissionsByRoleController,
     postRolesHasPermissionsController,
     softDeleteRolesHasPermissionsController,
-    getRolesHasPermissionsControllerByRoleName,
     putRolesHasPermissionsController,
 }

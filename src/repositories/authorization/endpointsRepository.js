@@ -61,10 +61,9 @@ const updateEndpointsQuery = () => {
 const softDeleteEndpointsQuery = () => {
     return `
     UPDATE mydb.endpoints
-    SET deleted = :now, deletedBy = :deletedBy
-    WHERE uuid = :uuid;
-    AND deleted IS NULL;
-    SELECT * FROM mydb.endpoints WHERE uuid = :uuid;
+    SET deleted = :deleted, deletedBy = :deletedBy
+    WHERE uuid = :uuid
+    AND deleted IS NULL
     `
 }
 
