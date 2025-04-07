@@ -7,7 +7,10 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development node ./src/index.js",
     "test2": "cross-env NODE_ENV=development node test/002_device_controller_get_test",
-    "test3": "cross-env NODE_ENV=development node test/003_device_controller_post_test"
+    "test3": "cross-env NODE_ENV=development node test/003_device_controller_post_test",
+    "test4": "cross-env NODE_ENV=development node test/004_device_controller_put_test",
+    "test5": "cross-env NODE_ENV=development node test/005_device_controller_delete_test",
+    "test6": "cross-env NODE_ENV=development node test/006_user_controller_test"
   },
   "author": "",
   "license": "ISC",

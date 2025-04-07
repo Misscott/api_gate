@@ -29,3 +29,26 @@ test('-------- Devices Controller: PUT /devices/:uuid', () => {
             assert.fail(err.message);
         });
 });
+
+test('-------- Devices Controller: PUT /devices/:uuid unprocessable entity', () => {
+    const messageForExpectedCode = 'Status code must be 422 for unprocessable entity';
+    const expectedCode = 422;
+    const deviceUUID = 'f0764ad5-357a-4080-bb4e-b8b3277a41ba'; 
+
+    const updatedDevice = {
+        "serial_number": 'Updated serial number22x',
+        "model": 'Model Zfx'
+    };
+
+    return request(app)
+        .put(`/devices/${deviceUUID}`)
+        .send(updatedDevice)
+        .expect(expectedCode)
+        .then(res => {
+            assert.ok(res.body); //check if response body is not empty
+            assert.equal(res.body.error, 'Unprocessable Entity', messageForExpectedCode);
+        })
+        .catch(err => {
+            assert.fail(err.message);
+        });
+});
