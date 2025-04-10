@@ -18,7 +18,7 @@ import {
 } from '../utils/responses.js'
 import { integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
 import {payloadExpressValidator} from '../validators/expressValidator/payloadExpressValidator.js'
-import { error422, errorHandler } from '../utils/errors.js'
+import { error400, errorHandler } from '../utils/errors.js'
 import { authorizePermission, setToken, authenticateToken, refreshAuthenticate} from '../middlewares/auth.js'
 import { postRegisterController } from '../controllers/authorization/registerController.js'
 import { postRefreshTokenController } from '../controllers/authorization/refreshTokenController.js'
@@ -136,7 +136,6 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/devices')(req, res, next, config),
         [
-            uuid('uuid'),
             varChar('serial_number'),
             varChar('model'),
             varChar('brand'),
@@ -144,9 +143,9 @@ export default(config) => {
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => {
-            const { serial_number, model, brand, description, stock } = req.body;
-            if(!req.body || (!serial_number || !model || !brand || typeof stock !== 'number')){
-                const error = errorHandler(error422(), config.environment)
+            const { serial_number, model, brand, description } = req.body;
+            if(!req.body || (!serial_number || !model || !brand)){
+                const error = errorHandler(error400(), config.environment)
                 return res.status(error.code).json(error)
             } 
             return postDeviceController(req, res, next, config)
@@ -300,7 +299,9 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/users/:uuid')(req, res, next, config),
         [
-            uuid('uuid')
+            uuid('uuid'),
+            varChar('username').optional({ nullable: false, values: 'falsy' }),
+            varChar('email').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getUserInfoController(req, res, next, config),

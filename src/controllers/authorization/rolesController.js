@@ -33,7 +33,7 @@ const getRoleController = (req, res, next, config) => {
             const totalPages = Math.ceil(countResults / limit);
             
             next({
-                _data: { Role: getResults },
+                _data: { role: getResults },
                 _page: {
                     totalElements: countResults,
                     totalPages,
@@ -56,8 +56,8 @@ const getRoleInfoController = (req, res, next, config) => {
 	const uuid = req.params.uuid
 
 	getRoleModel({ uuid, conn })
-		.then((RoleInformation) => {
-			if (noResults(RoleInformation)) {
+		.then((roleInformation) => {
+			if (noResults(roleInformation)) {
 				const err = error404()
 				const error = errorHandler(err, config.environment)
 				return sendResponseNotFound(res, error)
@@ -65,7 +65,7 @@ const getRoleInfoController = (req, res, next, config) => {
 
 			const result = {
 				_data: {
-					Role: RoleInformation
+					role: roleInformation
 				}
 			}
 			next(result)
@@ -84,9 +84,9 @@ const postRoleController = (req, res, next, config) => {
 	const createdBy = req.auth.user || null
 
 	insertRoleModel({ ...req.body, createdBy, conn })
-		.then((RoleInformation) => {
+		.then((roleInformation) => {
 			const result = {
-				_data: { role: RoleInformation }
+				_data: { role: roleInformation }
 			}
 
 			next(result)
@@ -105,11 +105,11 @@ const putRoleController = (req, res, next, config) => {
 	const uuid = req.params.uuid
 
 	modifyRoleModel({ ...req.body, uuid, conn })
-		.then((RoleInformation) => {
+		.then((roleInformation) => {
 			const result = {
 				_data: {
 					message: 'Role modified',
-					Role: RoleInformation
+					role: roleInformation
 				}
 			}
 			next(result)

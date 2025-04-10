@@ -10,7 +10,12 @@
     "test3": "cross-env NODE_ENV=development node test/003_device_controller_post_test",
     "test4": "cross-env NODE_ENV=development node test/004_device_controller_put_test",
     "test5": "cross-env NODE_ENV=development node test/005_device_controller_delete_test",
-    "test6": "cross-env NODE_ENV=development node test/006_user_controller_test"
+    "test6": "cross-env NODE_ENV=development node test/006_user_controller_test",
+    "test7": "cross-env NODE_ENV=development node test/007_role_controller_test",
+    "test8": "cross-env NODE_ENV=development node test/008_permission_controller_test",
+    "test9": "cross-env NODE_ENV=development node test/009_endpoint_controller_test",
+    "test10": "cross-env NODE_ENV=development node test/010_role_has_permission_controller_test",
+    "test11": "cross-env NODE_ENV=development node test/011_user_has_device_controller_test"
   },
   "author": "",
   "license": "ISC",

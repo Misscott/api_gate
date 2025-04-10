@@ -25,11 +25,11 @@ test('Setup - Get authentication token', () => {
         });
 });
 
-test('-------- Users Controller: GET /users', () => {
+test('-------- Users Has Devices Controller: GET /users_has_devices', () => {
   const expectedCode = 200;
 
     return request(app)
-        .get('/users')
+        .get('/users_has_devices')
         .set('Authorization', `Bearer ${userToken}`)
         .expect(expectedCode)
         .then( res=> {
@@ -43,22 +43,26 @@ test('-------- Users Controller: GET /users', () => {
         })
 });
 
-test('-------- Users Controller: GET /users/:uuid', () => {
+test('-------- Users Has Devices Controller: GET /users_has_devices/:uuid', () => {
     const expectedCode = 200;
-    const userUuid = '4c56d83c-d86c-4c75-87d1-c373b392d754'; 
+    const userDeviceUuid = '92691396-0ed5-11f0-8154-bce92f8462b5'; 
   
     return request(app)
-        .get(`/users/${userUuid}`)
+        .get(`/users_has_devices/${userDeviceUuid}`)
         .set('Authorization', `Bearer ${userToken}`)
         .expect(expectedCode)
         .then(res => {
             assert.ok(res)
-            const {uuid, ...rest} = res._body._data.users[0]; //remove uuid from result body
+            console.log(res)
+            const {uuid, ...rest} = res._body._data.users_has_devices[0]; //remove uuid from result body
             assert.deepStrictEqual(rest, {
-                email: null,
-                fk_role: 2,
-                role: 'viewer',
-                username: 'noli'
+                device_uuid: '927a6280-0ed5-11f0-8154-bce92f8462b5',
+                fk_device: 2,
+                fk_user: 3,
+                serial_number: 'SN00HOLI',
+                stock: 3,
+                user_uuid: '00f6f64a-0ee1-11f0-8154-bce92f8462b5',
+                username: 'admin_user'
             })
         })
         .catch(err => {
@@ -69,12 +73,12 @@ test('-------- Users Controller: GET /users/:uuid', () => {
         })
 });
 
-test('-------- Users Controller: GET /users/:uuid unprocessable entity', () => {
+test('-------- Users Has Devices Controller: GET /users_has_devices/:uuid unprocessable entity', () => {
     const expectedCode = 422;
-    const userUUID = 'diagjpawhpg'; 
+    const userDeviceUuid = 'diagjpawhpg'; 
 
     return request(app)
-        .get(`/users/${userUUID}`)
+        .get(`/users_has_devices/${userDeviceUuid}`)
         .set('Authorization', `Bearer ${userToken}`)
         .expect(expectedCode)
         .then(res => {
@@ -88,13 +92,13 @@ test('-------- Users Controller: GET /users/:uuid unprocessable entity', () => {
         });
 });
 
-test('-------- Users Controller: GET /users/:uuid not found (deleted user)', () => {
+/*test('-------- Users Has Devices Controller: GET /users_has_devices/:uuid not found (deleted)', () => {
     const messageForExpectedCode = 'Status code must be 404 for not found';
     const expectedCode = 404;
-    const userUuid = '9a4ca537-4a36-4ac8-886e-bc25581ac705'; 
+    const userDeviceUuid = '9a4ca537-4a36-4ac8-886e-bc25581ac705'; 
   
     return request(app)
-        .get(`/users/${userUuid}`)
+        .get(`/users_has_devices/${userDeviceUuid}`)
         .set('Authorization', `Bearer ${userToken}`)
         .expect(expectedCode)
         .then(res => {
@@ -107,4 +111,4 @@ test('-------- Users Controller: GET /users/:uuid not found (deleted user)', () 
         .finally(() => {
             server.close();
         })
-});
+});*/

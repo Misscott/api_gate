@@ -8,6 +8,8 @@ import {
 } from '../../models/authorization/roles_has_permissionsModel.js'
 import { errorHandler } from '../../utils/errors.js'
 import { noResults } from '../../validators/result-validators.js'
+import { error404 } from '../../utils/errors.js'
+import { sendResponseNotFound } from '../../utils/responses.js'
 
 const getRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)

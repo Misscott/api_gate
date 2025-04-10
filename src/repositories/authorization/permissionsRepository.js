@@ -12,8 +12,10 @@ const _permissionsQuery = (_pagination = '') => ({count}) => ({uuid, action, end
         mydb.permissions as p
       LEFT JOIN
         mydb.endpoints as e ON p.fk_endpoint = e.id 
-        AND e.created <= :now
+      WHERE
+         e.created <= :now
         AND (e.deleted > :now OR e.deleted IS NULL)
+      AND
         p.created <= :now
       AND
         (p.deleted > :now OR p.deleted IS NULL)

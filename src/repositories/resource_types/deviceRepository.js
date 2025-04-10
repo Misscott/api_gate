@@ -66,7 +66,6 @@ const insertDeviceQuery = (description) =>{
         model, 
         brand, 
         description, 
-        stock,
         created,
         createdBy
     )
@@ -76,7 +75,6 @@ const insertDeviceQuery = (description) =>{
         :model, 
         :brand, 
         ${descriptionCondition}, 
-        :stock,
         :now,
         :createdBy
     );
@@ -94,7 +92,6 @@ const modifyDeviceQuery = ({serial_number, model, brand, description, stock}) =>
     const modelCondition = model ? 'model = :model, ' : ''
     const brandCondition = brand ? 'brand = :brand, ' : ''
     const descriptionCondition = description ? 'description = :description, ' : ''
-    const stockCondition = stock ? 'stock = :stock, ' : ''
 
     return `
         UPDATE 
@@ -104,10 +101,9 @@ const modifyDeviceQuery = ({serial_number, model, brand, description, stock}) =>
         ${modelCondition}
         ${brandCondition}
         ${descriptionCondition}
-        ${stockCondition}
         uuid = :uuid
         WHERE 
-            devices.uuid = :uuid;
+            devices.uuid = :uuid
         AND
             devices.deleted IS NULL;
         SELECT mydb.devices.*

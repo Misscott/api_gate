@@ -22,5 +22,4 @@ test('-------- Controller: GET /', () => {
         .finally(() => {
             server.close();
         })
-    ;
 });
