@@ -33,11 +33,11 @@ const getPermissionsQuery = ({ limit, page, ...rest }) =>
 const countPermissionsQuery = rest => 
     _permissionsQuery()({ count: 'COUNT(*) AS count' })(rest);
 
-const insertPermissionsQuery = () => {
-    return `
+const insertPermissionsQuery = (createdBy) => {
+  const createdByCondition = createdBy ? ':createdBy' : null;
+  return `
     INSERT INTO mydb.permissions (
       uuid,
-      name,
       action,
       fk_endpoint,
       created,
@@ -45,21 +45,20 @@ const insertPermissionsQuery = () => {
     )
     VALUES (
       :uuid,
-      :name,
       :action,
       (SELECT id FROM mydb.endpoints WHERE route = :endpoint),
       :now,
-      :createdBy
+      ${createdByCondition}
     );
     SELECT * FROM mydb.permissions WHERE uuid = :uuid;
-    `
+  `
 }
 
 const modifyPermissionsQuery = (action, endpoint) => {
   const actionCondition = action ? 'action = :action ,' : '';
   const endpointCondition = endpoint ? 'fk_endpoint = (SELECT id from mydb.endpoints WHERE route = :endpoint),' : '';
   return `
-  UPDATE mydb.permissions
+  UPDATE mydb.permissions AS permissions
   SET 
       ${actionCondition}
       ${endpointCondition}
@@ -75,13 +74,13 @@ const modifyPermissionsQuery = (action, endpoint) => {
 const softDeletePermissionsQuery = () => {
     return `
     UPDATE 
-        mydb.permissions
+        mydb.permissions AS permissions
     SET 
         deleted = :now, deletedBy = :deletedBy
     WHERE
         permissions.uuid = :uuid
     AND 
-        permissions.deleted IS NULL    
+        permissions.deleted IS NULL;
     SELECT * FROM mydb.permissions WHERE uuid = :uuid;
     `
 }

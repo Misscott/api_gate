@@ -31,9 +31,6 @@ const insertPermissionModel = ({conn, ...params}) => {
     return mysql
         .execute(insertPermissionsQuery({...params, uuid, now}), conn, {...params, uuid, now})
         .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
-        .catch(err => {
-            reject(err)
-        })
 }
 
 const modifyPermissionModel = ({conn, ...params}) => {

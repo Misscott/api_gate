@@ -96,6 +96,14 @@ const postUserController = (req, res, next, config) => {
 			next(result)
 		})
 		.catch((err) => {
+			if (err.code === 'ER_DUP_ENTRY') {
+                const error = errorHandler(err, config.environment)
+                return res.status(error.code).json(error)
+            }
+            if (err.code === 'ER_BAD_NULL_ERROR') {
+                const error = error404()
+                return res.status(error.code).json(error)
+            }
 			const error = errorHandler(err, config.environment)
 			return res.status(error).json(error)
 		})
@@ -110,6 +118,11 @@ const putUserController = (req, res, next, config) => {
 
 	modifyUserModel({ ...req.body, uuid, conn })
 		.then((users) => {
+			if (noResults(response)) {
+                const err = error404()
+                const error = errorHandler(err, config.environment)
+                return sendResponseNotFound(res, error)
+            }
 			const result = {
 				_data: {
 					message: 'User modified',

@@ -66,9 +66,9 @@ const getPermissionByUuidController = (req, res, next, config) => {
 
 const postPermissionController = (req, res, next, config) => {
     const conn = mysql.start(config)
-    const created_by = req.auth.user || null
+    const createdBy = req.auth.user || null
 
-    insertPermissionModel({...req.body, created_by, conn})
+    insertPermissionModel({...req.body, createdBy, conn})
         .then((response) => {
             const result = {
                 _data: {
@@ -78,6 +78,14 @@ const postPermissionController = (req, res, next, config) => {
             next(result)
         })
         .catch((err) => {
+            if (err.code === 'ER_DUP_ENTRY') {
+                const error = errorHandler(err, config.environment)
+                return res.status(error.code).json(error)
+            }
+            if (err.code === 'ER_BAD_NULL_ERROR') {
+                const error = error404()
+                return res.status(error.code).json(error)
+            }
             const error = errorHandler(err, config.environment)
             return res.status(error.code).json(error)
         })
@@ -90,8 +98,14 @@ const putPermissionController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const uuid_permission = req.params.uuid
 
-    modifyPermissionModel({...req.body, uuid_permission, conn})
+    modifyPermissionModel({...req.body, uuid: uuid_permission, conn})
         .then((response) => {
+            if (noResults(response)) {
+                const err = error404()
+                const error = errorHandler(err, config.environment)
+                return sendResponseNotFound(res, error)
+            }
+
             const result = {
                 _data: {
                     permissions: response
@@ -113,7 +127,7 @@ const softDeletePermissionController = (req, res, next, config) => {
     const uuid_permission = req.params.uuid
     const deletedBy = req.auth.user || null
 
-    softDeletePermissionModel({uuid_permission, deletedBy, conn})
+    softDeletePermissionModel({uuid: uuid_permission, deletedBy, conn})
         .then(() => {
             const result = {}
             next(result)

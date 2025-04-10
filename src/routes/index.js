@@ -621,7 +621,8 @@ export default(config) => {
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/permissions')(req, res, next, config),
         [
-            varChar('name')
+            varChar('action'),
+            varChar('endpoint')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postPermissionController(req, res, next, config),

@@ -35,7 +35,7 @@ const insertUsersHasDevicesModel = ({conn, ...rest}) => {
 
     return mysql
         .execute(insertUsersHasDevicesQuery(paramsToInsert), conn, paramsToInsert)
-        .then(results => results[1].map(({id, uuid, fk_user, fk_device, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(results => results[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 const modifyUsersHasDevicesModel = ({conn, ...rest}) => {
@@ -48,7 +48,7 @@ const modifyUsersHasDevicesModel = ({conn, ...rest}) => {
             if (deletedItem) {
                 throw error404()
             }
-            results[1].map(({id, uuid, fk_user, fk_device, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered)
+            results[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered)
         })
 }
 

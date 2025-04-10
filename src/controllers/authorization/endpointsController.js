@@ -91,12 +91,25 @@ const putEndpointsController = (req, res, next, config) => {
 
     modifyEndpointsModel({ ...req.body, uuid, conn })
         .then((endpoints) => {
+            if (noResults(endpoints)) {
+                const err = error404()
+                const error = errorHandler(err, config.environment)
+                return sendResponseNotFound(res, error)
+            }
             const result = {
                 _data: { endpoints }
             }
             next(result)
         })
         .catch((err) => {
+            if (err.code === 'ER_DUP_ENTRY') {
+                const error = errorHandler(err, config.environment)
+                return res.status(error.code).json(error)
+            }
+            if (err.code === 'ER_BAD_NULL_ERROR') {
+                const error = error404()
+                return res.status(error.code).json(error)
+            }
             const error = errorHandler(err, config.environment)
             return res.status(error.code).json(error)
         })

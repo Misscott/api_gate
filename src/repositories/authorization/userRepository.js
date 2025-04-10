@@ -63,7 +63,7 @@ const countUserListQuery = rest =>
 const insertUserQuery = ({email, fk_role, createdBy}) => {
     const emailCondition = email ? ':email' : null;
     const roleCondition = fk_role ? '(SELECT id FROM mydb.roles WHERE name = :fk_role)' : `(SELECT id FROM mydb.roles WHERE name = 'viewer')`;
-    const createdByCondition = createdBy ? 'createdBy = :createdBy' : null;
+    const createdByCondition = createdBy ? ':createdBy' : null;
     return `
     INSERT INTO mydb.users (
       uuid,

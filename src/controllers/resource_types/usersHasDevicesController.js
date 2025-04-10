@@ -8,6 +8,8 @@ import {
 } from '../../models/resource_types/user_has_devicesModel.js'
 import { errorHandler } from '../../utils/errors.js'
 import { noResults } from '../../validators/result-validators.js'
+import { error404 } from '../../utils/errors.js'
+import { sendResponseNotFound } from '../../utils/responses.js'
 
 const getUsersHasDevicesController = (req, res, next, config) => {
     const conn = mysql.start(config)
@@ -55,6 +57,14 @@ const getDevicesByUserController = (req, res, next, config) => {
             next(result)
         })
         .catch((err) => {
+            if (err.code === 'ER_DUP_ENTRY') {
+                const error = errorHandler(err, config.environment)
+                return res.status(error.code).json(error)
+            }
+            if (err.code === 'ER_BAD_NULL_ERROR') {
+                const error = error404()
+                return res.status(error.code).json(error)
+            }
             const error = errorHandler(err, config.environment)
             res.status(error.code).json(error)
         })
@@ -89,6 +99,11 @@ const putUsersHasDevicesController = (req, res, next, config) => {
 
     modifyUsersHasDevicesModel({...req.body, uuid, conn})
         .then((users_has_devices) => {
+            if (noResults(users_has_devices) || users_has_devices === undefined) {
+                const err = error404()
+                const error = errorHandler(err, config.environment)
+                return sendResponseNotFound(res, error)
+            }
             const result = {
                 _data: {users_has_devices}
             }
