@@ -1238,7 +1238,7 @@ export default(config) => {
             varChar('username'),
             varChar('password'),
             varChar('email').optional({ nullable: true, values: 'falsy' }),
-            varChar('fk_role')
+            varChar('fk_role').optional({nullable: false, values: 'falsy'})
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postRegisterController(req, res, next, config),
