@@ -1,10 +1,10 @@
 import { pagination } from '../../utils/pagination.js'
 
-const _rolesHasPermissionsQuery = (_pagination = '') => ({count}) => ({uuid, fk_permission, fk_role, roleName}) => {
+const _rolesHasPermissionsQuery = (_pagination = '') => ({count}) => ({uuid, role_uuid, permission_uuid, roleName}) => {
     const uuidCondition = uuid ? 'AND r.uuid = :uuid' : '';
+    const roleUuidCondition = role_uuid ? 'AND fk_role = (SELECT id from mydb.roles WHERE uuid = :role_uuid)' : '';
     const roleNameCondition = roleName ? 'AND fk_role = (SELECT id from mydb.roles WHERE name = :roleName)' : '';
-    const roleUuidCondition = fk_role ? 'AND fk_role = (SELECT id from mydb.roles WHERE uuid = :fk_role)' : '';
-    const permissionsUuidCondition = fk_permission ? 'AND fk_permission = (SELECT id from mydb.permissions WHERE uuid = :fk_permission)' : '';
+    const permissionsUuidCondition = permission_uuid ? 'AND fk_permission = (SELECT id from mydb.permissions WHERE uuid = :permission_uuid)' : '';
     return `
       SELECT
         ${count || 
@@ -54,8 +54,8 @@ const insertRolesHasPermissionsQuery = () => {
     )
     VALUES (
       :uuid,
-      (SELECT id FROM mydb.roles WHERE uuid = :fk_role),
-      (SELECT id FROM mydb.permissions WHERE uuid = :fk_permission),
+      (SELECT id FROM mydb.roles WHERE uuid = :role_uuid),
+      (SELECT id FROM mydb.permissions WHERE uuid = :permission_uuid),
       :now,
       :createdBy
     );
@@ -70,9 +70,9 @@ const insertRolesHasPermissionsQuery = () => {
     `
 }
 
-const modifyRolesHasPermissionsQuery = (roleUuid, permissionUuid) => {
-  const roleUuidCondition = roleUuid ? 'fk_role = (SELECT id from mydb.roles WHERE uuid = :fk_role),' : '';
-  const permissionUuidCondition = permissionUuid ? 'fk_permission = (SELECT id from mydb.permissions WHERE uuid = :fk_permission),' : '';
+const modifyRolesHasPermissionsQuery = (new_role_uuid, new_permission_uuid) => {
+  const roleUuidCondition = new_role_uuid ? 'fk_role = (SELECT id from mydb.roles WHERE uuid = :new_role_uuid),' : '';
+  const permissionUuidCondition = new_permission_uuid ? 'fk_permission = (SELECT id from mydb.permissions WHERE uuid = :new_permission_uuid),' : '';
   return `
     UPDATE 
         mydb.roles_has_permissions as roles_has_permissions
@@ -81,21 +81,24 @@ const modifyRolesHasPermissionsQuery = (roleUuid, permissionUuid) => {
         ${permissionUuidCondition}
         uuid = :uuid
     WHERE
-        roles_has_permissions.uuid = :uuid
+        roles_has_permissions.fk_role = (SELECT id from mydb.roles WHERE uuid = :role_uuid)
+        AND roles_has_permissions.fk_permission = (SELECT id from mydb.permissions WHERE uuid = :permission_uuid)
     AND 
         roles_has_permissions.deleted IS NULL; 
     SELECT * FROM mydb.roles_has_permissions WHERE uuid = :uuid;
   `
 }
 
-const softDeleteRolesHasPermissionsQuery = () => {
+const softDeleteRolesHasPermissionsQuery = (permission_uuid) => {
+  const permissionUuidCondition = permission_uuid ? 'AND roles_has_permissions.fk_permission = (SELECT id from mydb.permissions WHERE uuid = :permission_uuid)' : '';
   return `
     UPDATE 
         mydb.roles_has_permissions as roles_has_permissions
     SET 
         deleted = :deleted, deletedBy = :deletedBy
     WHERE
-        roles_has_permissions.uuid = :uuid
+        roles_has_permissions.fk_role = (SELECT id from mydb.roles WHERE uuid = :role_uuid)
+        ${permissionUuidCondition}
     AND
         roles_has_permissions.deleted IS NULL    
   `

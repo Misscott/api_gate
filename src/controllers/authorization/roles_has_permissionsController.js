@@ -15,7 +15,7 @@ const getRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const uuidList = req.query.uuidList && req.query.uuidList.split(',')
     Promise.all([
-        getRolesHasPermissionsModel({...req.query, uuidList, conn}),
+        getRolesHasPermissionsModel({...req.query, ...req.params, uuidList, conn}),
         countRolesHasPermissionsModel({...req.query, uuidList, conn})
     ])
         .then(([getResults, countResults]) => {
@@ -68,7 +68,7 @@ const postRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const createdBy = req.auth.user || null
 
-    insertRolesHasPermissionsModel({...req.body, createdBy, conn})
+    insertRolesHasPermissionsModel({...req.body, ...req.params, createdBy, conn})
         .then((roles_has_permissions) => {
             const result = {
                 _data: roles_has_permissions
@@ -86,9 +86,8 @@ const postRolesHasPermissionsController = (req, res, next, config) => {
 
 const putRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
-    const uuid = req.params.uuid
 
-    modifyRolesHasPermissionsModel({ ...req.body, uuid, modifiedBy, conn })
+    modifyRolesHasPermissionsModel({ ...req.body, ...req.params, modifiedBy, conn })
         .then((roles_has_permissions) => {
             if (noResults(response)) {
                 const err = error404()
@@ -111,11 +110,10 @@ const putRolesHasPermissionsController = (req, res, next, config) => {
 
 const softDeleteRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
-    const uuid = req.params.uuid
     const { deleted } = req.body
 	const deletedby = req.auth.user || null
 
-    softDeleteRolesHasPermissionsModel({ uuid, deleted, deletedby, conn })
+    softDeleteRolesHasPermissionsModel({ ...req.params, deleted, deletedby, conn })
         .then(() => {
             const result = {}
             next(result)

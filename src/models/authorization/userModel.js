@@ -16,7 +16,7 @@ const getUserListModel = ({conn, ...rest}) => {
     const paramsToSearch = {...rest, now}
     return mysql
         .execute(getUserListQuery(paramsToSearch), conn, paramsToSearch)
-        .then(queryResult => queryResult.map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(queryResult => queryResult.map(({id, username_active, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 const countUserListModel = ({conn, ...rest}) => {
@@ -32,7 +32,7 @@ const insertUserModel = ({conn, ...params}) => {
     const uuid = uuidv4()
     return mysql
         .execute(insertUserQuery({...params, uuid, now}), conn, {...params, uuid, now})
-        .then(queryResult => queryResult[1].map(({id, password, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(queryResult => queryResult[1].map(({id, username_active, password, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 const modifyUserModel = ({conn, ...params}) => {
@@ -43,7 +43,7 @@ const modifyUserModel = ({conn, ...params}) => {
                 if (deletedItem) {
                     throw error404()
                 }
-            return queryResult[1].map(({id, password, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered)
+            return queryResult[1].map(({id, username_active, password, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered)
         })
 }
 

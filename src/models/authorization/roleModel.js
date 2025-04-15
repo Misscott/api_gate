@@ -15,7 +15,7 @@ const getRoleModel = ({conn, ...rest}) => {
 
     return mysql
         .execute(getRoleQuery({...rest, now}), conn, {...rest, now})
-        .then(queryResult => queryResult.map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(queryResult => queryResult.map(({id, name_active,  created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 const countRoleModel = ({conn, ...rest}) => {
@@ -31,7 +31,7 @@ const insertRoleModel = ({conn, ...params}) => {
     const uuid = uuidv4()
 
     return mysql.execute(insertRoleQuery({...params, uuid, now}), conn, {...params, uuid, now})
-        .then(res => res[1].map(({id, created, deleted, createdBy, deletedBy, ...rest}) => ({...rest})))
+        .then(res => res[1].map(({id, name_active,  created, deleted, createdBy, deletedBy, ...rest}) => ({...rest})))
 }
 
 const modifyRoleModel = ({uuid, name, conn}) => {
@@ -46,7 +46,7 @@ const modifyRoleModel = ({uuid, name, conn}) => {
             if (deletedItem) {
                 throw error404()
             }
-            return res[1].map(({id, created, deleted, createdBy, deletedBy, ...rest}) => ({...rest}))
+            return res[1].map(({id, name_active, created, deleted, createdBy, deletedBy, ...rest}) => ({...rest}))
         })
 }
 

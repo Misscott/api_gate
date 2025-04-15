@@ -12,9 +12,11 @@ import {
 
 const getPermissionController = (req, res, next, config) => {
     const conn = mysql.start(config)
+    const role_uuid = req.params.role_uuid
+    const permissions_uuid = req.params.permissions_uuid
 
     Promise.all([
-        getPermissionModel({...req.query, conn}),
+        getPermissionModel({role_uuid, permissions_uuid, ...req.query, conn}),
         countPermissionModel({...req.query, conn})
     ])
         .then(([getResults, countResults]) => {
