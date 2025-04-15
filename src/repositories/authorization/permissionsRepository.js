@@ -1,9 +1,9 @@
 import { pagination } from '../../utils/pagination.js'
 
-const _permissionsQuery = (_pagination = '') => ({count}) => ({uuid, action, endpoint}) => {
+const _permissionsQuery = (_pagination = '') => ({count}) => ({uuid, action, route}) => {
     const uuidCondition = uuid ? 'AND uuid = :uuid ' : '';
     const actionCondition = action ? 'AND action = :action ' : '';
-    const endpointCondition = endpoint ? 'AND fk_endpoint = (SELECT id from mydb.endpoints WHERE route = :endpoint)' : '';
+    const endpointCondition = route ? `AND fk_endpoint = (SELECT id from mydb.endpoints WHERE route LIKE CONCAT('%',:route))` : '';
     return `
       SELECT
         ${count || 
@@ -46,7 +46,7 @@ const insertPermissionsQuery = (createdBy) => {
     VALUES (
       :uuid,
       :action,
-      (SELECT id FROM mydb.endpoints WHERE route = :endpoint),
+      (SELECT id FROM mydb.endpoints WHERE route = :route),
       :now,
       ${createdByCondition}
     );
@@ -54,9 +54,9 @@ const insertPermissionsQuery = (createdBy) => {
   `
 }
 
-const modifyPermissionsQuery = (action, endpoint) => {
+const modifyPermissionsQuery = (action, route) => {
   const actionCondition = action ? 'action = :action ,' : '';
-  const endpointCondition = endpoint ? 'fk_endpoint = (SELECT id from mydb.endpoints WHERE route = :endpoint),' : '';
+  const endpointCondition = route ? 'fk_endpoint = (SELECT id from mydb.endpoints WHERE route = :route),' : '';
   return `
   UPDATE mydb.permissions AS permissions
   SET 

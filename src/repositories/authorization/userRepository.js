@@ -16,7 +16,7 @@ const _userListSelectQuery = (_pagination = '') =>
 		    const loginUsernameCondition = loginUsername ? ' AND users.username = :loginUsername ' : ''
         const usernameCondition = username ? `AND users.username LIKE CONCAT('%',:username,'%')` : '';
         const emailCondition = email ? 'AND users.email = :email ' : '';
-        const roleCondition = role ? 'AND users.fk_role = :role ' : '';  
+        const roleCondition = role ? 'AND r.uuid = :role ' : '';  
         const roleNameCondition = roleName ? 'AND users.fk_role = (SELECT id FROM mydb.roles WHERE name = :roleName)' : '';
         return `
           SELECT
@@ -95,7 +95,7 @@ const modifyUserQuery = ({ username, password, email, role }) => {
   const usernameCondition = username ? `username = :username, ` : ``;
   const passwordCondition = password ? `password = :password, ` : ``;
   const emailCondition = email ? `email = :email, ` : ``;
-  const roleCondition = role ? `fk_role = (SELECT id FROM mydb.roles WHERE name = :role) ` : ``;
+  const roleCondition = role ? `fk_role = (SELECT id FROM mydb.roles WHERE name = :role), ` : ``;
 
   return `
     UPDATE

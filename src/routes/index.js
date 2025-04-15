@@ -373,7 +373,7 @@ export default(config) => {
             uuid('uuid'),
             varChar('username').optional({ nullable: false, values: 'falsy' }),
             varChar('email').optional({ nullable: true, values: 'falsy' }),
-            uuid('fk_role').optional({ nullable: false, values: 'falsy' })
+            varChar('role').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => putUserController(req, res, next, config),
@@ -579,7 +579,8 @@ export default(config) => {
         (req, res, next) => authorizePermission('/permissions')(req, res, next, config),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            varChar('name').optional({ nullable: false, values: 'falsy' })
+            varChar('action').optional({ nullable: false, values: 'falsy' }),
+            varChar('route').optional({nullable: false, values: 'falsy'})
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getPermissionController(req, res, next, config),
@@ -608,7 +609,8 @@ export default(config) => {
         (req, res, next) => authorizePermission('/permissions')(req, res, next, config),
         [
             uuid('uuid'),
-            varChar('name').optional({ nullable: false, values: 'falsy' })
+            varChar('action').optional({ nullable: false, values: 'falsy' }),
+            varChar('route').optional({nullable: false, values: 'falsy'})
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getPermissionByUuidController(req, res, next, config),
@@ -622,7 +624,7 @@ export default(config) => {
         (req, res, next) => authorizePermission('/permissions')(req, res, next, config),
         [
             varChar('action'),
-            varChar('endpoint')
+            varChar('route')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postPermissionController(req, res, next, config),
@@ -655,7 +657,7 @@ export default(config) => {
         [
             uuid('uuid'),
             varChar('action').optional({ nullable: false, values: 'falsy' }),
-            varChar('endpoint').optional({ nullable: false, values: 'falsy' })
+            varChar('route').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => putPermissionController(req, res, next, config),
