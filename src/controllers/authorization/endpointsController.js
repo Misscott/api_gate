@@ -30,7 +30,7 @@ const getEndpointsController = (req, res, next, config) => {
         )
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -58,7 +58,7 @@ const getEndpointsByUuidController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -78,7 +78,7 @@ const postEndpointsController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -94,7 +94,7 @@ const putEndpointsController = (req, res, next, config) => {
             if (noResults(endpoints)) {
                 const err = error404()
                 const error = errorHandler(err, config.environment)
-                return sendResponseNotFound(res, error)
+                return sendResponseNotFound(endpoints, error)
             }
             const result = {
                 _data: { endpoints }
@@ -102,16 +102,8 @@ const putEndpointsController = (req, res, next, config) => {
             next(result)
         })
         .catch((err) => {
-            if (err.code === 'ER_DUP_ENTRY') {
-                const error = errorHandler(err, config.environment)
-                return res.status(error.code).json(error)
-            }
-            if (err.code === 'ER_BAD_NULL_ERROR') {
-                const error = error404()
-                return res.status(error.code).json(error)
-            }
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -130,7 +122,7 @@ const softDeleteEndpointsController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -148,7 +140,7 @@ const deleteEndpointsController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)

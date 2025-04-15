@@ -84,7 +84,7 @@ const _getRolePermissionsByName = (roleName, config) => {
             if (noResults(response)) {
                 const err = error404()
                 const error = errorHandler(err, config.environment)
-                return sendResponseNotFound(res, error)
+                return sendResponseNotFound(response, error)
             }
             return response.map(({ permission_action, permission_endpoint }) => ({
                 permission_action,

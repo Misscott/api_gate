@@ -16,7 +16,7 @@ const postRefreshTokenController = (req, res, next, config) => {
             if (noResults(response)) {
                 const err = error401()
                 const error = errorHandler(err, config.environment)
-                return sendResponseUnauthorized(res, error)
+                return sendResponseUnauthorized(response, error)
             }
 
             // only include uuid and username in the response
@@ -27,7 +27,7 @@ const postRefreshTokenController = (req, res, next, config) => {
                     if (noResults(response)) {
                         const err = error401()
                         const error = errorHandler(err, config.environment)
-                        return sendResponseUnauthorized(res, error)
+                        return sendResponseUnauthorized(response, error)
                     }
 
                     const tokenPayload = {
@@ -42,7 +42,7 @@ const postRefreshTokenController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)

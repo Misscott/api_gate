@@ -52,12 +52,12 @@ app.use((req, res) => {
 	res.status(error.code).json(error)
 })
 
-/*const httpsOptions = () => {
+const httpsOptions = () => {
 	return {
 		key: file.readFileSync(path.join(__dirname, '..', 'key.pem')),
 		cert: file.readFileSync(path.join(__dirname, '..', 'cert.pem'))
 	}
-}*/
+}
 
 const port = config.port || 3000
 

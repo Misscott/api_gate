@@ -30,7 +30,7 @@ const getRolesHasPermissionsController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -57,7 +57,7 @@ const getRolesHasPermissionsByUuidController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -77,7 +77,7 @@ const postRolesHasPermissionsController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -102,7 +102,7 @@ const putRolesHasPermissionsController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -122,7 +122,7 @@ const softDeleteRolesHasPermissionsController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)

@@ -57,14 +57,6 @@ const getDevicesByUserController = (req, res, next, config) => {
             next(result)
         })
         .catch((err) => {
-            if (err.code === 'ER_DUP_ENTRY') {
-                const error = errorHandler(err, config.environment)
-                return res.status(error.code).json(error)
-            }
-            if (err.code === 'ER_BAD_NULL_ERROR') {
-                const error = error404()
-                return res.status(error.code).json(error)
-            }
             const error = errorHandler(err, config.environment)
             res.status(error.code).json(error)
         })
@@ -122,7 +114,7 @@ const softDeleteUsersHasDevicesController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const uuid = req.params.uuid
     const { deleted } = req.body
-    const deletedBy = req.headers['uuid_requester'] || null
+    const deletedBy = req.auth.user || null
 
     softDeleteUsersHasDevicesModel({uuid, deleted, deletedBy, conn})
         .then(() => {

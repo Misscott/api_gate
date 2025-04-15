@@ -29,7 +29,7 @@ const getPermissionController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -57,7 +57,7 @@ const getPermissionByUuidController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -78,16 +78,8 @@ const postPermissionController = (req, res, next, config) => {
             next(result)
         })
         .catch((err) => {
-            if (err.code === 'ER_DUP_ENTRY') {
-                const error = errorHandler(err, config.environment)
-                return res.status(error.code).json(error)
-            }
-            if (err.code === 'ER_BAD_NULL_ERROR') {
-                const error = error404()
-                return res.status(error.code).json(error)
-            }
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -115,7 +107,7 @@ const putPermissionController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)
@@ -134,7 +126,7 @@ const softDeletePermissionController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment)
-            return res.status(error.code).json(error)
+            res.status(error.code).json(error)
         })
         .finally(() => {
             mysql.end(conn)

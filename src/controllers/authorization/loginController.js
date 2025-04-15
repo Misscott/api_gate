@@ -14,7 +14,7 @@ const postLoginController = (req, res, next, config) => {
         .then((response) => {
             if (noResults(response)) {
                 const error = errorHandler({code: 'UNAUTHORIZED'}, config.environment);
-                return sendResponseUnauthorized(res, error);
+                return sendResponseUnauthorized(response, error);
             }
 
             return bcrypt
@@ -22,7 +22,7 @@ const postLoginController = (req, res, next, config) => {
                 .then((isMatch) => {
                     if (!isMatch) {
                         const error = errorHandler({code: 'UNAUTHORIZED'}, config.environment);
-                        return sendResponseUnauthorized(res, error);
+                        return sendResponseUnauthorized(isMatch, error);
                     }
                     
                     const {uuid, username, email, role} = response[0];
@@ -52,7 +52,7 @@ const postLoginController = (req, res, next, config) => {
         })
         .catch((err) => {
             const error = errorHandler(err, config.environment);
-            return res.status(error.code).json(error);
+            res.status(error.code).json(error);
         })
         .finally(() => {
             mysql.end(conn);
