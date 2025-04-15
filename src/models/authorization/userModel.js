@@ -27,14 +27,6 @@ const countUserListModel = ({conn, ...rest}) => {
         .then(results => results[0].count)
 }
 
-const getUserByUuidModel = ({conn, uuid}) => {
-    const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
-    const paramsToSearch = {uuid, now}
-    return mysql
-        .execute(getUserListQuery(paramsToSearch), conn, paramsToSearch)
-        .then(queryResult => queryResult.map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
-}
-
 const insertUserModel = ({conn, ...params}) => {
     const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
     const uuid = uuidv4()
@@ -48,7 +40,6 @@ const modifyUserModel = ({conn, ...params}) => {
         .execute(modifyUserQuery(params), conn, params)
         .then(queryResult => {
             const deletedItem = queryResult[1].find(item => item.deleted !== null);
-  
                 if (deletedItem) {
                     throw error404()
                 }
