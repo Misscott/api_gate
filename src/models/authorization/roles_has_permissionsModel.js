@@ -8,6 +8,7 @@ import {
     softDeleteRolesHasPermissionsQuery,
     modifyRolesHasPermissionsQuery
 } from '../../repositories/authorization/roles_has_permissionsRepository.js'
+import { error404 } from '../../utils/errors.js'
 
 const getRolesHasPermissionsModel = ({conn, ...rest}) => {
     const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
