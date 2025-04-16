@@ -1,4 +1,4 @@
-const hasChildrenQuery = ({dbName, table1, fieldName1, uuidTable1, table2, fieldName2}) => {
+const hasChildrenQuery = ({dbName, table1, fieldName1, table2, fieldName2}) => {
     const table2InSchema = `${dbName}.${table2}`
     const table1InSchema = `${dbName}.${table1}`
     const fieldName1NoQuotation = fieldName1.replace(/['"]/g, '');
