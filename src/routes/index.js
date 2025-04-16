@@ -243,6 +243,16 @@ export default(config) => {
             uuid('uuid')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => hasChildren(req, res, next, config, {
+			adapter: mysql,
+			dbName: 'mydb',
+			table1: 'devices',
+			fieldName1: 'id',
+			uuidTable1: req.params.uuid,
+			table2: 'users_has_devices',
+			fieldName2: 'fk_device'
+		}),
+		(result, req, res, next) => hasChildrenValidator(result, req, res, next, config),
         (req, res, next) => deleteDeviceController(req, res, next, config),
         (result, req, res, _) => sendResponseNoContent(result, req, res)
     )
@@ -563,6 +573,15 @@ export default(config) => {
             uuid('uuid')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => checkAndSoftDeleteChildren(req, res, next, config, {
+            adapter: mysql,
+            dbName: 'mydb',
+            parentTable: 'roles',
+            parentField: 'id',
+            parentUuid: req.params.uuid,
+            childTable: 'roles_has_permissions',
+            childField: 'fk_role'
+        }),
         (req, res, next) => deleteRoleController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendResponseNoContent(result, req, res)
@@ -671,6 +690,15 @@ export default(config) => {
             varChar('route').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => checkAndSoftDeleteChildren(req, res, next, config, {
+            adapter: mysql,
+            dbName: 'mydb',
+            parentTable: 'permissions',
+            parentField: 'id',
+            parentUuid: req.params.uuid,
+            childTable: 'roles_has_permissions',
+            childField: 'fk_permission'
+        }),
         (req, res, next) => putPermissionController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendCreatedResponse(result, req, res)
@@ -847,6 +875,16 @@ export default(config) => {
             uuid('uuid')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => hasChildren(req, res, next, config, {
+			adapter: mysql,
+			dbName: 'mydb',
+			table1: 'endpoints',
+			fieldName1: 'id',
+			uuidTable1: req.params.uuid,
+			table2: 'permissions',
+			fieldName2: 'fk_endpoint'
+		}),
+		(result, req, res, next) => hasChildrenValidator(result, req, res, next, config),
         (req, res, next) => softDeleteEndpointsController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendResponseNoContent(result, req, res)
