@@ -42,6 +42,8 @@ import {
     putUsersHasDevicesController, 
     softDeleteUsersHasDevicesController,
  } from '../controllers/resource_types/usersHasDevicesController.js'
+import { checkAndSoftDeleteChildren, hasChildren } from '../utils/hasChildren.js'
+import mysql from '../adapters/mysql.js'
 /**
  * @function default 
  * @param {Object} configuration based on environment
@@ -403,6 +405,15 @@ export default(config) => {
             uuid('uuid')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => checkAndSoftDeleteChildren(req, res, next, config, {
+            adapter: mysql,
+            dbName: 'mydb',
+            parentTable: 'users',
+            parentField: 'id',
+            parentUuid: req.params.uuid,
+            childTable: 'users_has_devices',
+            childField: 'fk_user'
+        }),
         (req, res, next) => softDeleteUserController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendResponseNoContent(result, req, res)
@@ -847,7 +858,7 @@ export default(config) => {
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route GET /roles_has_permissions
+     * @route GET /roles/:role_uuid/permissions
      * @group Roles Permissions - Operations about roles permissions
      * @param {string} uuid.path.optional - The unique identifier for the role permission
      * @param {string} fk_role.path.required - The unique identifier for the role
@@ -879,7 +890,7 @@ export default(config) => {
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route GET /roles_has_permissions/{uuid}
+     * @route GET /roles/:role_uuid/permissions/permission_uuid
      * @group Roles Permissions - Operations about roles permissions
      * @param {string} uuid.path.optional - The unique identifier for the role permission
      * @param {string} fk_role.path.required - The unique identifier for the role
@@ -893,7 +904,7 @@ export default(config) => {
     routes.get(
         '/roles/:role_uuid/permissions/:permission_uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/roles_has_permissions/:uuid')(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles/:role_uuid/permissions/:permission_uuid')(req, res, next, config),
         [
             uuid('uuid').optional({nullable:false, values:'falsy'}),
             uuid('role_uuid'),
@@ -925,7 +936,7 @@ export default(config) => {
     routes.post(
         '/roles/:role_uuid/permissions',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/roles_has_permissions')(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles/:role_uuid/permissions')(req, res, next, config),
         [
             uuid('role_uuid'),
             uuid('permission_uuid')
@@ -955,7 +966,7 @@ export default(config) => {
     routes.put(
         '/roles/:role_uuid/permissions/:permission_uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/roles_has_permissions/:uuid')(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles/:role_uuid/permissions/:permission_uuid')(req, res, next, config),
         [
             uuid('role_uuid'),
             uuid('permission_uuid'),
@@ -969,11 +980,11 @@ export default(config) => {
     );
 
     /**
-     * @name DELETE/roles_has_permissions/:uuid
+     * @name DELETE//roles/:role_uuid/permissions
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route DELETE /roles_has_permissions/{uuid}
+     * @route DELETE /roles/:role_uuid/permissions
      * @group Roles Permissions - Operations about roles permissions
      * @param {string} uuid.path.required - The unique identifier for the role permission
      * @param {string} fk_role.path.required - The unique identifier for the role
@@ -987,7 +998,7 @@ export default(config) => {
     routes.delete(
         '/roles/:role_uuid/permissions',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/roles_has_permissions/:uuid')(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles/:role_uuid/permissions')(req, res, next, config),
         [
             uuid('role_uuid')
         ],
@@ -998,11 +1009,11 @@ export default(config) => {
     );
 
     /**
-     * @name DELETE/roles_has_permissions/:uuid
+     * @name DELETE/roles/:role_uuid/permissions/permission_uuid
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route DELETE /roles_has_permissions/{uuid}
+     * @route DELETE /roles/:role_uuid/permissions/permission_uuid
      * @group Roles Permissions - Operations about roles permissions
      * @param {string} uuid.path.required - The unique identifier for the role permission
      * @param {string} fk_role.path.required - The unique identifier for the role
@@ -1016,7 +1027,7 @@ export default(config) => {
     routes.delete(
         '/roles/:role_uuid/permissions/permission_uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/roles_has_permissions/:uuid')(req, res, next, config),
+        (req, res, next) => authorizePermission('/roles/:role_uuid/permissions/:permission_uuid')(req, res, next, config),
         [
             uuid('role_uuid'),
             uuid('permission_uuid')
