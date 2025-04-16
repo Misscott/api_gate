@@ -1040,11 +1040,11 @@ export default(config) => {
 
     //users_has_devices routes
     /**
-     * @name GET/users_has_devices
+     * @name GET/users/:user_uuid/devices
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route GET /users_has_devices
+     * @route GET /users/:user_uuid/devices
      * @group Users Devices - Operations about users devices
      * @param {string} uuid.path.required - The unique identifier for the user device
      * @param {string} fk_user.path.required - The unique identifier for the user
@@ -1057,13 +1057,12 @@ export default(config) => {
      * @returns {ErrorResponse} 403 - Forbidden
     */
     routes.get(
-        '/users_has_devices',
+        '/users/:user_uuid/devices',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/users_has_devices')(req, res, next, config),
+        (req, res, next) => authorizePermission('/users/:user_uuid/devices')(req, res, next, config),
         [
-            uuid('uuid').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_device').optional({ nullable: false, values: 'falsy' }),
+            uuid('user_uuid'),
+            uuid('device_uuid').optional({ nullable: false, values: 'falsy' }),
             integer('stock').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
@@ -1073,11 +1072,11 @@ export default(config) => {
     );
 
     /**
-     * @name GET/users_has_devices/:uuid
+     * @name GET/users/:user_uuid/devices/:device_uuid
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route GET /users_has_devices/{uuid}
+     * @route GET /users/:user_uuid/devices/:device_uuid
      * @group Users Devices - Operations about users devices
      * @param {string} uuid.path.required - The unique identifier for the user device
      * @param {string} fk_user.path.required - The unique identifier for the user
@@ -1090,13 +1089,12 @@ export default(config) => {
      * @returns {ErrorResponse} 403 - Forbidden
     */
     routes.get(
-        '/users_has_devices/:uuid',
+        '/users/:user_uuid/devices/:device_uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/users_has_devices/:uuid')(req, res, next, config),
+        (req, res, next) => authorizePermission('/users/:user_uuid/devices/:device_uuid')(req, res, next, config),
         [
-            uuid('uuid'),
-            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_device').optional({ nullable: false, values: 'falsy' }),
+            uuid('user_uuid'),
+            uuid('device_uuid'),
             integer('stock').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
@@ -1106,11 +1104,11 @@ export default(config) => {
     );
 
     /**
-     * @name POST/users_has_devices
+     * @name POST/users/:user_uuid/devices
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route POST /users_has_devices
+     * @route POST /users/:user_uuid/devices
      * @group Users Devices - Operations about users devices
      * @param {string} fk_user.path.required - The unique identifier for the user
      * @param {string} fk_device.path.required - The unique identifier for the device
@@ -1123,12 +1121,12 @@ export default(config) => {
      * @returns {ErrorResponse} 403 - Forbidden
     */
     routes.post(
-        '/users_has_devices',
+        '/users/:user_uuid/devices',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/users_has_devices')(req, res, next, config),
+        (req, res, next) => authorizePermission('/users/:user_uuid/devices')(req, res, next, config),
         [
-            uuid('fk_user'),
-            uuid('fk_device'),
+            uuid('user_uuid'),
+            uuid('device_uuid'),
             integer('stock')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
@@ -1138,11 +1136,11 @@ export default(config) => {
     );
 
     /**
-     * @name PUT/users_has_devices/:uuid
+     * @name PUT/users/:user_uuid/devices/:device_uuid
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route PUT /users_has_devices/{uuid}
+     * @route PUT /users/:user_uuid/devices/:device_uuid
      * @group Users Devices - Operations about users devices
      * @param {string} uuid.path.required - The unique identifier for the user device
      * @param {string} fk_user.path.required - The unique identifier for the user
@@ -1156,13 +1154,14 @@ export default(config) => {
      * @returns {ErrorResponse} 403 - Forbidden
     */
     routes.put(
-        '/users_has_devices/:uuid',
+        '/users/:user_uuid/devices/:device_uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/users_has_devices/:uuid')(req, res, next, config),
+        (req, res, next) => authorizePermission('/users/:user_uuid/devices/:device_uuid')(req, res, next, config),
         [
-            uuid('uuid'),
-            uuid('fk_user').optional({ nullable: false, values: 'falsy' }),
-            uuid('fk_device').optional({ nullable: false, values: 'falsy' }),
+            uuid('user_uuid'),
+            uuid('device_uuid'),
+            uuid('new_user_uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('new_device_uuid').optional({ nullable: false, values: 'falsy' }),
             integer('stock').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
@@ -1172,11 +1171,11 @@ export default(config) => {
     );
 
     /**
-     * @name DELETE/users_has_devices/:uuid
+     * @name DELETE/users/:user_uuid/devices/:device_uuid
      * @function
      * @inner
      * @memberof deviceRouter
-     * @route DELETE /users_has_devices/{uuid}
+     * @route DELETE /users/:user_uuid/devices/:device_uuid
      * @group Users Devices - Operations about users devices
      * @param {string} uuid.path.required - The unique identifier for the user device
      * @param {string} fk_user.path.required - The unique identifier for the user
@@ -1189,11 +1188,42 @@ export default(config) => {
      * @returns {ErrorResponse} 403 - Forbidden
     */
     routes.delete(
-        '/users_has_devices/:uuid',
+        '/users/:user_uuid/devices/:device_uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/users_has_devices/:uuid')(req, res, next, config),
+        (req, res, next) => authorizePermission('/users/:user_uuid/devices/:device_uuid')(req, res, next, config),
         [
-            uuid('uuid')
+            uuid('user_uuid'),
+            uuid('device_uuid')
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => softDeleteUsersHasDevicesController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendResponseNoContent(result, req, res)
+    );
+
+    /**
+     * @name DELETE/users/:user_uuid/devices
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route DELETE /users/:user_uuid/devices
+     * @group Users Devices - Operations about users devices
+     * @param {string} uuid.path.required - The unique identifier for the user device
+     * @param {string} fk_user.path.required - The unique identifier for the user
+     * @param {string} fk_device.path.required - The unique identifier for the device
+     * @param {integer} stock.path.required - The stock of the device
+     * @returns {SuccessResponse} 200 - User device deleted successfully. No content
+     * @returns {ErrorResponse} 404 - User device not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
+    routes.delete(
+        '/users/:user_uuid/devices',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/users/:user_uuid/devices')(req, res, next, config),
+        [
+            uuid('user_uuid')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => softDeleteUsersHasDevicesController(req, res, next, config),

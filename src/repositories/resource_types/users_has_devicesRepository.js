@@ -9,9 +9,9 @@ import {pagination} from "../../utils/pagination.js"
  */
 const _usersHasDevicesSelectQuery = (_pagination = '') => 
     ({count}) => 
-        ({fk_device, fk_user, stock}) => {
-            const conditionUuid = fk_user? ' AND fk_user = (SELECT id FROM mydb.users WHERE uuid = :fk_user) ' : ''
-	        const conditionUuidDevices = fk_device ? ' AND fk_device = (SELECT id FROM mydb.devices WHERE uuid = :fk_device) ' : ''
+        ({device_uuid, user_uuid, stock}) => {
+            const conditionUuidUser = user_uuid? ' AND fk_user = (SELECT id FROM mydb.users WHERE uuid = :user_uuid) ' : ''
+	        const conditionUuidDevices = device_uuid ? ' AND fk_device = (SELECT id FROM mydb.devices WHERE uuid = :device_uuid) ' : ''
             const stockCondition = stock ? 'AND stock = :stock ' : ''
             return `
                 SELECT
@@ -28,7 +28,7 @@ const _usersHasDevicesSelectQuery = (_pagination = '') =>
                 LEFT JOIN mydb.users as users ON users.id = users_has_devices.fk_user
                 WHERE
                     true
-                    ${conditionUuid}
+                    ${conditionUuidUser}
                     ${conditionUuidDevices}
                     ${stockCondition}
                 AND users_has_devices.deleted IS NULL
@@ -65,13 +65,20 @@ const insertUsersHasDevicesQuery = () =>{
         )
         VALUES (
             :uuid,
-            (SELECT id FROM mydb.users WHERE uuid = :fk_user),
-            (SELECT id FROM mydb.devices WHERE uuid = :fk_device),
+            (SELECT id FROM mydb.users WHERE uuid = :user_uuid),
+            (SELECT id FROM mydb.devices WHERE uuid = :device_uuid),
             :stock,
             :now,
             :createdBy
         );
-        SELECT * FROM mydb.users_has_devices WHERE uuid = :uuid;
+        SELECT * FROM mydb.users_has_devices 
+        devices.uuid as device_uuid,
+        users.uuid as user_uuid,
+        users.username as username
+        FROM mydb.users_has_devices as ud
+        LEFT JOIN mydb.users as users ON ud.fk_user = users.id
+        LEFT JOIN mydb.devices as devices ON ud.fk_device = devices.id
+        WHERE ud.uuid = :uuid;
     `
 };
 
@@ -79,37 +86,48 @@ const insertUsersHasDevicesQuery = () =>{
  * @param {Object} params All params involved in query to be modified in certain object matching uuid passed as req param 
  * @returns {String} UPDATE query
  */
-const modifyUsersHasDevicesQuery = ({stock, fk_user, fk_devices}) => {
-    const stockCondition = stock ? 'stock = :stock, ' : ''
-    const userCondition = fk_user ? 'fk_user = (SELECT id FROM mydb.user WHERE uuid = :fk_user),' : ''
-    const devicesCondition = fk_devices ? 'fk_device = (SELECT id FROM mydb.devices WHERE uuid = :fk_device),' : ''
+const modifyUsersHasDevicesQuery = ({stock, new_user_uuid, new_device_uuid}) => {
+    const stockCondition = stock ? 'stock = :stock ' : ''
+    const userUuidCondition = new_user_uuid ? 'fk_user = (SELECT id from mydb.users WHERE uuid = :new_user_uuid),' : '';
+    const deviceUuidCondition = new_device_uuid ? 'fk_device = (SELECT id from mydb.devices WHERE uuid = :new_device_uuid),' : '';
     return `
         UPDATE
             mydb.users_has_devices
         SET
-            ${userCondition}
-            ${devicesCondition}
+            ${deviceUuidCondition}
+            ${userUuidCondition}
             ${stockCondition}
-            uuid = :uuid
         WHERE
-            users_has_devices.uuid = :uuid
+            users_has_devices.fk_user = (SELECT id from mydb.users WHERE uuid = :user_uuid)
+        AND
+            users_has_devices.fk_device = (SELECT id from mydb.devices WHERE uuid = :device_uuid)
         AND
             deleted IS NULL;
-        SELECT mydb.users_has_devices.*
-        FROM mydb.users_has_devices
-        WHERE users_has_devices.uuid = :uuid    
+        SELECT * FROM mydb.users_has_devices 
+        devices.uuid as device_uuid,
+        users.uuid as user_uuid,
+        users.username as username
+        FROM mydb.users_has_devices as ud
+        LEFT JOIN mydb.users as users ON ud.fk_user = users.id
+        LEFT JOIN mydb.devices as devices ON ud.fk_device = devices.id
+        WHERE
+            users_has_devices.fk_user = (SELECT id from mydb.users WHERE uuid = :new_user_uuid)
+        AND
+            users_has_devices.fk_device = (SELECT id from mydb.devices WHERE uuid = :new_device_uuid);  
     `
 }
 
 /**
  * @returns {String} DELETE query
  */
-const deleteUsersHasDevicesQuery = () => {
+const deleteUsersHasDevicesQuery = (device_uuid) => {
+    const deviceUuidCondition = device_uuid? 'AND users_has_devices.fk_device = (SELECT id from mydb.devices WHERE uuid = :device_uuid)': ''
     return `
         DELETE FROM
             mydb.users_has_devices
         WHERE
-            users_has_devices.uuid = :uuid
+            users_has_devices.fk_user = (SELECT id from mydb.users WHERE uuid = :user_uuid)
+            ${deviceUuidCondition}
         AND
             deleted IS NULL
     `

@@ -15,7 +15,7 @@ const getUsersHasDevicesController = (req, res, next, config) => {
     const conn = mysql.start(config)
 
     Promise.all([
-        getUsersHasDevicesModel({...req.query, conn}),
+        getUsersHasDevicesModel({...req.params,...req.query, conn}),
         countUsersHasDevicesModel({...req.query, conn})
     ])
         .then(([getResults, countResults]) => {
@@ -37,39 +37,11 @@ const getUsersHasDevicesController = (req, res, next, config) => {
         })
 }
 
-const getDevicesByUserController = (req, res, next, config) => {
-    const uuid_user = req.params.uuid
-    const conn = mysql.start(config)
-
-    getUsersHasDevicesModel({ uuid_user, conn })
-        .then((response) => {
-            if (noResults(response)) {
-                const err = error404()
-                const error = errorHandler(err, config.environment)
-                return sendResponseNotFound(res, error)
-            }
-
-            const result = {
-                _data: {
-                    users_has_devices: response
-                }
-            }
-            next(result)
-        })
-        .catch((err) => {
-            const error = errorHandler(err, config.environment)
-            res.status(error.code).json(error)
-        })
-        .finally(() => {
-            mysql.end(conn)
-        })
-}
-
 const postUsersHasDevicesController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const createdBy = req.auth.user || null
 
-    insertUsersHasDevicesModel({...req.body, createdBy, conn})
+    insertUsersHasDevicesModel({...req.body, ...req.params, createdBy, conn})
         .then((users_has_devices) => {
             const result = {
                 _data: {users_has_devices}
@@ -87,9 +59,8 @@ const postUsersHasDevicesController = (req, res, next, config) => {
 
 const putUsersHasDevicesController = (req, res, next, config) => {
     const conn = mysql.start(config)
-    const uuid = req.params.uuid
 
-    modifyUsersHasDevicesModel({...req.body, uuid, conn})
+    modifyUsersHasDevicesModel({...req.body, ...req.params, conn})
         .then((users_has_devices) => {
             if (noResults(users_has_devices) || users_has_devices === undefined) {
                 const err = error404()
@@ -112,11 +83,10 @@ const putUsersHasDevicesController = (req, res, next, config) => {
 
 const softDeleteUsersHasDevicesController = (req, res, next, config) => {
     const conn = mysql.start(config)
-    const uuid = req.params.uuid
     const { deleted } = req.body
     const deletedBy = req.auth.user || null
 
-    softDeleteUsersHasDevicesModel({uuid, deleted, deletedBy, conn})
+    softDeleteUsersHasDevicesModel({...req.params, deleted, deletedBy, conn})
         .then(() => {
             const result = {}
             next(result)
@@ -134,6 +104,5 @@ export {
     getUsersHasDevicesController,
     postUsersHasDevicesController,
     putUsersHasDevicesController,
-    softDeleteUsersHasDevicesController,
-    getDevicesByUserController
+    softDeleteUsersHasDevicesController
 }
