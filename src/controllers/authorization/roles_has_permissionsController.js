@@ -87,9 +87,9 @@ const postRolesHasPermissionsController = (req, res, next, config) => {
 const putRolesHasPermissionsController = (req, res, next, config) => {
     const conn = mysql.start(config)
 
-    modifyRolesHasPermissionsModel({ ...req.body, ...req.params, modifiedBy, conn })
+    modifyRolesHasPermissionsModel({ ...req.body, ...req.params, conn })
         .then((roles_has_permissions) => {
-            if (noResults(response)) {
+            if (noResults(roles_has_permissions)) {
                 const err = error404()
                 const error = errorHandler(err, config.environment)
                 return sendResponseNotFound(res, error)

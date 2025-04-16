@@ -89,7 +89,9 @@ const insertUsersHasDevicesQuery = () =>{
 const modifyUsersHasDevicesQuery = ({stock, new_user_uuid, new_device_uuid}) => {
     const stockCondition = stock ? 'stock = :stock ' : ''
     const userUuidCondition = new_user_uuid ? 'fk_user = (SELECT id from mydb.users WHERE uuid = :new_user_uuid),' : '';
+    const showNewUserCondition = new_user_uuid ? 'AND mydb.users_has_devices.fk_user = (SELECT id from mydb.users WHERE uuid = :new_user_uuid)' : ''
     const deviceUuidCondition = new_device_uuid ? 'fk_device = (SELECT id from mydb.devices WHERE uuid = :new_device_uuid),' : '';
+    const showNewDeviceCondition = new_device_uuid? 'AND mydb.users_has_devices.fk_device = (SELECT id from mydb.devices WHERE uuid = :new_device_uuid)': ''
     return `
         UPDATE
             mydb.users_has_devices
@@ -111,16 +113,17 @@ const modifyUsersHasDevicesQuery = ({stock, new_user_uuid, new_device_uuid}) => 
         LEFT JOIN mydb.users as users ON ud.fk_user = users.id
         LEFT JOIN mydb.devices as devices ON ud.fk_device = devices.id
         WHERE
-            users_has_devices.fk_user = (SELECT id from mydb.users WHERE uuid = :new_user_uuid)
-        AND
-            users_has_devices.fk_device = (SELECT id from mydb.devices WHERE uuid = :new_device_uuid);  
+            true 
+            ${showNewDeviceCondition}
+            ${showNewUserCondition}
+        ;  
     `
 }
 
 /**
  * @returns {String} DELETE query
  */
-const deleteUsersHasDevicesQuery = (device_uuid) => {
+const deleteUsersHasDevicesQuery = ({device_uuid}) => {
     const deviceUuidCondition = device_uuid? 'AND users_has_devices.fk_device = (SELECT id from mydb.devices WHERE uuid = :device_uuid)': ''
     return `
         DELETE FROM
@@ -137,14 +140,16 @@ const deleteUsersHasDevicesQuery = (device_uuid) => {
  * Soft delete query using parameters passed in request
  * @returns {String} SOFT DELETE query
  */
-const softDeleteUsersHasDevicesQuery = () => {
+const softDeleteUsersHasDevicesQuery = ({device_uuid}) => {
+    const deviceUuidCondition = device_uuid? 'AND users_has_devices.fk_device = (SELECT id from mydb.devices WHERE uuid = :device_uuid)': ''
     return `
         UPDATE
             mydb.users_has_devices
         SET
             deleted = :deleted, deletedBy = :deletedBy
         WHERE
-            users_has_devices.uuid = :uuid
+            users_has_devices.fk_user = (SELECT id from mydb.users WHERE uuid = :user_uuid)
+            ${deviceUuidCondition}
         AND
             deleted IS NULL
     `

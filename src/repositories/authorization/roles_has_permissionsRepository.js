@@ -70,33 +70,39 @@ const insertRolesHasPermissionsQuery = () => {
     `
 }
 
-const modifyRolesHasPermissionsQuery = (new_role_uuid, new_permission_uuid) => {
+const modifyRolesHasPermissionsQuery = ({new_role_uuid, new_permission_uuid}) => {
   const roleUuidCondition = new_role_uuid ? 'fk_role = (SELECT id from mydb.roles WHERE uuid = :new_role_uuid),' : '';
-  const permissionUuidCondition = new_permission_uuid ? 'fk_permission = (SELECT id from mydb.permissions WHERE uuid = :new_permission_uuid)' : '';
+  const showNewRoleCondition = new_role_uuid ? 'AND mydb.roles.uuid = :new_role_uuid' : ''
+  const permissionUuidCondition = new_permission_uuid ? 'fk_permission = (SELECT id from mydb.permissions WHERE uuid = :new_permission_uuid),' : '';
+  const showNewPermissionCondition = new_permission_uuid? 'AND mydb.permissions.uuid = :new_permission_uuid' : ''
   return `
     UPDATE 
         mydb.roles_has_permissions as roles_has_permissions
     SET 
         ${roleUuidCondition}
         ${permissionUuidCondition}
+        roles_has_permissions.created = roles_has_permissions.created
     WHERE
         roles_has_permissions.fk_role = (SELECT id from mydb.roles WHERE uuid = :role_uuid)
         AND roles_has_permissions.fk_permission = (SELECT id from mydb.permissions WHERE uuid = :permission_uuid)
     AND 
         roles_has_permissions.deleted IS NULL; 
-    SELECT roles_has_permissions.*,
+        
+    SELECT rp.*,
     permissions.uuid as permission_uuid,
     roles.uuid as role_uuid,
     roles.name as role_name
     FROM mydb.roles_has_permissions as rp
     LEFT JOIN mydb.permissions as permissions ON rp.fk_permission = permissions.id
     LEFT JOIN mydb.roles as roles ON rp.fk_role = roles.id
-    WHERE permissions.uuid = :new_permission_uuid
-    AND roles.uuid = :new_role_uuid;
+    WHERE 
+    true
+    ${showNewPermissionCondition}
+    ${showNewRoleCondition};
   `
 }
 
-const softDeleteRolesHasPermissionsQuery = (permission_uuid) => {
+const softDeleteRolesHasPermissionsQuery = ({permission_uuid}) => {
   const permissionUuidCondition = permission_uuid ? 'AND roles_has_permissions.fk_permission = (SELECT id from mydb.permissions WHERE uuid = :permission_uuid)' : '';
   return `
     UPDATE 
