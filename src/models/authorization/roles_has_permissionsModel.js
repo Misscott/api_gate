@@ -32,7 +32,7 @@ const insertRolesHasPermissionsModel = ({conn, ...rest}) => {
     const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
     const uuid = uuidv4()
     const paramsToInsert = { ...rest, uuid, now }
-
+ 
     return mysql
         .execute(insertRolesHasPermissionsQuery(paramsToInsert), conn, paramsToInsert)
         .then(results => results[1].map(({id, fk_role, fk_permission, created, deleted, createdBy, deletedBy, ...rest}) => ({...rest})))
