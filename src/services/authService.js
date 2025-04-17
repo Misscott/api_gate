@@ -13,11 +13,17 @@ dotenv.config();
  * @param {string} token - The JWT token to verify.
  * @returns {Promise<Object>} - Resolves with the decoded token payload.
 */
-const getDataFromToken = (token) => {
+const getDataFromToken = (token, expectedType = 'access') => {
   return new Promise((resolve, reject) => {
     const JWT_SECRET = process.env.JWT_SECRET;
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
-      err ? reject(err) : resolve(decoded);
+      if (err) {
+        reject(err);
+      } else if (decoded.type !== expectedType) {
+        reject(new Error(`Token type mismatch. Expected: ${expectedType}, Got: ${decoded.type}`));
+      } else {
+        resolve(decoded);
+      }
     });
   });
 };

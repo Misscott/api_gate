@@ -37,7 +37,7 @@ const authenticateToken = (req, res, next) => {
 
 const refreshAuthenticate = (req, res, next) => {
     const token = req.body.refreshToken
-    getDataFromToken(token)
+    getDataFromToken(token, 'refresh')
         .then((decoded) => {
             req.auth = decoded;
             next();
@@ -45,7 +45,7 @@ const refreshAuthenticate = (req, res, next) => {
         .catch((error) => {
             return sendResponseUnauthorized(res, error);
         });
-  }
+}
 
 const authorizePermission = (endpoint) => {
     return (req, res, next, config) => {
