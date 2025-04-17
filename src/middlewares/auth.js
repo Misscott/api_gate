@@ -31,7 +31,7 @@ const authenticateToken = (req, res, next) => {
             next();
         })
         .catch((error) => {
-            return sendResponseUnauthorized(res, error);
+            res.status(error.code).json(error)
         });
 };
 
@@ -43,6 +43,9 @@ const refreshAuthenticate = (req, res, next) => {
             next();
         })
         .catch((error) => {
+            if (error.code === 'TOKEN_TYPE_MISMATCH') {
+                return sendResponseForbidden(res, error);  // 403 Forbidden
+            }
             return sendResponseUnauthorized(res, error);
         });
 }

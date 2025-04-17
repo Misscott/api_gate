@@ -20,7 +20,9 @@ const getDataFromToken = (token, expectedType = 'access') => {
       if (err) {
         reject(err);
       } else if (decoded.type !== expectedType) {
-        reject(new Error(`Token type mismatch. Expected: ${expectedType}, Got: ${decoded.type}`));
+        const err = error403()
+        const error = errorHandler(err)
+        reject(error);
       } else {
         resolve(decoded);
       }
@@ -77,7 +79,7 @@ const checkPermission = (action, endpoint, userPermissions, config) => {
       return { hasPermission: false };
     })
     .catch((error) => {
-      const err = error403()
+      const err = error404()
       return errorHandler(err, config.environment,`Authorization failed: ${error.message}`);
     });
 };

@@ -6,9 +6,8 @@ import {
     softDeleteUsersHasDevicesModel,
     modifyUsersHasDevicesModel
 } from '../../models/resource_types/user_has_devicesModel.js'
-import { errorHandler } from '../../utils/errors.js'
+import { error404, errorHandler } from '../../utils/errors.js'
 import { noResults } from '../../validators/result-validators.js'
-import { error404 } from '../../utils/errors.js'
 import { sendResponseNotFound } from '../../utils/responses.js'
 
 const getUsersHasDevicesController = (req, res, next, config) => {
