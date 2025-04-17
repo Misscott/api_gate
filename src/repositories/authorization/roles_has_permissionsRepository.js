@@ -72,9 +72,9 @@ const insertRolesHasPermissionsQuery = () => {
 
 const modifyRolesHasPermissionsQuery = ({new_role_uuid, new_permission_uuid}) => {
   const roleUuidCondition = new_role_uuid ? 'fk_role = (SELECT id from mydb.roles WHERE uuid = :new_role_uuid),' : '';
-  const showNewRoleCondition = new_role_uuid ? 'AND mydb.roles.uuid = :new_role_uuid' : ''
+  const showNewRoleCondition = new_role_uuid ? 'AND mydb.roles.uuid = :new_role_uuid' : 'AND mydb.roles.uuid = :role_uuid'
   const permissionUuidCondition = new_permission_uuid ? 'fk_permission = (SELECT id from mydb.permissions WHERE uuid = :new_permission_uuid),' : '';
-  const showNewPermissionCondition = new_permission_uuid? 'AND mydb.permissions.uuid = :new_permission_uuid' : ''
+  const showNewPermissionCondition = new_permission_uuid? 'AND mydb.permissions.uuid = :new_permission_uuid' : 'AND mydb.permissions.uuid = :permission_uuid'
   return `
     UPDATE 
         mydb.roles_has_permissions as roles_has_permissions

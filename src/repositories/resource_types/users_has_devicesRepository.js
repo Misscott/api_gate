@@ -87,25 +87,26 @@ const insertUsersHasDevicesQuery = () =>{
  * @returns {String} UPDATE query
  */
 const modifyUsersHasDevicesQuery = ({stock, new_user_uuid, new_device_uuid}) => {
-    const stockCondition = stock ? 'stock = :stock ' : ''
+    const stockCondition = stock ? 'stock = :stock,' : ''
     const userUuidCondition = new_user_uuid ? 'fk_user = (SELECT id from mydb.users WHERE uuid = :new_user_uuid),' : '';
-    const showNewUserCondition = new_user_uuid ? 'AND mydb.users_has_devices.fk_user = (SELECT id from mydb.users WHERE uuid = :new_user_uuid)' : ''
+    const showNewUserCondition = new_user_uuid ? 'AND ud.fk_user = (SELECT id from mydb.users WHERE uuid = :new_user_uuid)' : 'AND ud.fk_user = (SELECT id from mydb.users WHERE uuid = :user_uuid)'
     const deviceUuidCondition = new_device_uuid ? 'fk_device = (SELECT id from mydb.devices WHERE uuid = :new_device_uuid),' : '';
-    const showNewDeviceCondition = new_device_uuid? 'AND mydb.users_has_devices.fk_device = (SELECT id from mydb.devices WHERE uuid = :new_device_uuid)': ''
+    const showNewDeviceCondition = new_device_uuid? 'AND ud.fk_device = (SELECT id from mydb.devices WHERE uuid = :new_device_uuid)': 'AND ud.fk_device = (SELECT id from mydb.devices WHERE uuid = :device_uuid)'
     return `
         UPDATE
-            mydb.users_has_devices
+            mydb.users_has_devices as users_has_devices
         SET
             ${deviceUuidCondition}
             ${userUuidCondition}
             ${stockCondition}
+            mydb.users_has_devices.created = mydb.users_has_devices.created
         WHERE
             users_has_devices.fk_user = (SELECT id from mydb.users WHERE uuid = :user_uuid)
         AND
             users_has_devices.fk_device = (SELECT id from mydb.devices WHERE uuid = :device_uuid)
         AND
             deleted IS NULL;
-        SELECT * FROM mydb.users_has_devices 
+        SELECT ud.*,
         devices.uuid as device_uuid,
         users.uuid as user_uuid,
         users.username as username

@@ -9,6 +9,7 @@ import {
     softDeleteUsersHasDevicesQuery,
     deleteUsersHasDevicesQuery
 } from '../../repositories/resource_types/users_has_devicesRepository.js'
+import { error404 } from '../../utils/errors.js'
 
 const getUsersHasDevicesModel = ({conn, ...rest}) => {
     const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
@@ -48,7 +49,7 @@ const modifyUsersHasDevicesModel = ({conn, ...rest}) => {
             if (deletedItem) {
                 throw error404()
             }
-            results[1].map(({id, fk_user, fk_device, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered)
+            return results[1].map(({id, fk_user, fk_device, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered)
         })
 }
 
