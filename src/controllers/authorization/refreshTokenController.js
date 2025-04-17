@@ -27,7 +27,7 @@ const postRefreshTokenController = (req, res, next, config) => {
                     if (noResults(response)) {
                         const err = error401()
                         const error = errorHandler(err, config.environment)
-                        return sendResponseUnauthorized(response, error)
+                        return sendResponseUnauthorized(res, error)
                     }
 
                     const tokenPayload = {
