@@ -64,10 +64,9 @@ const httpsOptions = () => {
 }
 
 const port = config.port || 3000
-
 const server = (NODE_ENV === 'development' ? app : https.createServer(httpsOptions(), app)).listen(port, () => {
 	//eslint-disable-next-line no-console
-	console.log(`Server listening on port ${port}`)
+	console.log(`Server listening on port ${port} ${NODE_ENV}`)
 })
 
 export { app, linkRoutes, server }

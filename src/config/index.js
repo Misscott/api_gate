@@ -1,7 +1,6 @@
-import process from 'node:process'
-import development from './development.js'
 import production from './production.js'
-
+import development from './development.js'
+import process from 'node:process'
 
 const getConfig = () => {
 	const env = process.env.NODE_ENV || 'development'

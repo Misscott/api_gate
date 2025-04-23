@@ -14,7 +14,7 @@ const postLoginController = (req, res, next, config) => {
         .then((response) => {
             if (noResults(response)) {
                 const error = errorHandler({code: 'UNAUTHORIZED'}, config.environment);
-                return sendResponseUnauthorized(response, error);
+                return sendResponseUnauthorized(res, error);
             }
 
             return bcrypt
@@ -22,7 +22,7 @@ const postLoginController = (req, res, next, config) => {
                 .then((isMatch) => {
                     if (!isMatch) {
                         const error = errorHandler({code: 'UNAUTHORIZED'}, config.environment);
-                        return sendResponseUnauthorized(isMatch, error);
+                        return sendResponseUnauthorized(res, error);
                     }
                     
                     const {uuid, username, email, role} = response[0];
