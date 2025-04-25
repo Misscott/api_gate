@@ -56,7 +56,7 @@ const authorizePermission = (endpoint) => {
             .then((token) => getDataFromToken(token)) //extract user data from the token
             .then((decoded) => {
                 const roleName = decoded.role
-                _getRolePermissionsByName(roleName, config)
+                _getRolePermissionsByName(res, roleName, config)
                     .then((rolePermissions) => {
                         const action = req.method
                         //check if the user has the necessary permissions
@@ -80,22 +80,17 @@ const authorizePermission = (endpoint) => {
     };
 };
 
-const _getRolePermissionsByName = (roleName, config) => {
+const _getRolePermissionsByName = (res, roleName, config) => {
     const conn = mysql.start(config)
     return getRolesHasPermissionsModel({ roleName, conn })
         .then((response) => {
-            if (noResults(response)) {
-                const err = error404()
-                const error = errorHandler(err, config.environment)
-                return sendResponseNotFound(response, error)
-            }
             return response.map(({ permission_action, permission_endpoint }) => ({
                 permission_action,
                 permission_endpoint
             }))
         })
-        .catch((err) => {
-            errorHandler(err, config.environment)
+        .catch((err) =>{
+            throw err
         })
         .finally(() => {
             mysql.end(conn)

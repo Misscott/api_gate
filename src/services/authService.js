@@ -78,25 +78,13 @@ const checkPermission = (action, endpoint, userPermissions, config) => {
       }
       return { hasPermission: false };
     })
-    .catch((error) => {
-      const err = error404()
-      return errorHandler(err, config.environment,`Authorization failed: ${error.message}`);
-    });
 };
 
 const _getEndpointByRoute = (route, config) => {
   const conn = mysql.start(config)
   return getEndpointsModel({ route, conn }) 
     .then((endpointInformation) => {
-      if (noResults(endpointInformation)) {
-        const err = error404()
-        errorHandler(err, config.environment)
-      }
-
       return endpointInformation[0]
-    })
-    .catch((err) => {
-      errorHandler(err, config.environment)
     })
     .finally(() => {
       mysql.end(conn)
