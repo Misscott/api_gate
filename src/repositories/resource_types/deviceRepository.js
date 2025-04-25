@@ -15,7 +15,6 @@ const _deviceSelectQuery = (_pagination = '') =>
             const modelCondition = model ? 'AND model = :model ' : ''
             const brandCondition = brand ? 'AND brand = :brand' : ''
             const descriptionCondition = description ?'AND description = :description ' : ''
-            const stockCondition = stock ? 'AND stock = :stock ' : ''
             const createdByCondition = createdBy ? 'AND createdBy = :createdBy ' : ''
             const createdCondition = created ? 'AND created = :created ' : ''
             return `
@@ -34,7 +33,6 @@ const _deviceSelectQuery = (_pagination = '') =>
                     ${modelCondition}
                     ${brandCondition}
                     ${descriptionCondition}
-                    ${stockCondition}
                     ${createdByCondition}
                     ${createdCondition}
                     ${_pagination}

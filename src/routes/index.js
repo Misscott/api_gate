@@ -113,6 +113,13 @@ export default(config) => {
         '/devices',
         (req, res, next) => authenticateToken(req, res, next, config),
         (req, res, next) => authorizePermission('/devices')(req, res, next, config),
+        [
+            uuid('uuid').optional({nullable:false, values:'falsy'}),
+            varChar('serial_number').optional({ nullable: false, values: 'falsy' }),
+            varChar('model').optional({ nullable: false, values: 'falsy' }),
+            varChar('brand').optional({ nullable: false, values: 'falsy' }),
+            varChar('description').optional({ nullable: true, values: 'falsy' })
+        ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getDeviceController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
@@ -215,7 +222,6 @@ export default(config) => {
             varChar('model').optional({ nullable: false, values: 'falsy' }),
             varChar('brand').optional({ nullable: false, values: 'falsy' }),
             varChar('description').optional({ nullable: true, values: 'falsy' }),
-            integer('stock').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => putDeviceController(req, res, next, config),

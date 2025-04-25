@@ -1,8 +1,8 @@
-import { sendUnprocessableEntityResponse } from './responses'
+import { sendUnprocessableEntityResponse } from "./responses.js"
 
 const hasChildrenValidator = (result, req, res, next, config) => {
 	return result.length === 0
-		? next(result)
+		? next()
 		: sendUnprocessableEntityResponse(res, config.environment)
 }
 export { hasChildrenValidator }
