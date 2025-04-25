@@ -44,6 +44,7 @@ import {
  } from '../controllers/resource_types/usersHasDevicesController.js'
 import { checkAndSoftDeleteChildren, hasChildren } from '../utils/hasChildren.js'
 import mysql from '../adapters/mysql.js'
+import { hasChildrenValidator } from '../utils/hasChildrenValidator.js'
 /**
  * @function default 
  * @param {Object} configuration based on environment
