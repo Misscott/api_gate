@@ -23,7 +23,7 @@ const setToken = (result, req, res, next, config) => {
 	next({ user: { ...result, accessToken, refreshToken} })
 }
 
-const authenticateToken = (req, res, next) => {
+const authenticateToken = (req, res, next, config) => {
     obtainToken(req, res)
         .then((token) => getDataFromToken(token))
         .then((decoded) => {
@@ -31,7 +31,8 @@ const authenticateToken = (req, res, next) => {
             next();
         })
         .catch((error) => {
-            res.status(error.code).json(error)
+            const err = errorHandler(error, config.environment)
+            res.status(err.code).json(err)
         });
 };
 
