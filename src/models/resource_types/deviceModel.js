@@ -44,11 +44,13 @@ const countDeviceModel = ({conn, ...rest}) => {
  * @returns {Promise} either resolve or reject
  */
 const insertDeviceModel = ({conn, ...params}) => {
-    const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
-    const uuid = uuidv4()
-    const paramsToInsert = {...params, uuid, now}
+    const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss');
+    const uuid = uuidv4();
+    const { description } = params;
+
+    const paramsToInsert = { ...params, uuid, now, description };
     return mysql
-        .execute(insertDeviceQuery(paramsToInsert), conn, paramsToInsert)
+        .execute(insertDeviceQuery(description), conn, paramsToInsert)
         .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 

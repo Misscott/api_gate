@@ -71,7 +71,7 @@ const insertUsersHasDevicesQuery = () =>{
             :now,
             :createdBy
         );
-        SELECT * FROM mydb.users_has_devices 
+        SELECT 
         devices.uuid as device_uuid,
         users.uuid as user_uuid,
         users.username as username

@@ -56,7 +56,6 @@ const countDeviceQuery = rest => _deviceSelectQuery()({count: 'COUNT(*) AS count
  */
 const insertDeviceQuery = (description) =>{
     const descriptionCondition = description ? ':description ' : null
-    console.log(descriptionCondition)
     return `
     INSERT INTO mydb.devices (
         uuid, 
@@ -72,7 +71,7 @@ const insertDeviceQuery = (description) =>{
         :serial_number,
         :model, 
         :brand, 
-        ${descriptionCondition}, 
+        ${descriptionCondition},
         :now,
         :createdBy
     );
