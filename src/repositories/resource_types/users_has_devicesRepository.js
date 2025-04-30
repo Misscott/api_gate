@@ -19,6 +19,8 @@ const _usersHasDevicesSelectQuery = (_pagination = '') =>
                         `users_has_devices.*,
                         devices.uuid as device_uuid,
                         devices.serial_number as serial_number,
+                        devices.brand as brand,
+                        devices.model as model,
                         users.uuid as user_uuid,
                         users.username as username
                         `}

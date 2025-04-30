@@ -45,6 +45,7 @@ import {
 import { checkAndSoftDeleteChildren, hasChildren } from '../utils/hasChildren.js'
 import mysql from '../adapters/mysql.js'
 import { hasChildrenValidator } from '../utils/hasChildrenValidator.js'
+import { getAvailableDevicesController } from '../controllers/resource_types/availableDevicesController.js'
 /**
  * @function default 
  * @param {Object} configuration based on environment
@@ -164,6 +165,13 @@ export default(config) => {
         (result, req, res, _) => sendOkResponse(result, req, res)
     )
 
+    routes.get(
+        '/devices/available',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => getAvailableDevicesController(req, res, next, config),
+        (result, req, res, _) => sendOkResponse(result, req, res)
+    )
+
     /**
     * @route GET /devices/{uuid}
     * @group Devices - Operations about devices
@@ -263,6 +271,8 @@ export default(config) => {
         (req, res, next) => deleteDeviceController(req, res, next, config),
         (result, req, res, _) => sendResponseNoContent(result, req, res)
     )
+
+    
 
     // User Routes
     /**
