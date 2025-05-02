@@ -9,7 +9,7 @@ import {pagination} from "../../utils/pagination.js"
  */
 const _deviceSelectQuery = (_pagination = '') => 
     ({count}) => 
-        ({uuid, serial_number, model, brand, description, stock, createdBy, created}) => {
+        ({uuid, serial_number, model, brand, description, createdBy, created}) => {
             const uuidCondition = uuid ? 'AND uuid = :uuid ' : ''
             const serial_numberCondition = serial_number ? 'AND serial_number = :serial_number' : ''
             const modelCondition = model ? 'AND model = :model ' : ''
@@ -54,8 +54,9 @@ const countDeviceQuery = rest => _deviceSelectQuery()({count: 'COUNT(*) AS count
  * Insert query using parameters passed in request
  * @returns {String} INSERT query
  */
-const insertDeviceQuery = (description) =>{
+const insertDeviceQuery = (description, image) =>{
     const descriptionCondition = description ? ':description ' : null
+    const imageCondition = image ? ':image' : null
     return `
     INSERT INTO mydb.devices (
         uuid, 
@@ -72,6 +73,7 @@ const insertDeviceQuery = (description) =>{
         :model, 
         :brand, 
         ${descriptionCondition},
+        ${imageCondition},
         :now,
         :createdBy
     );
@@ -84,11 +86,12 @@ const insertDeviceQuery = (description) =>{
  * @param {Object} params All params involved in query to be modified in certain object matching uuid passed as req param 
  * @returns {String} UPDATE query
  */
-const modifyDeviceQuery = ({serial_number, model, brand, description, stock}) => {
+const modifyDeviceQuery = ({serial_number, model, brand, description, image}) => {
     const serial_numberCondition = serial_number ? 'serial_number = :serial_number, ' : ''
     const modelCondition = model ? 'model = :model, ' : ''
     const brandCondition = brand ? 'brand = :brand, ' : ''
     const descriptionCondition = description ? 'description = :description, ' : ''
+    const imageCondition = image ? 'image = :image,' : ''
 
     return `
         UPDATE 
@@ -98,6 +101,7 @@ const modifyDeviceQuery = ({serial_number, model, brand, description, stock}) =>
         ${modelCondition}
         ${brandCondition}
         ${descriptionCondition}
+        ${imageCondition}
         uuid = :uuid
         WHERE 
             devices.uuid = :uuid

@@ -9,10 +9,11 @@ import {pagination} from "../../utils/pagination.js"
  */
 const _usersHasDevicesSelectQuery = (_pagination = '') => 
     ({count}) => 
-        ({device_uuid, user_uuid, stock}) => {
+        ({device_uuid, user_uuid, stock, maxPrice}) => {
             const conditionUuidUser = user_uuid? ' AND fk_user = (SELECT id FROM mydb.users WHERE uuid = :user_uuid) ' : ''
 	        const conditionUuidDevices = device_uuid ? ' AND fk_device = (SELECT id FROM mydb.devices WHERE uuid = :device_uuid) ' : ''
             const stockCondition = stock ? 'AND stock = :stock ' : ''
+            const maxPriceCondition = price ? 'AND price <= :price' : ''
             return `
                 SELECT
                     ${count || 
@@ -33,6 +34,7 @@ const _usersHasDevicesSelectQuery = (_pagination = '') =>
                     ${conditionUuidUser}
                     ${conditionUuidDevices}
                     ${stockCondition}
+                    ${maxPriceCondition}
                 AND users_has_devices.deleted IS NULL
                 AND devices.deleted IS NULL
                 AND users.deleted IS NULL
@@ -62,6 +64,7 @@ const insertUsersHasDevicesQuery = () =>{
             fk_user,
             fk_device,
             stock,
+            price
             created,
             createdBy
         )
@@ -70,6 +73,7 @@ const insertUsersHasDevicesQuery = () =>{
             (SELECT id FROM mydb.users WHERE uuid = :user_uuid),
             (SELECT id FROM mydb.devices WHERE uuid = :device_uuid),
             :stock,
+            :price,
             :now,
             :createdBy
         );
@@ -88,12 +92,13 @@ const insertUsersHasDevicesQuery = () =>{
  * @param {Object} params All params involved in query to be modified in certain object matching uuid passed as req param 
  * @returns {String} UPDATE query
  */
-const modifyUsersHasDevicesQuery = ({stock, new_user_uuid, new_device_uuid}) => {
+const modifyUsersHasDevicesQuery = ({stock, new_user_uuid, new_device_uuid, price}) => {
     const stockCondition = stock ? 'stock = :stock,' : ''
     const userUuidCondition = new_user_uuid ? 'fk_user = (SELECT id from mydb.users WHERE uuid = :new_user_uuid),' : '';
     const showNewUserCondition = new_user_uuid ? 'AND ud.fk_user = (SELECT id from mydb.users WHERE uuid = :new_user_uuid)' : 'AND ud.fk_user = (SELECT id from mydb.users WHERE uuid = :user_uuid)'
     const deviceUuidCondition = new_device_uuid ? 'fk_device = (SELECT id from mydb.devices WHERE uuid = :new_device_uuid),' : '';
     const showNewDeviceCondition = new_device_uuid? 'AND ud.fk_device = (SELECT id from mydb.devices WHERE uuid = :new_device_uuid)': 'AND ud.fk_device = (SELECT id from mydb.devices WHERE uuid = :device_uuid)'
+    const priceCondition = price ? 'price = :price' : ''
     return `
         UPDATE
             mydb.users_has_devices as users_has_devices
@@ -101,6 +106,7 @@ const modifyUsersHasDevicesQuery = ({stock, new_user_uuid, new_device_uuid}) => 
             ${deviceUuidCondition}
             ${userUuidCondition}
             ${stockCondition}
+            ${priceCondition}
             mydb.users_has_devices.created = mydb.users_has_devices.created
         WHERE
             users_has_devices.fk_user = (SELECT id from mydb.users WHERE uuid = :user_uuid)

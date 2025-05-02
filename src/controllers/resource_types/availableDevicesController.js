@@ -11,7 +11,7 @@ const getAvailableDevicesController = (req, res, next, config) => {
     ])    
         .then(([getResults]) =>
             next({
-                _data: {devices: getResults},
+                _data: {'available-devices': getResults},
                 _page: {
                     totalElements: getResults.length,
                     limit: req.query.limit || 100,
