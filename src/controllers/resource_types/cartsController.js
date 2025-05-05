@@ -3,7 +3,6 @@ import { sendResponseNotFound } from '../../utils/responses.js'
 import {noResults} from '../../validators/result-validators.js'
 import mysql from '../../adapters/mysql.js'
 import { getCartModel, countCartModel, insertCartModel, updateCartModel, deleteCartModel } from '../../models/resource_types/cartsModel.js'
-import { get } from 'node:http'
 
 const getCartController = (req, res, next, config) => {
     const conn = mysql.start(config)
