@@ -1387,7 +1387,7 @@ export default(config) => {
             varChar('status')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => postCartController(req, res, next, config),
+        (req, res, next) => insertCartController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
@@ -1421,7 +1421,7 @@ export default(config) => {
             decimal('total').optional({ nullable: false, values: 'falsy' }),
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => putCartController(req, res, next, config),
+        (req, res, next) => updateCartController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
@@ -1452,7 +1452,7 @@ export default(config) => {
             uuid('uuid')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => softDeleteCartController(req, res, next, config),
+        (req, res, next) => deleteCartController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendResponseNoContent(result, req, res)
     );
@@ -1515,7 +1515,6 @@ export default(config) => {
      * @returns {ErrorResponse} 500 - Internal server error
      * @returns {ErrorResponse} 403 - Forbidden
     */
-   //TODO: CORRECTTTTTTTTTTTTTTT
     routes.get(
         '/carts/:cart_uuid/items/:user_device_uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
@@ -1528,7 +1527,7 @@ export default(config) => {
             decimal('price').optional({ nullable: false, values: 'falsy' })
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
-        (req, res, next) => getCartItemByUuidController(req, res, next, config),
+        (req, res, next) => getCartItemsController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendOkResponse(result, req, res)
     );
@@ -1553,9 +1552,9 @@ export default(config) => {
      * @returns {ErrorResponse} 403 - Forbidden
      * */
     routes.post(
-        '/carts/:cart_uuid/items',
+        '/carts/:cart_uuid/items/:user_device_uuid',
         (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/carts/:cart_uuid/items')(req, res, next, config),
+        (req, res, next) => authorizePermission('/carts/:cart_uuid/items/:user_device_uuid')(req, res, next, config),
         [
             uuid('cart_uuid'),
             uuid('user_device_uuid'),
@@ -1566,6 +1565,75 @@ export default(config) => {
         (req, res, next) => insertCartItemsController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendCreatedResponse(result, req, res)
+    );
+
+    /**
+     * @name PUT/carts/:cart_uuid/items/:user_device_uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route PUT /carts/:cart_uuid/items/:user_device_uuid
+     * @group Cart Items - Operations about cart items
+     * @param {string} uuid.path.required - The unique identifier for the cart item
+     * @param {string} fk_cart.path.required - The unique identifier for the cart
+     * @param {string} fk_device.path.required - The unique identifier for the device
+     * @param {integer} stock.path.required - The stock of the device
+     * @param {integer} quantity.path.required - The quantity of the device 
+     * @param {decimal} price.path.required - The price of the device
+     * @returns {SuccessResponse} 200 - Cart item updated successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - Cart item not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+    */
+    routes.put(
+        '/carts/:cart_uuid/items/:user_device_uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/carts/:cart_uuid/items/:user_device_uuid')(req, res, next, config),
+        [
+            uuid('cart_uuid'),
+            uuid('user_device_uuid'),
+            integer('stock').optional({ nullable: false, values: 'falsy' }),
+            integer('quantity').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => updateCartItemsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),  
+        (result, req, res, _) => sendOkResponse(result, req, res)
+    );
+
+    /**
+     * @name DELETE/carts/:cart_uuid/items/:user_device_uuid
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route DELETE /carts/:cart_uuid/items/:user_device_uuid
+     * @group Cart Items - Operations about cart items
+     * @param {string} uuid.path.required - The unique identifier for the cart item
+     * @param {string} fk_cart.path.required - The unique identifier for the cart
+     * @param {string} fk_device.path.required - The unique identifier for the device
+     * @param {integer} stock.path.required - The stock of the device
+     * @param {integer} quantity.path.required - The quantity of the device
+     * @param {decimal} price.path.required - The price of the device
+     * @returns {SuccessResponse} 200 - Cart item deleted successfully. No content
+     * @returns {ErrorResponse} 404 - Cart item not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+     * */
+    routes.delete(
+        '/carts/:cart_uuid/items/:user_device_uuid',
+        (req, res, next) => authenticateToken(req, res, next, config),
+        (req, res, next) => authorizePermission('/carts/:cart_uuid/items/:user_device_uuid')(req, res, next, config),
+        [
+            uuid('cart_uuid'),
+            uuid('user_device_uuid')
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => deleteCartItemsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),  
+        (result, req, res, _) => sendResponseNoContent(result, req, res)
     );
 
     // Login Endpoint

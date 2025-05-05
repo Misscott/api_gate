@@ -14,7 +14,7 @@ const getCartItemsController = (req, res, next, config) => {
     const conn = mysql.start(config)
 
     Promise.all([
-        getCartItemsModel({...req.query, conn}),
+        getCartItemsModel({...req.query, ...req.params, conn}),
         countCartItemsModel({...req.query, conn})
     ])    
         .then(([getResults]) =>
@@ -65,7 +65,7 @@ const insertCartItemsController = (req, res, next, config) => {
 const updateCartItemsController = (req, res, next, config) => {
     const conn = mysql.start(config)
 
-    updateCartItemsModel({...req.body, conn})
+    updateCartItemsModel({...req.body, ...req.params, conn})
         .then((cartItems) => {
             if(noResults(cartItems)){
                 const err = error404()
@@ -92,7 +92,7 @@ const deleteCartItemsController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const uuid = req.params.uuid
 
-    deleteCartItemsModel({...req.body, uuid, conn})
+    deleteCartItemsModel({...req.body, ...req.params, uuid, conn})
         .then((cartItems) => {
             if(noResults(cartItems)){
                 const err = error404()
