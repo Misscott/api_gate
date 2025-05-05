@@ -38,9 +38,8 @@ const getCartItemsController = (req, res, next, config) => {
 
 const insertCartItemsController = (req, res, next, config) => {
     const conn = mysql.start(config)
-    const {cart_uuid, product_uuid} = req.body
 
-    insertCartItemsModel({...req.body, conn, cart_uuid, product_uuid})
+    insertCartItemsModel({...req.body, ...req.params, conn})
         .then((cartItems) => {
             if(noResults(cartItems)){
                 const err = error404()

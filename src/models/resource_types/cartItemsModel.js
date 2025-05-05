@@ -7,7 +7,7 @@ import {
     insertCartItemsQuery,
     updateCartItemsQuery,
     deleteCartItemsQuery
-} from '../../repositories/resource_types/cart_itemsRepository.js'
+} from '../../repositories/resource_types/cartItemsRepository.js'
 import {error404} from '../../utils/errors.js'
 
 const getCartItemsModel = ({conn, ...rest}) => {

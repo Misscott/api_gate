@@ -9,12 +9,12 @@ import { pagination } from "../../utils/pagination.js";
  */
 const _cartItemsSelectQuery = (_pagination = '') => 
     ({count}) => 
-        ({cart_uuid, device_uuid, seller_uuid, quantity, user_device_uuid}) => {
+        ({cart_uuid, device_uuid, seller_uuid, quantity, min_price}) => {
             const conditionUuidCart = cart_uuid? ' AND fk_cart = (SELECT id FROM mydb.carts WHERE uuid = :cart_uuid) ' : ''
             const conditionUuidDevices = device_uuid ? ' AND fk_device = (SELECT id FROM mydb.devices WHERE uuid = :device_uuid) ' : ''
             const conditionUuidUser = seller_uuid ? ' AND fk_seller = (SELECT id FROM mydb.users WHERE uuid = :seller_uuid) ' : ''
             const quantityCondition = quantity ? 'AND quantity = :quantity ' : ''
-            const userDeviceCondition = user_device_uuid ? 'AND fk_user_device = (SELECT id FROM mydb.users_has_devices WHERE uuid = :user_device_uuid) ' : ''
+            const priceCondition = min_price ? 'AND users_has_devices.price >= :min_price ' : ''
 
             return `
                 SELECT
@@ -49,7 +49,7 @@ const _cartItemsSelectQuery = (_pagination = '') =>
                     ${conditionUuidDevices}
                     ${conditionUuidUser}
                     ${quantityCondition}
-                    ${userDeviceCondition}
+                    ${priceCondition}
                     ${_pagination}
             `
 }
@@ -69,8 +69,8 @@ const insertCartItemsQuery = () => {
             createdBy
         ) VALUES (
             (SELECT id FROM mydb.carts WHERE uuid = :cart_uuid),
-            (SELECT id FROM mydb.devices WHERE uuid = :device_uuid),
-            (SELECT id FROM mydb.users WHERE uuid = :seller_uuid),
+            (SELECT id FROM mydb.devices WHERE id = (SELECT fk_device FROM mydb.users_has_devices WHERE uuid = :user_device_uuid)),
+            (SELECT id FROM mydb.users WHERE id = (SELECT fk_user FROM mydb.users_has_devices WHERE uuid = :user_device_uuid)),
             (SELECT id FROM mydb.users_has_devices WHERE uuid = :user_device_uuid),
             :quantity,
             :now,
