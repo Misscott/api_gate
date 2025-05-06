@@ -36,6 +36,33 @@ const getUsersHasDevicesController = (req, res, next, config) => {
         })
 }
 
+const getForSaleDevicesController = (req, res, next, config) => {
+    const conn = mysql.start(config)
+    const isForSale = true;
+
+    Promise.all([
+        getUsersHasDevicesModel({isForSale, conn}),
+        countUsersHasDevicesModel({isForSale, conn})
+    ])
+        .then(([getResults, countResults]) => {
+            next({
+                _data: {devices: getResults},
+                _page: {
+                    totalElements: countResults,
+                    limit: req.query.limit || 100,
+                    page: req.query.page || (countResults && 1) || 0
+                }
+            })
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+} 
+
 const postUsersHasDevicesController = (req, res, next, config) => {
     const conn = mysql.start(config)
     const createdBy = req.auth.user || null
@@ -103,5 +130,6 @@ export {
     getUsersHasDevicesController,
     postUsersHasDevicesController,
     putUsersHasDevicesController,
-    softDeleteUsersHasDevicesController
+    softDeleteUsersHasDevicesController,
+    getForSaleDevicesController
 }

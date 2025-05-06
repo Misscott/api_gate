@@ -9,11 +9,12 @@ import {pagination} from "../../utils/pagination.js"
  */
 const _usersHasDevicesSelectQuery = (_pagination = '') => 
     ({count}) => 
-        ({device_uuid, user_uuid, stock, maxPrice}) => {
+        ({device_uuid, user_uuid, stock, maxPrice, isForSale}) => {
             const conditionUuidUser = user_uuid? ' AND fk_user = (SELECT id FROM mydb.users WHERE uuid = :user_uuid) ' : ''
 	        const conditionUuidDevices = device_uuid ? ' AND fk_device = (SELECT id FROM mydb.devices WHERE uuid = :device_uuid) ' : ''
             const stockCondition = stock ? 'AND stock = :stock ' : ''
-            const maxPriceCondition = price ? 'AND price <= :price' : ''
+            const maxPriceCondition = maxPrice ? 'AND price <= :price' : ''
+            const isForSaleCondition = isForSale? 'AND isForSale = :isForSale' : ''
             return `
                 SELECT
                     ${count || 
@@ -35,6 +36,7 @@ const _usersHasDevicesSelectQuery = (_pagination = '') =>
                     ${conditionUuidDevices}
                     ${stockCondition}
                     ${maxPriceCondition}
+                    ${isForSaleCondition}
                 AND users_has_devices.deleted IS NULL
                 AND devices.deleted IS NULL
                 AND users.deleted IS NULL

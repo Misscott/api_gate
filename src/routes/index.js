@@ -16,7 +16,7 @@ import {
 	sendOkResponse,
     sendResponseNoContent,
 } from '../utils/responses.js'
-import { decimal, integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
+import { boolean, decimal, integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
 import {payloadExpressValidator} from '../validators/expressValidator/payloadExpressValidator.js'
 import { error400, errorHandler } from '../utils/errors.js'
 import { authorizePermission, setToken, authenticateToken, refreshAuthenticate} from '../middlewares/auth.js'
@@ -37,6 +37,7 @@ import {
     softDeleteRolesHasPermissionsController,
  } from '../controllers/authorization/roles_has_permissionsController.js'
 import { 
+    getForSaleDevicesController,
     getUsersHasDevicesController,
     postUsersHasDevicesController, 
     putUsersHasDevicesController, 
@@ -98,6 +99,28 @@ export default(config) => {
     )
 
     // Device routes
+    /**
+    * Gets all the devices from database that are for sale
+    * @name get/devices
+    * @function
+    * @inner
+    * @memberof deviceRouter
+    * @route GET /devices/forSale
+    * @group Devices - Operations about devices
+    * @returns {Device} 200 - The devices object
+    * @returns {ErrorResponse} 404 - Device not found
+    * @returns {ErrorResponse} 500 - Internal server error
+    * @returns {ErrorResponse} 422 - Unprocessable entity
+    * @returns {ErrorResponse} 403 - Forbidden
+    * @returns {ErrorResponse} 401 - Unauthorized
+    */
+    routes.get(
+        'devices/forSale',
+        (req, res, next) => getForSaleDevicesController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendOkResponse(result, req, res) 
+    )
+
     /**
     * Gets all the devices from database
     * @name get/devices
@@ -1121,7 +1144,9 @@ export default(config) => {
         [
             uuid('user_uuid'),
             uuid('device_uuid').optional({ nullable: false, values: 'falsy' }),
-            integer('stock').optional({ nullable: false, values: 'falsy' })
+            integer('stock').optional({ nullable: false, values: 'falsy' }),
+            decimal('maxPrice').optional({nullable: false, values: 'falsy'}),
+            boolean('isForSale').optional({nullable: false, values: 'falsy'})
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getUsersHasDevicesController(req, res, next, config),
@@ -1153,7 +1178,9 @@ export default(config) => {
         [
             uuid('user_uuid'),
             uuid('device_uuid'),
-            integer('stock').optional({ nullable: false, values: 'falsy' })
+            integer('stock').optional({ nullable: false, values: 'falsy' }),
+            decimal('maxPrice').optional({nullable: false, values: 'falsy'}),
+            boolean('isForSale').optional({nullable: false, values: 'falsy'})
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => getUsersHasDevicesController(req, res, next, config),
