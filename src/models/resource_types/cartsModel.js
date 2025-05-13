@@ -50,7 +50,7 @@ const insertCartModel = ({conn, ...params}) => {
 
 const updateCartModel = ({conn, ...params}) => {
     return mysql
-        .execute(modifyDeviceQuery(params), conn, params)
+        .execute(updateCartQuery(params), conn, params)
         .then(queryResult => {
             const deletedItem = queryResult[1].find(item => item.deleted !== null);
   
@@ -65,7 +65,7 @@ const deleteCartModel = ({conn, deleted, deletedBy, ...params}) => {
     const deletedData = deleted ? dayjs.utc(deleted).format('YYYY-MM-DD HH:mm:ss') : dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
     
     return mysql
-        .execute(softDeleteDeviceQuery({ ...params, deleted: deletedData, deletedBy }), conn, { ...params, deleted: deletedData, deletedBy })
+        .execute(deleteCartQuery({ ...params, deleted: deletedData, deletedBy }), conn, { ...params, deleted: deletedData, deletedBy })
 }
 
 export {

@@ -48,7 +48,7 @@ import mysql from '../adapters/mysql.js'
 import { hasChildrenValidator } from '../utils/hasChildrenValidator.js'
 import { getAvailableDevicesController } from '../controllers/resource_types/availableDevicesController.js'
 import { getCartController, getCartByUuidController, insertCartController, updateCartController, deleteCartController } from '../controllers/resource_types/cartsController.js'
-import { getCartItemsController, insertCartItemsController, updateCartItemsController, deleteCartItemsController } from '../controllers/resource_types/cartItemsController.js'
+import { getCartItemsController, insertCartItemsController, updateCartItemsController, deleteCartItemsController, mergeCartController } from '../controllers/resource_types/cartItemsController.js'
 
 /**
  * @function default 
@@ -115,7 +115,7 @@ export default(config) => {
     * @returns {ErrorResponse} 401 - Unauthorized
     */
     routes.get(
-        'devices/forSale',
+        '/devices/forSale',
         (req, res, next) => getForSaleDevicesController(req, res, next, config),
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendOkResponse(result, req, res) 
@@ -1212,7 +1212,8 @@ export default(config) => {
         [
             uuid('user_uuid'),
             uuid('device_uuid'),
-            integer('stock')
+            integer('stock'),
+            decimal('price')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => postUsersHasDevicesController(req, res, next, config),
@@ -1247,7 +1248,8 @@ export default(config) => {
             uuid('device_uuid'),
             uuid('new_user_uuid').optional({ nullable: false, values: 'falsy' }),
             uuid('new_device_uuid').optional({ nullable: false, values: 'falsy' }),
-            integer('stock').optional({ nullable: false, values: 'falsy' })
+            integer('stock').optional({ nullable: false, values: 'falsy' }),
+            boolean('isForSale').optional({nullable: false, values: 'falsy'})
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => putUsersHasDevicesController(req, res, next, config),
@@ -1353,6 +1355,34 @@ export default(config) => {
     );
 
     /**
+     * @name POST/carts/merge
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route POST /carts/merge
+     * @group Carts - Operations about carts
+     * @param {uuid} to_cart_uuid.path.required - The unique identifier for the destination cart
+     * @param {uuid} from_cart_uuid.required - The unique identifier for the source cart
+     * @returns {SuccessResponse} 200 - Cart created successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - Cart not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+     * */
+    routes.post(
+        '/carts/merge',
+        [
+            uuid('to_cart_uuid'),
+            uuid('from_cart_uuid')
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => mergeCartController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendCreatedResponse(result, req, res)
+    );
+
+    /**
      * @name GET/carts/:uuid
      * @function
      * @inner
@@ -1407,10 +1437,7 @@ export default(config) => {
      * */
     routes.post(
         '/carts',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/carts')(req, res, next, config),
         [
-            uuid('user_uuid'),
             varChar('status')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
@@ -1444,6 +1471,7 @@ export default(config) => {
         (req, res, next) => authorizePermission('/carts/:uuid')(req, res, next, config),
         [
             uuid('uuid'),
+            uuid('user_uuid').optional({ nullable: true, values: 'falsy' }),
             varChar('status').optional({ nullable: false, values: 'falsy' }),
             decimal('total').optional({ nullable: false, values: 'falsy' }),
         ],
@@ -1580,12 +1608,9 @@ export default(config) => {
      * */
     routes.post(
         '/carts/:cart_uuid/items/:user_device_uuid',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/carts/:cart_uuid/items/:user_device_uuid')(req, res, next, config),
         [
             uuid('cart_uuid'),
             uuid('user_device_uuid'),
-            integer('stock'),
             integer('quantity')
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
@@ -1615,10 +1640,7 @@ export default(config) => {
      * @returns {ErrorResponse} 403 - Forbidden
     */
     routes.put(
-        '/carts/:cart_uuid/items/:user_device_uuid',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/carts/:cart_uuid/items/:user_device_uuid')(req, res, next, config),
-        [
+        '/carts/:cart_uuid/items/:user_device_uuid',[
             uuid('cart_uuid'),
             uuid('user_device_uuid'),
             integer('stock').optional({ nullable: false, values: 'falsy' }),
@@ -1651,8 +1673,6 @@ export default(config) => {
      * */
     routes.delete(
         '/carts/:cart_uuid/items/:user_device_uuid',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/carts/:cart_uuid/items/:user_device_uuid')(req, res, next, config),
         [
             uuid('cart_uuid'),
             uuid('user_device_uuid')

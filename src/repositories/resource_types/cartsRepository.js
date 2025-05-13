@@ -10,17 +10,24 @@ import { pagination } from "../../utils/pagination.js";
 const _cartSelectQuery = (_pagination = '') => 
     ({count}) => 
         ({uuid, user_uuid, status, maxTotal, total, minTotal}) => {
-            const uuidCondition = uuid ? 'AND uuid = :uuid ' : ''
-            const user_uuidCondition = user_uuid ? 'AND fk_user = (SELECT id FROM mydb.users WHERE uuid = :user_uuid) ' : ''
-            const statusCondition = status ? 'AND status = :status ' : ''
-            const maxTotalCondition = maxTotal ? 'AND total <= :total ' : ''
-            const totalCondition = total ? 'AND total = :total ' : ''
-            const minTotalCondition = minTotal ? 'AND total >= :total ' : ''
+            const uuidCondition = uuid ? 'AND carts.uuid = :uuid ' : ''
+            const user_uuidCondition = user_uuid ? 'AND CARTS.fk_user = (SELECT id FROM mydb.users WHERE uuid = :user_uuid) ' : ''
+            const statusCondition = status ? 'AND carts.state = :status ' : ''
+            const maxTotalCondition = maxTotal ? 'AND carts.total <= :total ' : ''
+            const totalCondition = total ? 'AND carts.total = :total ' : ''
+            const minTotalCondition = minTotal ? 'AND carts.total >= :total ' : ''
             return `
                 SELECT
-                    ${count || `*`}
+                    ${count || `carts.*,
+                        items.uuid AS cart_item_uuid,
+                        items.quantity AS cart_item_quantity,
+                        devices.uuid AS user_device_uuid`}
                 FROM
                     mydb.carts as carts
+                LEFT JOIN 
+                    mydb.cart_items as items on items.fk_cart = carts.id
+                    LEFT JOIN 
+                    mydb.users_has_devices as devices on items.fk_user_device = devices.id
                 WHERE
                     carts.created <= :now
                 AND
@@ -58,23 +65,22 @@ const insertCartQuery = () => {
         INSERT INTO mydb.carts (
             uuid,
             fk_user,
-            status,
-            total,
+            state,
             created,
             createdBy
         ) VALUES (
             :uuid,
             (SELECT id FROM mydb.users WHERE uuid = :user_uuid),
             :status,
-            :total,
             :now,
             :createdBy
         );
         SELECT carts.*, users.uuid as user_uuid, users.username as username
         FROM mydb.carts as carts
-        JOIN mydb.users as users ON carts.fk_user = users.id
-        WHERE carts.uuid = :uuid
-        AND deleted IS NULL
+        LEFT JOIN mydb.users as users ON carts.fk_user = users.id
+        WHERE
+            carts.uuid = :uuid
+            
     `
 }
 
@@ -82,22 +88,47 @@ const insertCartQuery = () => {
  * Update query using parameters passed in request
  * @returns {String} UPDATE query
  */
-const updateCartQuery = ({status, total}) => {
-    const statusCondition = status ? 'AND status = :status,' : ''
-    const totalCondition = total ? 'AND total = :total,' : ''
+const updateCartQuery = ({status, total, user_uuid}) => {
+    const statusCondition = status ? 'state = :status,' : ''
+    const totalCondition = total ? 'total = :total,' : ''
+    const userUuidCondition = user_uuid? 'fk_user = (SELECT id from mydb.users WHERE uuid = :user_uuid),' : ''
     return `
         UPDATE mydb.carts
         SET
             ${statusCondition}
             ${totalCondition}
+            ${userUuidCondition}
             uuid = :uuid
         WHERE
             uuid = :uuid;
-        SELECT carts.*, users.uuid as user_uuid, users.username as username
-        FROM mydb.carts as carts
-        JOIN mydb.users as users ON carts.fk_user = users.id
-        WHERE carts.uuid = :uuid
-        AND deleted IS NULL
+        SELECT 
+          carts.*,
+          users.uuid AS user_uuid,
+          users.username AS username,
+          cart_items.uuid AS cart_item_uuid,
+          cart_items.quantity AS cart_item_quantity,
+          devices.uuid AS device_uuid,
+          devices.serial_number,
+          devices.brand,
+          devices.model,
+          devices.description,
+          devices.image,
+          users_has_devices.uuid AS user_device_uuid,
+          users_has_devices.stock,
+          users_has_devices.price,
+          sellers.uuid AS seller_uuid,
+          sellers.username AS seller_username
+        FROM mydb.carts AS carts
+        LEFT JOIN mydb.users AS users ON carts.fk_user = users.id
+        JOIN mydb.cart_items AS cart_items ON cart_items.fk_cart = carts.id
+        JOIN mydb.devices AS devices ON cart_items.fk_device = devices.id
+        JOIN mydb.users_has_devices AS users_has_devices ON cart_items.fk_user_device = users_has_devices.id
+        JOIN mydb.users AS sellers ON cart_items.fk_seller = sellers.id
+        WHERE (cart_items.deleted IS NULL)
+          AND (devices.deleted IS NULL)
+          AND (users_has_devices.deleted IS NULL)
+          AND (sellers.deleted IS NULL)
+          AND carts.uuid = :uuid;
     `   
 }
 

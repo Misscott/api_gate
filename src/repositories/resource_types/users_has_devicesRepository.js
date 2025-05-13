@@ -101,6 +101,7 @@ const modifyUsersHasDevicesQuery = ({stock, new_user_uuid, new_device_uuid, pric
     const deviceUuidCondition = new_device_uuid ? 'fk_device = (SELECT id from mydb.devices WHERE uuid = :new_device_uuid),' : '';
     const showNewDeviceCondition = new_device_uuid? 'AND ud.fk_device = (SELECT id from mydb.devices WHERE uuid = :new_device_uuid)': 'AND ud.fk_device = (SELECT id from mydb.devices WHERE uuid = :device_uuid)'
     const priceCondition = price ? 'price = :price' : ''
+    const isForSaleCondition = isForSale ? 'isForSale = :isForSale' : ''
     return `
         UPDATE
             mydb.users_has_devices as users_has_devices
@@ -109,6 +110,7 @@ const modifyUsersHasDevicesQuery = ({stock, new_user_uuid, new_device_uuid, pric
             ${userUuidCondition}
             ${stockCondition}
             ${priceCondition}
+            ${isForSaleCondition}
             mydb.users_has_devices.created = mydb.users_has_devices.created
         WHERE
             users_has_devices.fk_user = (SELECT id from mydb.users WHERE uuid = :user_uuid)

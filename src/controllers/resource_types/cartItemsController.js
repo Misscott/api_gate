@@ -7,7 +7,8 @@ import {
     countCartItemsModel,
     insertCartItemsModel,
     updateCartItemsModel,
-    deleteCartItemsModel
+    deleteCartItemsModel,
+    mergeCartModel
  } from '../../models/resource_types/cartItemsModel.js'
 
 const getCartItemsController = (req, res, next, config) => {
@@ -37,9 +38,36 @@ const getCartItemsController = (req, res, next, config) => {
 }
 
 const insertCartItemsController = (req, res, next, config) => {
+    const createdBy = req.auth?.user || null
     const conn = mysql.start(config)
 
-    insertCartItemsModel({...req.body, ...req.params, conn})
+    insertCartItemsModel({...req.body, ...req.params, conn, createdBy})
+        .then((cartItems) => {
+            if(noResults(cartItems)){
+                const err = error404()
+                const error = errorHandler(err, config.environment)
+                return sendResponseNotFound(res, error)
+            }
+
+            const result = {
+                _data : {cart_items: cartItems}
+            }
+
+            next(result)
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+}
+
+const mergeCartController = (req, res, next, config) => {
+    const conn = mysql.start(config)
+
+    mergeCartModel({...req.body, ...req.params, conn})
         .then((cartItems) => {
             if(noResults(cartItems)){
                 const err = error404()
@@ -119,5 +147,6 @@ export {
     getCartItemsController,
     insertCartItemsController,
     updateCartItemsController,
-    deleteCartItemsController
+    deleteCartItemsController,
+    mergeCartController
 }

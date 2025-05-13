@@ -6,7 +6,8 @@ import {
     countCartItemsQuery,
     insertCartItemsQuery,
     updateCartItemsQuery,
-    deleteCartItemsQuery
+    deleteCartItemsQuery,
+    mergeCartQuery
 } from '../../repositories/resource_types/cartItemsRepository.js'
 import {error404} from '../../utils/errors.js'
 
@@ -38,10 +39,19 @@ const insertCartItemsModel = ({conn, ...params}) => {
         .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
+const mergeCartModel = ({conn, ...params}) => {
+    const paramsToInsert = {...params}
+
+    return mysql
+        .execute(mergeCartQuery(paramsToInsert), conn, paramsToInsert)
+        .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+}
 
 const updateCartItemsModel = ({conn, ...params}) => {
+    const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
+    const paramsToInsert = {...params, now}
     return mysql
-        .execute(updateCartItemsQuery(params), conn, params)
+        .execute(updateCartItemsQuery(paramsToInsert), conn, paramsToInsert)
         .then(queryResult => {
             const deletedItem = queryResult[1].find(item => item.deleted !== null);
 
@@ -70,5 +80,6 @@ export {
     countCartItemsModel,
     insertCartItemsModel,
     updateCartItemsModel,
-    deleteCartItemsModel
+    deleteCartItemsModel,
+    mergeCartModel
 }

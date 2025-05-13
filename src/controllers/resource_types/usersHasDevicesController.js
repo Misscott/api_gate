@@ -46,7 +46,7 @@ const getForSaleDevicesController = (req, res, next, config) => {
     ])
         .then(([getResults, countResults]) => {
             next({
-                _data: {devices: getResults},
+                _data: {for_sale: getResults},
                 _page: {
                     totalElements: countResults,
                     limit: req.query.limit || 100,

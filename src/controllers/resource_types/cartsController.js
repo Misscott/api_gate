@@ -61,19 +61,14 @@ const getCartByUuidController = (req, res, next, config) => {
 
 
 const insertCartController = (req, res, next, config) => {
+    const createdBy = req.auth?.user || null
     const conn = mysql.start(config)
     const {user_uuid} = req.body
 
-    insertCartModel({...req.body, conn, user_uuid})
-        .then((cart) => {
-            if(noResults(cart)){
-                const err = error404()
-                const error = errorHandler(err, config.environment)
-                return sendResponseNotFound(res, error)
-            }
-
+    insertCartModel({...req.body, conn, user_uuid, createdBy})
+        .then((carts) => {
             const result = {
-                _data : {cart}
+                _data : {carts}
             }
 
             next(result)
@@ -90,16 +85,16 @@ const insertCartController = (req, res, next, config) => {
 const updateCartController = (req, res, next, config) => {
     const conn = mysql.start(config)
 
-    updateCartModel({...req.body, conn})
-        .then((cart) => {
-            if(noResults(cart)){
+    updateCartModel({...req.body, ...req.params, conn})
+        .then((carts) => {
+            if(noResults(carts)){
                 const err = error404()
                 const error = errorHandler(err, config.environment)
                 return sendResponseNotFound(res, error)
             }
 
             const result = {
-                _data : {cart}
+                _data : {carts}
             }
 
             next(result)

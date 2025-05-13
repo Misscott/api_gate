@@ -52,7 +52,7 @@ const getDeviceByFieldController = (field) => (req, res, next, config) => {
     const fieldValue = req.params[field]
 
     getDeviceModel({[field]: fieldValue, conn})
-        .then((device) => {
+        .then((for_sale) => {
             if(noResults(device)){
                 const err = error404()
                 const error = errorHandler(err, config.environment)
@@ -60,7 +60,7 @@ const getDeviceByFieldController = (field) => (req, res, next, config) => {
             }
 
             const result = {
-                _data : {device}
+                _data : {for_sale}
             }
 
             next(result)
@@ -86,9 +86,9 @@ const postDeviceController = (req, res, next, config) => {
     const createdBy = req.auth.user || null
     
     insertDeviceModel({...req.body, createdBy, conn})
-        .then((device) => {
+        .then((devices) => {
             const result = {
-                _data: device
+                _data: {devices}
             }
             next(result)
         })

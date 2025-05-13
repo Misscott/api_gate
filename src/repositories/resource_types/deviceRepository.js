@@ -64,6 +64,7 @@ const insertDeviceQuery = (description, image) =>{
         model, 
         brand, 
         description, 
+        image,
         created,
         createdBy
     )
