@@ -165,27 +165,35 @@ const updateCartItemsQuery = ({quantity}) => {
 }
 
 /**
- * Merges the cart items from two carts
+ * Merges the cart items from two carts (deletes the origin cart and limits quantity to max stock)
  * @returns cart 1 with all updated items from both carts
  */
 const mergeCartQuery = () => {
     return `
-        UPDATE 
-            mydb.cart_items ci1
-        JOIN 
-            mydb.cart_items ci2 ON ci1.product_id = ci2.product_id
+        UPDATE mydb.cart_items ci1
+        JOIN mydb.cart_items ci2 
+          ON ci1.product_id = ci2.product_id
+          AND ci1.fk_cart = (SELECT id FROM mydb.carts WHERE uuid = :to_cart_uuid)
+          AND ci2.fk_cart = (SELECT id FROM mydb.carts WHERE uuid = :from_cart_uuid)
+        JOIN mydb.users_has_devices uhd ON ci1.fk_user_device = uhd.id
         SET 
-            ci1.quantity = ci1.quantity + ci2.quantity
-        WHERE 
-            ci1.fk_cart = (SELECT id from mydb.carts WHERE uuid = :to_cart_uuid) 
-        AND 
-            ci2.fk_cart = (SELECT id from mydb.carts WHERE uuid = :from_cart_uuid);
+          ci1.quantity = LEAST(GREATEST(ci1.quantity, ci2.quantity), uhd.stock);
+
         UPDATE cart_items
         SET fk_cart = (SELECT id from mydb.carts WHERE uuid = :to_cart_uuid) 
         WHERE fk_cart = (SELECT id from mydb.carts WHERE uuid = :from_cart_uuid)
         AND fk_user_device NOT IN (
           SELECT fk_user_device FROM cart_items WHERE fk_cart = (SELECT id from mydb.carts WHERE uuid = :to_cart_uuid) 
         );
+
+        DELETE FROM mydb.cart_items
+        WHERE 
+            fk_cart = (SELECT id FROM mydb.carts WHERE uuid = :from_cart_uuid);
+
+        DELETE FROM mydb.carts
+        WHERE 
+            uuid = :from_cart_uuid;
+
         SELECT 
           carts.*,
           users.uuid AS user_uuid,

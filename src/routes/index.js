@@ -1381,6 +1381,7 @@ export default(config) => {
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
+    
 
     /**
      * @name GET/carts/:uuid
