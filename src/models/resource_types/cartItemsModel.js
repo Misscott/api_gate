@@ -7,7 +7,8 @@ import {
     insertCartItemsQuery,
     updateCartItemsQuery,
     deleteCartItemsQuery,
-    mergeCartQuery
+    mergeCartQuery,
+    syncCartQuery
 } from '../../repositories/resource_types/cartItemsRepository.js'
 import {error404} from '../../utils/errors.js'
 
@@ -17,7 +18,7 @@ const getCartItemsModel = ({conn, ...rest}) => {
 
     return mysql
         .execute(getCartItemsQuery(paramsToSearch), conn, paramsToSearch)
-        .then(queryResult => queryResult.map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(queryResult => queryResult.map(({id, fk_user, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 const countCartItemsModel = ({conn, ...rest}) => {  
@@ -39,12 +40,22 @@ const insertCartItemsModel = ({conn, ...params}) => {
         .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
+const syncCartModel = ({conn, ...params}) => {
+    const now = dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
+    const uuid = uuidv4()
+    const paramsToInsert = {...params, uuid, now, deleted: now}
+
+    return mysql
+        .execute(syncCartQuery(paramsToInsert), conn, paramsToInsert)
+        .then(queryResult => queryResult[3].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+}
+
 const mergeCartModel = ({conn, ...params}) => {
     const paramsToInsert = {...params}
 
     return mysql
         .execute(mergeCartQuery(paramsToInsert), conn, paramsToInsert)
-        .then(queryResult => queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(queryResult => queryResult[4].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 const updateCartItemsModel = ({conn, ...params}) => {
@@ -62,17 +73,10 @@ const updateCartItemsModel = ({conn, ...params}) => {
         })
 }
 
-const deleteCartItemsModel = ({conn, ...params}) => {
+const deleteCartItemsModel = ({conn, deleted, deletedBy, ...params}) => {
+    const deletedData = deleted ? dayjs.utc(deleted).format('YYYY-MM-DD HH:mm:ss') : dayjs.utc().format('YYYY-MM-DD HH:mm:ss')
     return mysql
-        .execute(deleteCartItemsQuery(params), conn, params)
-        .then(queryResult => {
-            const deletedItem = queryResult[1].find(item => item.deleted !== null);
-
-            if (deletedItem) {
-                throw error404()
-            }
-            return queryResult[1].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered)
-        })
+        .execute(deleteCartItemsQuery({ ...params, deleted: deletedData, deletedBy }), conn, { ...params, deleted: deletedData, deletedBy })
 }
 
 export {
@@ -81,5 +85,6 @@ export {
     insertCartItemsModel,
     updateCartItemsModel,
     deleteCartItemsModel,
-    mergeCartModel
+    mergeCartModel,
+    syncCartModel
 }

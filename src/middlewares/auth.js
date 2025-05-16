@@ -5,6 +5,24 @@ import { error404, errorHandler } from '../utils/errors.js';
 import { noResults } from '../validators/result-validators.js';
 import mysql from '../adapters/mysql.js';
 
+function conditionalAuthorize(path, fieldsToCheck = []) {
+    return (req, res, next) => {
+        const needsAuthorization = fieldsToCheck.some(field => req.body[field] !== undefined);
+
+        if (needsAuthorization) {
+            // if some of the fields is present, check auth
+            return authenticateToken(req, res, err => {
+                if (err) return next(err); //Invalid token
+                authorizePermission(path)(req, res, next, config);
+            }, config)
+        }
+
+        //continue without need for auth
+        return next();
+    };
+}
+
+
 const obtainToken = (req, res) => {
     return new Promise((resolve, reject) => {
         const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -102,5 +120,6 @@ export {
     authenticateToken,
     authorizePermission,
     setToken,
-    refreshAuthenticate
+    refreshAuthenticate,
+    conditionalAuthorize
 };

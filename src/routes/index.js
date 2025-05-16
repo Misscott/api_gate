@@ -19,7 +19,7 @@ import {
 import { boolean, decimal, integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
 import {payloadExpressValidator} from '../validators/expressValidator/payloadExpressValidator.js'
 import { error400, errorHandler } from '../utils/errors.js'
-import { authorizePermission, setToken, authenticateToken, refreshAuthenticate} from '../middlewares/auth.js'
+import { authorizePermission, setToken, authenticateToken, refreshAuthenticate, conditionalAuthorize} from '../middlewares/auth.js'
 import { postRegisterController } from '../controllers/authorization/registerController.js'
 import { postRefreshTokenController } from '../controllers/authorization/refreshTokenController.js'
 import { 
@@ -48,7 +48,7 @@ import mysql from '../adapters/mysql.js'
 import { hasChildrenValidator } from '../utils/hasChildrenValidator.js'
 import { getAvailableDevicesController } from '../controllers/resource_types/availableDevicesController.js'
 import { getCartController, getCartByUuidController, insertCartController, updateCartController, deleteCartController } from '../controllers/resource_types/cartsController.js'
-import { getCartItemsController, insertCartItemsController, updateCartItemsController, deleteCartItemsController, mergeCartController } from '../controllers/resource_types/cartItemsController.js'
+import { getCartItemsController, insertCartItemsController, updateCartItemsController, deleteCartItemsController, mergeCartController, syncCartController } from '../controllers/resource_types/cartItemsController.js'
 
 /**
  * @function default 
@@ -1363,7 +1363,7 @@ export default(config) => {
      * @group Carts - Operations about carts
      * @param {uuid} to_cart_uuid.path.required - The unique identifier for the destination cart
      * @param {uuid} from_cart_uuid.required - The unique identifier for the source cart
-     * @returns {SuccessResponse} 200 - Cart created successfully
+     * @returns {SuccessResponse} 201 - Cart created successfully
      * @returns {ErrorResponse} 400 - Bad request
      * @returns {ErrorResponse} 404 - Cart not found
      * @returns {ErrorResponse} 422 - Unprocessable entity
@@ -1381,6 +1381,34 @@ export default(config) => {
         (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
+
+    /**
+     * @name POST/carts/:to_cart_uuid/sync
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route POST /carts/:to_cart_uuid/sync
+     * @group Carts - Operations about carts
+     * @param {uuid} to_cart_uuid.path.required - The unique identifier for the destination cart
+     * @param {uuid} from_cart_uuid.required - The unique identifier for the source cart
+     * @returns {SuccessResponse} 201 - Cart created successfully
+     * @returns {ErrorResponse} 400 - Bad request
+     * @returns {ErrorResponse} 404 - Cart not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+     * */
+    routes.post(
+        '/carts/:to_cart_uuid/sync'
+        [
+            uuid('to_cart_uuid'),
+            uuid('from_cart_uuid')    
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => syncCartController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendCreatedResponse(result, req, res)
+    )
     
 
     /**
@@ -1468,8 +1496,7 @@ export default(config) => {
      * */
     routes.put(
         '/carts/:uuid',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/carts/:uuid')(req, res, next, config),
+        (req, res, next) => conditionalAuthorize('/carts/:uuid', ['user_uuid'])(req, res, next, config),
         [
             uuid('uuid'),
             uuid('user_uuid').optional({ nullable: true, values: 'falsy' }),

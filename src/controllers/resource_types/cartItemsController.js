@@ -8,7 +8,8 @@ import {
     insertCartItemsModel,
     updateCartItemsModel,
     deleteCartItemsModel,
-    mergeCartModel
+    mergeCartModel,
+    syncCartModel
  } from '../../models/resource_types/cartItemsModel.js'
 
 const getCartItemsController = (req, res, next, config) => {
@@ -90,6 +91,32 @@ const mergeCartController = (req, res, next, config) => {
         })
 }
 
+const syncCartController = (req, res, next, config) => {
+    const conn = mysql.start(config)
+
+    syncCartModel({...req.body, ...req.params, conn})
+        .then((cartItems) => {
+            if(noResults(cartItems)){
+                const err = error404()
+                const error = errorHandler(err, config.environment)
+                return sendResponseNotFound(res, error)
+            }
+
+            const result = {
+                _data : {cart_items: cartItems}
+            }
+
+            next(result)
+        })
+        .catch((err) => {
+            const error = errorHandler(err, config.environment)
+            res.status(error.code).json(error)
+        })
+        .finally(() => {
+            mysql.end(conn)
+        })
+}
+
 const updateCartItemsController = (req, res, next, config) => {
     const conn = mysql.start(config)
 
@@ -148,5 +175,6 @@ export {
     insertCartItemsController,
     updateCartItemsController,
     deleteCartItemsController,
-    mergeCartController
+    mergeCartController,
+    syncCartController
 }

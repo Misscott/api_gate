@@ -11,7 +11,7 @@ const _cartSelectQuery = (_pagination = '') =>
     ({count}) => 
         ({uuid, user_uuid, status, maxTotal, total, minTotal}) => {
             const uuidCondition = uuid ? 'AND carts.uuid = :uuid ' : ''
-            const user_uuidCondition = user_uuid ? 'AND CARTS.fk_user = (SELECT id FROM mydb.users WHERE uuid = :user_uuid) ' : ''
+            const user_uuidCondition = user_uuid ? 'AND carts.fk_user = (SELECT id FROM mydb.users WHERE uuid = :user_uuid) ' : ''
             const statusCondition = status ? 'AND carts.state = :status ' : ''
             const maxTotalCondition = maxTotal ? 'AND carts.total <= :total ' : ''
             const totalCondition = total ? 'AND carts.total = :total ' : ''
@@ -21,13 +21,24 @@ const _cartSelectQuery = (_pagination = '') =>
                     ${count || `carts.*,
                         items.uuid AS cart_item_uuid,
                         items.quantity AS cart_item_quantity,
-                        devices.uuid AS user_device_uuid`}
+                        user_devices.uuid AS user_device_uuid,
+                        devices.model as model,
+                        devices.brand as brand,
+                        devices.serial_number as serial_number,
+                        user_devices.stock as stock,
+                        user_devices.price as price,
+                        sellers.uuid AS seller_uuid,
+                        sellers.username AS seller_username`}
                 FROM
                     mydb.carts as carts
                 LEFT JOIN 
                     mydb.cart_items as items on items.fk_cart = carts.id
-                    LEFT JOIN 
-                    mydb.users_has_devices as devices on items.fk_user_device = devices.id
+                LEFT JOIN 
+                    mydb.users_has_devices as user_devices on items.fk_user_device = user_devices.id
+                LEFT JOIN
+                    mydb.devices as devices on user_devices.fk_device = devices.id
+                JOIN 
+                    mydb.users AS sellers ON items.fk_seller = sellers.id
                 WHERE
                     carts.created <= :now
                 AND
@@ -120,7 +131,7 @@ const updateCartQuery = ({status, total, user_uuid}) => {
           sellers.username AS seller_username
         FROM mydb.carts AS carts
         LEFT JOIN mydb.users AS users ON carts.fk_user = users.id
-        JOIN mydb.cart_items AS cart_items ON cart_items.fk_cart = carts.id
+        LEFT JOIN mydb.cart_items AS cart_items ON cart_items.fk_cart = carts.id
         JOIN mydb.devices AS devices ON cart_items.fk_device = devices.id
         JOIN mydb.users_has_devices AS users_has_devices ON cart_items.fk_user_device = users_has_devices.id
         JOIN mydb.users AS sellers ON cart_items.fk_seller = sellers.id
