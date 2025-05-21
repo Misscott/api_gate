@@ -23,9 +23,7 @@ const _deviceSelectQuery = (_pagination = '') =>
                 FROM
                     mydb.devices as devices
                 WHERE
-                    devices.created <= :now
-                AND
-                    (devices.deleted > :now OR devices.deleted IS NULL)
+                    devices.deleted IS NULL
                 AND
                     true
                     ${uuidCondition}

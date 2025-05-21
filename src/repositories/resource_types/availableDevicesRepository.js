@@ -31,8 +31,7 @@ const _deviceSelectQuery = (_pagination = '') =>
                     mydb.roles AS r
                     ON u.fk_role = r.id
                 WHERE
-                    devices.created <= NOW()
-                    AND (devices.deleted > NOW() OR devices.deleted IS NULL)
+                    devices.deleted IS NULL
                     AND ud.stock > 0
                     AND r.name = 'admin'
 

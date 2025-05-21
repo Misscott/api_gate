@@ -47,7 +47,7 @@ const syncCartModel = ({conn, ...params}) => {
 
     return mysql
         .execute(syncCartQuery(paramsToInsert), conn, paramsToInsert)
-        .then(queryResult => queryResult[3].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
+        .then(queryResult => queryResult[6].map(({id, created, deleted, createdBy, deletedBy, ...resultFiltered}) => resultFiltered))
 }
 
 const mergeCartModel = ({conn, ...params}) => {

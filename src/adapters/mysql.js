@@ -7,6 +7,7 @@ const mysqlAdapter = () => {
                 multipleStatements: true,
                 waitForConnections: true,
                 connectionLimit: 10,
+                database: 'mydb',
                 idleTimeout: 120000 //idle connections timeout, in milliseconds, the default value is 60000
             })
         )

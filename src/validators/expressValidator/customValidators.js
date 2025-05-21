@@ -12,12 +12,13 @@ const decimal = (field, integerLength = 10, decimalLength = 2) =>
 		return regex.test(value);
 	  })
 	  .withMessage(`|${field}| must be a decimal with up to ${integerLength} digits and ${decimalLength} decimal places`); 
-
+const array = field => check(field).isArray().withMessage(`|${field}| must be an array`)
 export {
 	integer,
 	uuid,
 	varChar,
 	bigInt,
 	decimal,
-	boolean
+	boolean,
+	array
 }

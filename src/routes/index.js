@@ -16,7 +16,7 @@ import {
 	sendOkResponse,
     sendResponseNoContent,
 } from '../utils/responses.js'
-import { boolean, decimal, integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
+import { array, boolean, decimal, integer, uuid, varChar} from '../validators/expressValidator/customValidators.js'
 import {payloadExpressValidator} from '../validators/expressValidator/payloadExpressValidator.js'
 import { error400, errorHandler } from '../utils/errors.js'
 import { authorizePermission, setToken, authenticateToken, refreshAuthenticate, conditionalAuthorize} from '../middlewares/auth.js'
@@ -101,7 +101,7 @@ export default(config) => {
     // Device routes
     /**
     * Gets all the devices from database that are for sale
-    * @name get/devices
+    * @name get/devices/forSale
     * @function
     * @inner
     * @memberof deviceRouter
@@ -1320,6 +1320,44 @@ export default(config) => {
 
     //Cart Routes
 
+     /**
+     * @name GET/carts/:cart_uuid/items
+     * @function
+     * @inner
+     * @memberof deviceRouter
+     * @route GET /carts/items
+     * @group Cart Items - Operations about cart items
+     * @param {string} uuid.path.optional - The unique identifier for the cart item
+     * @param {string} fk_cart.path.optional - The unique identifier for the cart
+     * @param {string} fk_device.path.optional - The unique identifier for the device
+     * @param {integer} stock.path.optional - The stock of the device
+     * @param {integer} quantity.path.optional - The quantity of the device
+     * @param {decimal} price.path.optional - The price of the device
+     * @returns {SuccessResponse} 200 - The cart item object
+     * @returns {ErrorResponse} 404 - Cart item not found
+     * @returns {ErrorResponse} 422 - Unprocessable entity
+     * @returns {ErrorResponse} 500 - Internal server error
+     * @returns {ErrorResponse} 403 - Forbidden
+     * @returns {ErrorResponse} 401 - Unauthorized
+    */
+     routes.get(
+        '/carts/items',
+        //(req, res, next) => authenticateToken(req, res, next, config),
+        //(req, res, next) => authorizePermission('/carts/items')(req, res, next, config),
+        [
+            uuid('cart_uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('seller_uuid').optional({ nullable: false, values: 'falsy' }),
+            uuid('device_uuid').optional({ nullable: false, values: 'falsy' }),
+            integer('stock').optional({ nullable: false, values: 'falsy' }),
+            integer('quantity').optional({ nullable: false, values: 'falsy' }),
+            decimal('price').optional({ nullable: false, values: 'falsy' })
+        ],
+        (req, res, next) => payloadExpressValidator(req, res, next, config),
+        (req, res, next) => getCartItemsController(req, res, next, config),
+        (result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+        (result, req, res, _) => sendOkResponse(result, req, res)
+    );
+
     /**
      * @name GET/carts
      * @function
@@ -1340,8 +1378,6 @@ export default(config) => {
     * */
     routes.get(
         '/carts',
-        (req, res, next) => authenticateToken(req, res, next, config),
-        (req, res, next) => authorizePermission('/carts')(req, res, next, config),
         [
             uuid('uuid').optional({ nullable: false, values: 'falsy' }),
             uuid('user_uuid').optional({ nullable: false, values: 'falsy' }),
@@ -1399,10 +1435,10 @@ export default(config) => {
      * @returns {ErrorResponse} 403 - Forbidden
      * */
     routes.post(
-        '/carts/:to_cart_uuid/sync'
+        '/carts/:to_cart_uuid/sync',
         [
             uuid('to_cart_uuid'),
-            uuid('from_cart_uuid')    
+            array('from_cart')    
         ],
         (req, res, next) => payloadExpressValidator(req, res, next, config),
         (req, res, next) => syncCartController(req, res, next, config),
@@ -1475,6 +1511,8 @@ export default(config) => {
         (result, req, res, _) => sendCreatedResponse(result, req, res)
     );
 
+    //routes.post('/checkout') WIP
+
     /**
      * @name PUT/carts/:uuid
      * @function
@@ -1494,7 +1532,7 @@ export default(config) => {
      * @returns {ErrorResponse} 500 - Internal server error
      * @returns {ErrorResponse} 403 - Forbidden
      * */
-    routes.put(
+    routes.post(
         '/carts/:uuid',
         (req, res, next) => conditionalAuthorize('/carts/:uuid', ['user_uuid'])(req, res, next, config),
         [
@@ -1541,6 +1579,7 @@ export default(config) => {
     );
 
     //Cart Items Routes
+    
     /**
      * @name GET/carts/:cart_uuid/items
      * @function

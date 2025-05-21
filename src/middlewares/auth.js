@@ -1,17 +1,17 @@
 import { sendResponseAccessDenied, sendResponseUnauthorized, sendResponseNotFound } from '../utils/responses.js';
 import { checkPermission, getDataFromToken, generateTokens} from '../services/authService.js';
 import { getRolesHasPermissionsModel } from '../models/authorization/roles_has_permissionsModel.js';
-import { error404, errorHandler } from '../utils/errors.js';
+import { error403, error404, errorHandler } from '../utils/errors.js';
 import { noResults } from '../validators/result-validators.js';
 import mysql from '../adapters/mysql.js';
 
 function conditionalAuthorize(path, fieldsToCheck = []) {
-    return (req, res, next) => {
+    return (req, res, next, config) => {
         const needsAuthorization = fieldsToCheck.some(field => req.body[field] !== undefined);
 
         if (needsAuthorization) {
             // if some of the fields is present, check auth
-            return authenticateToken(req, res, err => {
+            return authenticateToken(req, res, next, config, err => {
                 if (err) return next(err); //Invalid token
                 authorizePermission(path)(req, res, next, config);
             }, config)
@@ -22,6 +22,82 @@ function conditionalAuthorize(path, fieldsToCheck = []) {
     };
 }
 
+/**
+ * use conditional rule for required field for auth
+ * @param {Array} rules 
+ * example: 
+ * [
+ *  {
+ *      field: 'status', condition: value => ['CANCELLED', 'COMPLETED', 'PENDING'].includes(value)
+ *  },
+ * ]
+ */
+function payloadConditionCheck(rules = []) {
+    return (req, res, next, config) => {
+        const failedRule = rules.find(({ field, condition }) => {
+            const value = req.body[field];
+            return !condition(value);
+        });
+
+        if (failedRule) {
+            const { field, message = 'Forbidden' } = failedRule;
+            const err = error403();
+            const error = errorHandler(err, config);
+            return res.status(error.code).json({ error: message, field });
+        }
+
+        next();
+    };
+}
+
+/**
+ * use conditional rule for required field for auth promise based
+ * @param {Array} rules 
+ * example: 
+ * [
+ *  {
+ *      field: 'status', condition: value => ['CANCELLED', 'COMPLETED', 'PENDING'].includes(value)
+ *  },
+ * ]
+ */
+function payloadPromiseConditionCheck(rules = []) {
+    return (req, res, next, config) => {
+        //skip if there are no rules
+        if (rules.length === 0) {
+            return next();
+        }
+
+        rules.reduce((chain, rule) => {
+            return chain.then(() => {
+                const { field, condition, message = 'Forbidden' } = rule;
+                
+                return Promise.resolve()
+                    .then(() => condition(req, field))
+                    .then(isValid => {
+                        if (!isValid) {
+                            const err = error403();
+                            const error = errorHandler(err, config);
+                            
+                            res.status(error.code).json({ 
+                                error: message, 
+                                field 
+                            });
+                            
+                            return Promise.reject('Validation failed');
+                        }
+                    });
+            });
+        }, Promise.resolve())
+        .then(() => {
+            next();
+        })
+        .catch(err => {
+            if (err !== 'Validation failed') {
+                next(err);
+            }
+        });
+    };
+}
 
 const obtainToken = (req, res) => {
     return new Promise((resolve, reject) => {
@@ -121,5 +197,7 @@ export {
     authorizePermission,
     setToken,
     refreshAuthenticate,
-    conditionalAuthorize
+    conditionalAuthorize,
+    payloadConditionCheck,
+    payloadPromiseConditionCheck
 };

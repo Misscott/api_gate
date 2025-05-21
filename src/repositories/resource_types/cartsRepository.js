@@ -11,7 +11,7 @@ const _cartSelectQuery = (_pagination = '') =>
     ({count}) => 
         ({uuid, user_uuid, status, maxTotal, total, minTotal}) => {
             const uuidCondition = uuid ? 'AND carts.uuid = :uuid ' : ''
-            const user_uuidCondition = user_uuid ? 'AND carts.fk_user = (SELECT id FROM mydb.users WHERE uuid = :user_uuid) ' : ''
+            const user_uuidCondition = user_uuid ? 'AND carts.fk_user = (SELECT id FROM mydb.users WHERE uuid = :user_uuid)' : ''
             const statusCondition = status ? 'AND carts.state = :status ' : ''
             const maxTotalCondition = maxTotal ? 'AND carts.total <= :total ' : ''
             const totalCondition = total ? 'AND carts.total = :total ' : ''
@@ -21,10 +21,12 @@ const _cartSelectQuery = (_pagination = '') =>
                     ${count || `carts.*,
                         items.uuid AS cart_item_uuid,
                         items.quantity AS cart_item_quantity,
+                        items.item_price AS item_price,
                         user_devices.uuid AS user_device_uuid,
                         devices.model as model,
                         devices.brand as brand,
                         devices.serial_number as serial_number,
+                        devices.uuid as device_uuid,
                         user_devices.stock as stock,
                         user_devices.price as price,
                         sellers.uuid AS seller_uuid,
@@ -37,12 +39,10 @@ const _cartSelectQuery = (_pagination = '') =>
                     mydb.users_has_devices as user_devices on items.fk_user_device = user_devices.id
                 LEFT JOIN
                     mydb.devices as devices on user_devices.fk_device = devices.id
-                JOIN 
+                LEFT JOIN 
                     mydb.users AS sellers ON items.fk_seller = sellers.id
                 WHERE
-                    carts.created <= :now
-                AND
-                    (carts.deleted > :now OR carts.deleted IS NULL)
+                    carts.deleted IS NULL
                 AND
                     true
                     ${uuidCondition}
